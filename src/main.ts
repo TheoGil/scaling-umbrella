@@ -17,7 +17,7 @@ import { PARAMS } from "./params";
 import { drawCrossHair, divideIntoSegments } from "./utils";
 
 const pane = new Pane();
-
+const SEGMENT_THICKNESS = 10;
 const noise2D = createNoise2D();
 
 class TerrainChunk {
@@ -29,8 +29,8 @@ class TerrainChunk {
   bottom: number;
   width: number;
   height: number;
-  segments: [{ x: number; y: number }, { x: number; y: number }][] = [];
-  vertices: { x: number; y: number }[] = [];
+  segments: { position: Vector; angle: number; length: number }[] = [];
+  vertices: Vector[] = [];
 
   constructor(x: number, y: number) {
     this.x = this.left = x;
@@ -84,11 +84,18 @@ class TerrainChunk {
   initSegments() {
     this.segments = [];
     this.vertices.forEach((vertice, i) => {
-      if (i < this.vertices.length - 1) {
-        this.segments.push([vertice, this.vertices[i + 1]]);
-      } else {
-        this.segments.push([this.vertices[i - 1], vertice]);
-      }
+      const isLast = i === this.vertices.length - 1;
+      const from = isLast ? this.vertices[i - 1] : vertice;
+      const to = isLast ? vertice : this.vertices[i + 1];
+
+      const angle = Math.atan2(to.y - from.y, to.x - from.x);
+      const length = Math.hypot(from.x - to.x, from.y - to.y);
+
+      this.segments.push({
+        position: from,
+        angle: angle,
+        length: length,
+      });
     });
   }
 
@@ -130,8 +137,8 @@ class TerrainChunk {
 
     this.segments.forEach((segment, i) => {
       ctx.save();
-      const from = segment[0];
-      const to = segment[1];
+      const from = segment.position;
+
       ctx.fillStyle = `
         rgb(
           ${Math.random() * 255},
@@ -140,8 +147,8 @@ class TerrainChunk {
         )
       `;
       ctx.translate(from.x, from.y);
-      ctx.rotate(Math.atan2(to.y - from.y, to.x - from.x));
-      ctx.fillRect(0, 0, Math.hypot(from.x - to.x, from.y - to.y), 10);
+      ctx.rotate(segment.angle);
+      ctx.fillRect(0, 0, segment.length, SEGMENT_THICKNESS);
       ctx.restore();
     });
   }
@@ -164,7 +171,7 @@ class Game {
     window.addEventListener("resize", this.onResize);
 
     this.initTerrainChunks();
-    // this.initPhysics();
+    this.initPhysics();
 
     const f = pane
       .addFolder({
@@ -242,10 +249,10 @@ class Game {
 
     this.ctx.clearRect(0, 0, innerWidth, innerHeight);
 
-    const CHUNK_COUNT = 1;
+    const CHUNK_COUNT = 5;
 
-    let x = 500;
-    let y = 500;
+    let x = 0;
+    let y = 0;
 
     for (let i = 0; i < CHUNK_COUNT; i++) {
       const chunk = new TerrainChunk(x, y);
@@ -280,62 +287,26 @@ class Game {
 
     this.chunks.forEach((chunk) => {
       chunk.segments.forEach((segment) => {
-        const [from, to] = segment;
-        const SEGMENT_THICKNESS = 10;
-        const segmentWidth = Math.hypot(from.x - to.x, from.y - to.y);
-        const angle = Math.atan2(to.y - from.y, to.x - from.x);
-
-        const width = to.x - from.x;
-        const thickness = 10;
-
-        const topLeft = {
-          x: from.x,
-          y: from.y,
-        };
-        // const topRight = {
-        //   x: to.x,
-        //   y:
-        // };
-        const bottomLeft = {};
-        const bottomRight = {};
-
         const body = Bodies.rectangle(
-          from.x,
-          from.y,
-          segmentWidth,
+          segment.position.x + segment.length / 2,
+          segment.position.y + SEGMENT_THICKNESS / 2,
+          segment.length,
           SEGMENT_THICKNESS,
           {
             isStatic: true,
           }
         );
 
-        // Body.setCentre(
-        //   body,
-        //   {
-        //     x: -width / 2,
-        //     y: -thickness / 2,
-        //   },
-        //   true
-        // );
+        Body.setCentre(
+          body,
+          {
+            x: -segment.length / 2,
+            y: -SEGMENT_THICKNESS / 2,
+          },
+          true
+        );
 
-        // Body.translate(body, {
-        //   x: width / 2,
-        //   y: thickness / 2,
-        // });
-
-        // Body.setAngle(body, angle);
-
-        // Translate matter body so that its top left corner position matches
-        // const translation = Vector.neg(
-        //   Vector.sub(body.bounds.min, body.position)
-        // );
-
-        // Body.translate(body, translation);
-
-        // Body.translate(body, {
-        //   x: segmentWidth * Math.cos(angle),
-        //   y: SEGMENT_THICKNESS * Math.sin(angle),
-        // });
+        Body.setAngle(body, segment.angle);
 
         Composite.add(world, [body]);
       });
