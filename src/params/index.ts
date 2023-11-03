@@ -13,6 +13,7 @@ const PARAMS = {
       amplitude: 75,
       frequency: 0.002,
     },
+    thickness: 10,
   },
 };
 
