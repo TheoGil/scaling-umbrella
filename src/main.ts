@@ -3,7 +3,15 @@ import "./style.css";
 import { createNoise2D } from "simplex-noise";
 import { Pane } from "tweakpane";
 import { degToRad, randomFloat } from "math-toolbox";
-import { Engine, Render, Runner, Composite, Bodies } from "matter-js";
+import {
+  Engine,
+  Render,
+  Runner,
+  Composite,
+  Bodies,
+  Body,
+  Vector,
+} from "matter-js";
 
 import { PARAMS } from "./params";
 import { drawCrossHair, divideIntoSegments } from "./utils";
@@ -101,7 +109,7 @@ class TerrainChunk {
 
     // Render slope
     ctx.beginPath();
-    ctx.strokeStyle = "rgba(0, 0, 0, 1)";
+    ctx.strokeStyle = "rgba(0, 0, 255, 1)";
     this.vertices.forEach(({ x, y }, i) => {
       if (i === 0) {
         ctx.moveTo(x, y);
@@ -155,8 +163,8 @@ class Game {
 
     window.addEventListener("resize", this.onResize);
 
-    // this.initPhysics();
     this.initTerrainChunks();
+    // this.initPhysics();
 
     const f = pane
       .addFolder({
@@ -234,10 +242,10 @@ class Game {
 
     this.ctx.clearRect(0, 0, innerWidth, innerHeight);
 
-    const CHUNK_COUNT = 5;
+    const CHUNK_COUNT = 1;
 
-    let x = 0;
-    let y = 0;
+    let x = 500;
+    let y = 500;
 
     for (let i = 0; i < CHUNK_COUNT; i++) {
       const chunk = new TerrainChunk(x, y);
@@ -259,6 +267,7 @@ class Game {
       element: document.body,
       engine: engine,
       options: {
+        background: "#ff00ff",
         width: window.innerWidth,
         height: window.innerHeight,
         showAngleIndicator: true,
@@ -270,12 +279,66 @@ class Game {
     Runner.run(runner, engine);
 
     this.chunks.forEach((chunk) => {
-      // Composite.add(world, [
-      //   Bodies.rectangle(200, 150, 700, 20, {
-      //     isStatic: true,
-      //     angle: Math.PI * 0.06,
-      //   }),
-      // ]);
+      chunk.segments.forEach((segment) => {
+        const [from, to] = segment;
+        const SEGMENT_THICKNESS = 10;
+        const segmentWidth = Math.hypot(from.x - to.x, from.y - to.y);
+        const angle = Math.atan2(to.y - from.y, to.x - from.x);
+
+        const width = to.x - from.x;
+        const thickness = 10;
+
+        const topLeft = {
+          x: from.x,
+          y: from.y,
+        };
+        // const topRight = {
+        //   x: to.x,
+        //   y:
+        // };
+        const bottomLeft = {};
+        const bottomRight = {};
+
+        const body = Bodies.rectangle(
+          from.x,
+          from.y,
+          segmentWidth,
+          SEGMENT_THICKNESS,
+          {
+            isStatic: true,
+          }
+        );
+
+        // Body.setCentre(
+        //   body,
+        //   {
+        //     x: -width / 2,
+        //     y: -thickness / 2,
+        //   },
+        //   true
+        // );
+
+        // Body.translate(body, {
+        //   x: width / 2,
+        //   y: thickness / 2,
+        // });
+
+        // Body.setAngle(body, angle);
+
+        // Translate matter body so that its top left corner position matches
+        // const translation = Vector.neg(
+        //   Vector.sub(body.bounds.min, body.position)
+        // );
+
+        // Body.translate(body, translation);
+
+        // Body.translate(body, {
+        //   x: segmentWidth * Math.cos(angle),
+        //   y: SEGMENT_THICKNESS * Math.sin(angle),
+        // });
+
+        Composite.add(world, [body]);
+      });
     });
   }
 }

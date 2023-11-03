@@ -6,7 +6,7 @@ const PARAMS = {
     },
     diagonal: {
       min: 100,
-      max: 500,
+      max: 1000,
     },
     subdivisions: 10,
     noise: {
