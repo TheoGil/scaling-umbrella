@@ -17,7 +17,7 @@ import { PARAMS } from "./params";
 import { drawCrossHair, divideIntoSegments } from "./utils";
 
 const pane = new Pane();
-const SEGMENT_THICKNESS = 10;
+const SEGMENT_THICKNESS = 50;
 const noise2D = createNoise2D();
 
 class TerrainChunk {
@@ -158,6 +158,8 @@ class Game {
   canvasEl: HTMLCanvasElement;
   ctx: CanvasRenderingContext2D;
   chunks: TerrainChunk[] = [];
+  bodies: Body[] = [];
+  engine: Engine;
 
   constructor() {
     this.onResize = this.onResize.bind(this);
@@ -172,6 +174,7 @@ class Game {
 
     this.initTerrainChunks();
     this.initPhysics();
+    this.initPhysicsBodies();
 
     const f = pane
       .addFolder({
@@ -179,6 +182,7 @@ class Game {
       })
       .on("change", () => {
         this.initTerrainChunks();
+        this.initPhysicsBodies();
       });
 
     const angleFolder = f.addFolder({
@@ -236,6 +240,7 @@ class Game {
       title: "Redraw",
     }).on("click", () => {
       this.initTerrainChunks();
+      this.initPhysicsBodies();
     });
   }
 
@@ -266,24 +271,27 @@ class Game {
   }
 
   initPhysics() {
-    const engine = Engine.create();
-
-    const world = engine.world;
+    this.engine = Engine.create();
 
     const render = Render.create({
       element: document.body,
-      engine: engine,
+      engine: this.engine,
       options: {
         background: "#ff00ff",
         width: window.innerWidth,
         height: window.innerHeight,
-        showAngleIndicator: true,
+        showDebug: true,
       },
     });
     Render.run(render);
 
     const runner = Runner.create();
-    Runner.run(runner, engine);
+    Runner.run(runner, this.engine);
+  }
+
+  initPhysicsBodies() {
+    Composite.remove(this.engine.world, this.bodies);
+    this.bodies = [];
 
     this.chunks.forEach((chunk) => {
       chunk.segments.forEach((segment) => {
@@ -308,7 +316,9 @@ class Game {
 
         Body.setAngle(body, segment.angle);
 
-        Composite.add(world, [body]);
+        Composite.add(this.engine.world, [body]);
+
+        this.bodies.push(body);
       });
     });
   }
