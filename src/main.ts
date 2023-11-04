@@ -1,6 +1,6 @@
 import "./style.css";
 
-import { AUTO, Scale, Game } from "phaser";
+import { AUTO, Scale, Game, Input } from "phaser";
 import { Pane } from "tweakpane";
 
 import { TerrainChunk } from "./modules";
@@ -9,25 +9,55 @@ import { PARAMS } from "./params";
 class PrototypeScene extends Phaser.Scene {
   chunks: TerrainChunk[] = [];
   bodies: [] = [];
+  player: any;
+  spacebar?: Input.Keyboard.Key;
 
   constructor() {
     super("PrototypeScene");
   }
 
   create() {
+    this.spacebar = this.input.keyboard?.addKey(
+      Phaser.Input.Keyboard.KeyCodes.SPACE
+    );
+
     this.initTerrainChunks();
     this.initDebug();
+    this.initPlayer();
+  }
+
+  update() {
+    // Update camera scroll to follow player
+    this.cameras.main.setScroll(
+      this.player.position.x - this.scale.width / 2 + PARAMS.camera.offset.x,
+      this.player.position.y - this.scale.height / 2 + PARAMS.camera.offset.y
+    );
+
+    // Set player velocity
+    this.matter.body.setVelocity(this.player, {
+      x: PARAMS.player.velocity.x,
+      y: this.player.velocity.y,
+    });
+
+    // Prevent player from rotating
+    this.matter.body.setAngularVelocity(this.player, 0);
+
+    // Jump logic
+    if (this.spacebar && Input.Keyboard.JustDown(this.spacebar)) {
+      this.matter.body.setVelocity(this.player, {
+        x: this.player.velocity.x,
+        y: PARAMS.player.velocity.jump,
+      });
+    }
   }
 
   initTerrainChunks() {
     this.chunks = [];
 
-    const CHUNK_COUNT = 5;
-
     let x = 0;
     let y = 0;
 
-    for (let i = 0; i < CHUNK_COUNT; i++) {
+    for (let i = 0; i < PARAMS.chunks.count; i++) {
       const chunk = new TerrainChunk(x, y, this);
 
       this.chunks.push(chunk);
@@ -37,26 +67,61 @@ class PrototypeScene extends Phaser.Scene {
     }
   }
 
-  resetTerrainChunks() {
+  reset() {
+    // Clean previous terrain chunks
     this.chunks.forEach((chunk) => {
       chunk.destroy();
     });
     this.chunks = [];
+
+    // Build new terrain chunks
     this.initTerrainChunks();
+
+    // Reset player position and velocity
+    this.matter.body.setPosition(
+      this.player,
+      {
+        x: PARAMS.player.startPosition.x,
+        y: PARAMS.player.startPosition.y,
+      },
+      false
+    );
+    this.matter.body.setVelocity(this.player, {
+      x: 0,
+      y: 0,
+    });
+  }
+
+  initPlayer() {
+    this.player = this.matter.add.rectangle(
+      PARAMS.player.startPosition.x,
+      PARAMS.player.startPosition.y,
+      PARAMS.player.width,
+      PARAMS.player.height,
+      {
+        chamfer: PARAMS.player.chamfer,
+        friction: PARAMS.player.friction,
+      }
+    );
   }
 
   initDebug() {
     const pane = new Pane();
 
-    const f = pane
+    /**
+     * TERRAIN CHUNKS
+     */
+
+    const chunksFolder = pane
       .addFolder({
-        title: "Chunks",
+        title: "Terrain chunks",
+        expanded: false,
       })
       .on("change", () => {
-        this.resetTerrainChunks();
+        this.reset();
       });
 
-    const angleFolder = f.addFolder({
+    const angleFolder = chunksFolder.addFolder({
       title: "Angle",
     });
     angleFolder.addBinding(PARAMS.chunks.angle, "min", {
@@ -70,7 +135,7 @@ class PrototypeScene extends Phaser.Scene {
       step: 1,
     });
 
-    const diagonalFolder = f.addFolder({
+    const diagonalFolder = chunksFolder.addFolder({
       title: "Diagonal",
     });
 
@@ -85,13 +150,7 @@ class PrototypeScene extends Phaser.Scene {
       step: 1,
     });
 
-    f.addBinding(PARAMS.chunks, "subdivisions", {
-      min: 10,
-      max: 100,
-      step: 1,
-    });
-
-    const noiseFolder = f.addFolder({
+    const noiseFolder = chunksFolder.addFolder({
       title: "Noise",
     });
 
@@ -107,10 +166,62 @@ class PrototypeScene extends Phaser.Scene {
       step: 0.0001,
     });
 
-    f.addButton({
-      title: "Redraw",
-    }).on("click", () => {
-      this.resetTerrainChunks();
+    chunksFolder.addBinding(PARAMS.chunks, "subdivisions", {
+      min: 10,
+      max: 100,
+      step: 1,
+    });
+
+    chunksFolder.addBinding(PARAMS.chunks, "count", {
+      min: 1,
+      max: 100,
+      step: 1,
+    });
+
+    chunksFolder
+      .addButton({
+        title: "Redraw",
+      })
+      .on("click", () => {
+        this.reset();
+      });
+
+    /**
+     * CAMERA
+     */
+
+    const cameraFolder = pane.addFolder({
+      title: "Camera",
+      expanded: false,
+    });
+
+    const cameraOffsetFolder = cameraFolder.addFolder({
+      title: "Offset",
+    });
+
+    cameraOffsetFolder.addBinding(PARAMS.camera.offset, "x", {
+      step: 10,
+    });
+    cameraOffsetFolder.addBinding(PARAMS.camera.offset, "y", {
+      step: 10,
+    });
+
+    /**
+     * PLAYER
+     */
+
+    const playerFolder = pane.addFolder({
+      title: "Player",
+      expanded: false,
+    });
+
+    const playerVelocityFolder = playerFolder.addFolder({
+      title: "Velocity",
+    });
+
+    playerVelocityFolder.addBinding(PARAMS.player.velocity, "x", {
+      min: 0,
+      max: 10,
     });
   }
 }

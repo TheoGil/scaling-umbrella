@@ -1,10 +1,10 @@
 import { degToRad, randomFloat } from "math-toolbox";
 import { Vector } from "matter-js";
 import { createNoise2D } from "simplex-noise";
+import { Scene, Types, Math as PhaserMath } from "phaser";
 
 import { PARAMS } from "../params";
 import { divideIntoSegments } from "../utils";
-import { Scene, Types } from "phaser";
 
 const noise2D = createNoise2D();
 
