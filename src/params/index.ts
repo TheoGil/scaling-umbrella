@@ -11,7 +11,7 @@ const PARAMS = {
     },
     subdivisions: 5,
     noise: {
-      amplitude: 75,
+      amplitude: 30,
       frequency: 0.002,
     },
     thickness: 10,
@@ -24,8 +24,8 @@ const PARAMS = {
   },
   player: {
     velocity: {
-      x: 5,
-      jump: -5,
+      x: 7.5,
+      jump: -6,
     },
     width: 50,
     height: 25,
@@ -39,7 +39,7 @@ const PARAMS = {
       width: 2,
       height: 200,
     },
-    terrainRotationLerp: 0.1,
+    terrainRotationLerp: 0.25,
   },
 };
 

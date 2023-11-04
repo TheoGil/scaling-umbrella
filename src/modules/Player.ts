@@ -30,7 +30,8 @@ class Player {
           radius: PARAMS.player.chamfer,
         },
         friction: PARAMS.player.friction,
-        isStatic: true,
+        isStatic: false,
+        label: "player-body",
       }
     );
 
@@ -57,6 +58,7 @@ class Player {
       PARAMS.player.groundSensor.height,
       {
         isSensor: true,
+        isStatic: false,
         label: TERRAIN_ANGLE_SENSOR_LABEL,
       }
     );
@@ -93,6 +95,9 @@ class Player {
   }
 
   update() {
+    // Prevent player from rotating
+    this.scene.matter.body.setAngularVelocity(this.physicsBody, 0);
+
     // Update camera scroll to follow player
     this.scene.cameras.main.setScroll(
       this.physicsBody.position.x -
@@ -138,6 +143,10 @@ class Player {
       },
       false
     );
+    this.scene.matter.body.setVelocity(this.terrainAngleSensor, {
+      x: 0,
+      y: 0,
+    });
   }
 
   reset() {
