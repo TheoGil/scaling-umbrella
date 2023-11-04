@@ -35,6 +35,10 @@ const PARAMS = {
       x: 100,
       y: -100,
     },
+    groundSensor: {
+      width: 2,
+      height: 200,
+    },
   },
 };
 

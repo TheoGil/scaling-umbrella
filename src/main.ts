@@ -3,7 +3,7 @@ import "./style.css";
 import { AUTO, Scale, Game, Input } from "phaser";
 import { Pane } from "tweakpane";
 
-import { TerrainChunk } from "./modules";
+import { TerrainChunk, Player } from "./modules";
 import { PARAMS } from "./params";
 
 class PrototypeScene extends Phaser.Scene {
@@ -27,28 +27,10 @@ class PrototypeScene extends Phaser.Scene {
   }
 
   update() {
-    // Update camera scroll to follow player
-    this.cameras.main.setScroll(
-      this.player.position.x - this.scale.width / 2 + PARAMS.camera.offset.x,
-      this.player.position.y - this.scale.height / 2 + PARAMS.camera.offset.y
-    );
-
-    // Set player velocity
-    this.matter.body.setVelocity(this.player, {
-      x: PARAMS.player.velocity.x,
-      y: this.player.velocity.y,
-    });
+    this.player.update();
 
     // Prevent player from rotating
     this.matter.body.setAngularVelocity(this.player, 0);
-
-    // Jump logic
-    if (this.spacebar && Input.Keyboard.JustDown(this.spacebar)) {
-      this.matter.body.setVelocity(this.player, {
-        x: this.player.velocity.x,
-        y: PARAMS.player.velocity.jump,
-      });
-    }
   }
 
   initTerrainChunks() {
@@ -78,31 +60,11 @@ class PrototypeScene extends Phaser.Scene {
     this.initTerrainChunks();
 
     // Reset player position and velocity
-    this.matter.body.setPosition(
-      this.player,
-      {
-        x: PARAMS.player.startPosition.x,
-        y: PARAMS.player.startPosition.y,
-      },
-      false
-    );
-    this.matter.body.setVelocity(this.player, {
-      x: 0,
-      y: 0,
-    });
+    this.player.reset();
   }
 
   initPlayer() {
-    this.player = this.matter.add.rectangle(
-      PARAMS.player.startPosition.x,
-      PARAMS.player.startPosition.y,
-      PARAMS.player.width,
-      PARAMS.player.height,
-      {
-        chamfer: PARAMS.player.chamfer,
-        friction: PARAMS.player.friction,
-      }
-    );
+    this.player = new Player(this);
   }
 
   initDebug() {
@@ -242,3 +204,5 @@ new Game({
   },
   scene: PrototypeScene,
 });
+
+export { PrototypeScene };

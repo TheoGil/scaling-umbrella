@@ -1,10 +1,12 @@
 import { degToRad, randomFloat } from "math-toolbox";
 import { Vector } from "matter-js";
 import { createNoise2D } from "simplex-noise";
-import { Scene, Types, Math as PhaserMath } from "phaser";
+import { Scene, Types } from "phaser";
 
 import { PARAMS } from "../params";
 import { divideIntoSegments } from "../utils";
+
+const TERRAIN_CHUNK_PHYSICS_BODY_LABEL = "terrain-chunk";
 
 const noise2D = createNoise2D();
 
@@ -100,6 +102,7 @@ class TerrainChunk {
         PARAMS.chunks.thickness,
         {
           isStatic: true,
+          label: TERRAIN_CHUNK_PHYSICS_BODY_LABEL,
         }
       );
 
@@ -125,4 +128,4 @@ class TerrainChunk {
   }
 }
 
-export { TerrainChunk };
+export { TerrainChunk, TERRAIN_CHUNK_PHYSICS_BODY_LABEL };
