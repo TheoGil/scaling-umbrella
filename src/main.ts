@@ -2,6 +2,7 @@ import "./style.css";
 
 import { AUTO, Scale, Game, Input } from "phaser";
 import { Pane } from "tweakpane";
+import PhaserMatterCollisionPlugin from "phaser-matter-collision-plugin";
 
 import { TerrainChunk, Player } from "./modules";
 import { PARAMS } from "./params";
@@ -69,6 +70,14 @@ class PrototypeScene extends Phaser.Scene {
 
   initDebug() {
     const pane = new Pane();
+
+    pane
+      .addButton({
+        title: "RESTART",
+      })
+      .on("click", () => {
+        this.reset();
+      });
 
     /**
      * TERRAIN CHUNKS
@@ -140,14 +149,6 @@ class PrototypeScene extends Phaser.Scene {
       step: 1,
     });
 
-    chunksFolder
-      .addButton({
-        title: "Redraw",
-      })
-      .on("click", () => {
-        this.reset();
-      });
-
     /**
      * CAMERA
      */
@@ -203,6 +204,15 @@ new Game({
     },
   },
   scene: PrototypeScene,
+  plugins: {
+    scene: [
+      {
+        plugin: PhaserMatterCollisionPlugin, // The plugin class
+        key: "matterCollision", // Where to store in Scene.Systems, e.g. scene.sys.matterCollision
+        mapping: "matterCollision", // Where to store in the Scene, e.g. scene.matterCollision
+      },
+    ],
+  },
 });
 
 export { PrototypeScene };

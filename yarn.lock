@@ -165,6 +165,11 @@ nanoid@^3.3.6:
   resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-3.3.6.tgz#443380c856d6e9f9824267d960b4236ad583ea4c"
   integrity sha512-BGcqMMJuToF7i1rt+2PWSNVnWIkGCU78jBG3RxO/bZlnZPK2Cmi2QaffxGO/2RvWi9sL+FAiRiXMgsyxQ1DIDA==
 
+phaser-matter-collision-plugin@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/phaser-matter-collision-plugin/-/phaser-matter-collision-plugin-1.0.0.tgz#de6da670662b1d507857db02d0961356c5037e74"
+  integrity sha512-8ihbK5tPmMzpLSbJkrnyPKNZT/TyhN2bjHtthTl2cmTCiJpY6Ih7SZf1Kb6zWtUD8kWlllPrBktF1CcwmMvc0w==
+
 phaser@^3.60.0:
   version "3.60.0"
   resolved "https://registry.yarnpkg.com/phaser/-/phaser-3.60.0.tgz#8a555623e64c707482e6321485b4bda84604590d"

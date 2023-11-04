@@ -1,40 +1,62 @@
-import { Input } from "phaser";
+import { Input, Math as PhaserMath } from "phaser";
 
 import { PARAMS } from "../params";
 import { PrototypeScene } from "../main";
 import { TERRAIN_CHUNK_PHYSICS_BODY_LABEL } from ".";
 
-const GROUND_SENSOR_PHYSICS_BODY_LABEL = "ground-sensor";
+const TERRAIN_ANGLE_SENSOR_LABEL = "terrain-rotation-sensor";
 
 class Player {
   scene: PrototypeScene;
   physicsBody: MatterJS.BodyType;
+  terrainAngleSensor: MatterJS.BodyType;
   groundSensor: MatterJS.BodyType;
+  isGrounded = false;
 
   constructor(scene: PrototypeScene) {
-    this.onCollisionStart = this.onCollisionStart.bind(this);
-
     this.scene = scene;
 
-    this.physicsBody = this.scene.matter.add.rectangle(
+    // Native Matter modules (for brevity)
+    const { bodies, body } = this.scene.matter;
+
+    const playerBody = bodies.rectangle(
       PARAMS.player.startPosition.x,
       PARAMS.player.startPosition.y,
       PARAMS.player.width,
       PARAMS.player.height,
       {
-        chamfer: PARAMS.player.chamfer,
+        chamfer: {
+          radius: PARAMS.player.chamfer,
+        },
         friction: PARAMS.player.friction,
+        isStatic: true,
       }
     );
 
-    this.groundSensor = this.scene.matter.add.rectangle(
+    this.groundSensor = bodies.rectangle(
+      playerBody.position.x,
+      playerBody.position.y + PARAMS.player.height / 2,
+      PARAMS.player.width * 1.25,
+      10,
+      {
+        isSensor: true,
+      }
+    );
+
+    this.physicsBody = body.create({
+      parts: [playerBody, this.groundSensor],
+    });
+
+    this.scene.matter.world.add(this.physicsBody);
+
+    this.terrainAngleSensor = this.scene.matter.add.rectangle(
       PARAMS.player.startPosition.x,
       PARAMS.player.startPosition.y,
       PARAMS.player.groundSensor.width,
       PARAMS.player.groundSensor.height,
       {
         isSensor: true,
-        label: GROUND_SENSOR_PHYSICS_BODY_LABEL,
+        label: TERRAIN_ANGLE_SENSOR_LABEL,
       }
     );
 
@@ -50,7 +72,23 @@ class Player {
     //   );
     // });
 
-    this.scene.matter.world.on("collisionstart", this.onCollisionStart);
+    this.scene.matterCollision.addOnCollideStart({
+      objectA: [this.terrainAngleSensor],
+      callback: this.onTerrainAngleSensorCollision,
+      context: this,
+    });
+
+    this.scene.matterCollision.addOnCollideStart({
+      objectA: [this.groundSensor],
+      callback: this.onGroundSensorCollisionStart,
+      context: this,
+    });
+
+    this.scene.matterCollision.addOnCollideEnd({
+      objectA: [this.groundSensor],
+      callback: this.onGroundSensorCollisionStop,
+      context: this,
+    });
   }
 
   update() {
@@ -71,7 +109,11 @@ class Player {
     });
 
     // Jump logic
-    if (this.scene.spacebar && Input.Keyboard.JustDown(this.scene.spacebar)) {
+    if (
+      this.scene.spacebar &&
+      this.isGrounded &&
+      Input.Keyboard.JustDown(this.scene.spacebar)
+    ) {
       this.scene.matter.body.setVelocity(this.physicsBody, {
         x: this.physicsBody.velocity.x,
         y: PARAMS.player.velocity.jump,
@@ -80,7 +122,7 @@ class Player {
 
     // Move ground sensor to player position
     this.scene.matter.body.setPosition(
-      this.groundSensor,
+      this.terrainAngleSensor,
       {
         x: this.physicsBody.position.x,
         y: this.physicsBody.position.y + PARAMS.player.groundSensor.height / 2,
@@ -105,28 +147,51 @@ class Player {
     });
   }
 
-  onCollisionStart(
-    _event: unknown,
-    bodyA: MatterJS.BodyType,
-    bodyB: MatterJS.BodyType
-  ) {
-    // Check if one of the bodies is sensor and the other one is terrain and vice versa
-    const sensorCollidesWithTerrain =
-      (bodyA.label === GROUND_SENSOR_PHYSICS_BODY_LABEL &&
-        bodyB.label === TERRAIN_CHUNK_PHYSICS_BODY_LABEL) ||
-      (bodyB.label === GROUND_SENSOR_PHYSICS_BODY_LABEL &&
-        bodyA.label === TERRAIN_CHUNK_PHYSICS_BODY_LABEL);
+  onTerrainAngleSensorCollision({
+    bodyA: _sensor,
+    bodyB: terrain,
+  }: {
+    bodyA: MatterJS.BodyType;
+    bodyB: MatterJS.BodyType;
+  }) {
+    if (terrain.label === TERRAIN_CHUNK_PHYSICS_BODY_LABEL) {
+      // Lerping feels weird... IDK what's going on...
+      //   const playerBodyAngle = PhaserMath.Linear(
+      //     this.physicsBody.angle,
+      //     terrain.angle,
+      //     PARAMS.player.terrainRotationLerp
+      //   );
 
-    // If sensor collides with terrain, set player angle to terrain angle
-    if (sensorCollidesWithTerrain) {
-      const terrainBody =
-        bodyA.label === TERRAIN_CHUNK_PHYSICS_BODY_LABEL ? bodyA : bodyB;
+      //   this.scene.matter.body.setAngle(this.physicsBody, playerBodyAngle, false);
 
-      this.scene.matter.body.setAngle(
-        this.physicsBody,
-        terrainBody.angle,
-        false
-      );
+      this.scene.matter.body.setAngle(this.physicsBody, terrain.angle, false);
+    }
+  }
+
+  onGroundSensorCollisionStart({
+    bodyA: _sensor,
+    bodyB: terrain,
+  }: {
+    bodyA: MatterJS.BodyType;
+    bodyB: MatterJS.BodyType;
+  }) {
+    if (
+      !this.isGrounded &&
+      terrain.label === TERRAIN_CHUNK_PHYSICS_BODY_LABEL
+    ) {
+      this.isGrounded = true;
+    }
+  }
+
+  onGroundSensorCollisionStop({
+    bodyA: _sensor,
+    bodyB: terrain,
+  }: {
+    bodyA: MatterJS.BodyType;
+    bodyB: MatterJS.BodyType;
+  }) {
+    if (this.isGrounded && terrain.label === TERRAIN_CHUNK_PHYSICS_BODY_LABEL) {
+      this.isGrounded = false;
     }
   }
 }

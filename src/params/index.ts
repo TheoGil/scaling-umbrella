@@ -1,6 +1,6 @@
 const PARAMS = {
   chunks: {
-    count: 20,
+    count: 50,
     angle: {
       min: 0,
       max: 30,
@@ -29,7 +29,7 @@ const PARAMS = {
     },
     width: 50,
     height: 25,
-    chamfer: 5,
+    chamfer: 10,
     friction: 0,
     startPosition: {
       x: 100,
@@ -39,6 +39,7 @@ const PARAMS = {
       width: 2,
       height: 200,
     },
+    terrainRotationLerp: 0.1,
   },
 };
 

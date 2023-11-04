@@ -16,6 +16,7 @@
     "math-toolbox": "^1.12.0",
     "matter-js": "^0.19.0",
     "phaser": "^3.60.0",
+    "phaser-matter-collision-plugin": "^1.0.0",
     "planck": "^1.0.0-beta.16",
     "simplex-noise": "^4.0.1",
     "tweakpane": "^4.0.1"
