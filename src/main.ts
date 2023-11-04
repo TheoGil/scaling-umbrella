@@ -186,6 +186,11 @@ class PrototypeScene extends Phaser.Scene {
       min: 0,
       max: 10,
     });
+
+    playerVelocityFolder.addBinding(PARAMS.player.velocity, "jump", {
+      min: -10,
+      max: 0,
+    });
   }
 }
 

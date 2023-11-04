@@ -9,6 +9,7 @@ const TERRAIN_ANGLE_SENSOR_LABEL = "terrain-rotation-sensor";
 class Player {
   scene: PrototypeScene;
   physicsBody: MatterJS.BodyType;
+  terrainAngleSensorNose: MatterJS.BodyType;
   terrainAngleSensor: MatterJS.BodyType;
   groundSensor: MatterJS.BodyType;
   isGrounded = false;
