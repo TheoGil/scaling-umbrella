@@ -1,10 +1,11 @@
 import { degToRad, randomFloat } from "math-toolbox";
 import { Vector } from "matter-js";
 import { createNoise2D } from "simplex-noise";
-import { Scene, Types } from "phaser";
+import { Types } from "phaser";
 
 import { PARAMS } from "../params";
 import { divideIntoSegments } from "../utils";
+import { PrototypeScene } from "../main";
 
 const TERRAIN_CHUNK_PHYSICS_BODY_LABEL = "terrain-chunk";
 
@@ -21,10 +22,10 @@ class TerrainChunk {
   height: number;
   segments: { position: Vector; angle: number; length: number }[] = [];
   vertices: Vector[] = [];
-  scene: Scene;
+  scene: PrototypeScene;
   bodies: Types.Physics.Matter.MatterBody[] = [];
 
-  constructor(x: number, y: number, scene: Scene) {
+  constructor(x: number, y: number, scene: PrototypeScene) {
     this.x = this.left = x;
     this.y = this.top = y;
     this.scene = scene;
@@ -47,6 +48,20 @@ class TerrainChunk {
     this.initVertices();
     this.initSegments();
     this.initPhysics();
+
+    this.scene.graphics.lineStyle(1, 0x00ff00, 0.1);
+    this.scene.graphics.strokeRect(
+      this.left,
+      this.top,
+      this.width,
+      this.height
+    );
+    this.scene.graphics.lineBetween(
+      this.left,
+      this.top,
+      this.right,
+      this.bottom
+    );
   }
 
   initVertices() {

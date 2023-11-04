@@ -1,6 +1,6 @@
 import "./style.css";
 
-import { AUTO, Scale, Game, Input } from "phaser";
+import { AUTO, Scale, Game, Input, GameObjects } from "phaser";
 import { Pane } from "tweakpane";
 import PhaserMatterCollisionPlugin from "phaser-matter-collision-plugin";
 
@@ -12,12 +12,14 @@ class PrototypeScene extends Phaser.Scene {
   bodies: [] = [];
   player: any;
   spacebar?: Input.Keyboard.Key;
+  graphics!: GameObjects.Graphics;
 
   constructor() {
     super("PrototypeScene");
   }
 
   create() {
+    this.graphics = this.add.graphics();
     this.spacebar = this.input.keyboard?.addKey(
       Phaser.Input.Keyboard.KeyCodes.SPACE
     );
@@ -51,6 +53,8 @@ class PrototypeScene extends Phaser.Scene {
   }
 
   reset() {
+    this.graphics.clear();
+
     // Clean previous terrain chunks
     this.chunks.forEach((chunk) => {
       chunk.destroy();
