@@ -31,10 +31,11 @@ class PrototypeScene extends Phaser.Scene {
   }
 
   update() {
-    this.player.update();
+    if (!this.matter.world.enabled) {
+      return;
+    }
 
-    // Prevent player from rotating
-    this.matter.body.setAngularVelocity(this.player, 0);
+    this.player.update();
   }
 
   initTerrainChunks() {
@@ -75,6 +76,18 @@ class PrototypeScene extends Phaser.Scene {
 
   initDebug() {
     const pane = new Pane() as FolderApi;
+
+    pane
+      .addButton({
+        title: "PAUSE",
+      })
+      .on("click", () => {
+        if (this.matter.world.enabled) {
+          this.matter.world.pause();
+        } else {
+          this.matter.world.resume();
+        }
+      });
 
     pane
       .addButton({
