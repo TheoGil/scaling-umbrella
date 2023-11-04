@@ -1,4 +1,4 @@
-import { Input } from "phaser";
+import { Input, Math as PhaserMath } from "phaser";
 
 import { PARAMS } from "../params";
 import { PrototypeScene } from "../main";
@@ -12,6 +12,7 @@ class Player {
   terrainAngleSensor: MatterJS.BodyType;
   groundSensor: MatterJS.BodyType;
   isGrounded = false;
+  rotationTarget = 0;
 
   constructor(scene: PrototypeScene) {
     this.scene = scene;
@@ -108,6 +109,14 @@ class Player {
       y: this.physicsBody.velocity.y,
     });
 
+    // Set player rotation
+    const rotationAngle = PhaserMath.Linear(
+      this.physicsBody.angle,
+      this.rotationTarget,
+      PARAMS.player.terrainRotationLerp
+    );
+    this.scene.matter.body.setAngle(this.physicsBody, rotationAngle, false);
+
     // Jump logic
     if (
       this.scene.spacebar &&
@@ -155,16 +164,7 @@ class Player {
     bodyB: MatterJS.BodyType;
   }) {
     if (terrain.label === TERRAIN_CHUNK_PHYSICS_BODY_LABEL) {
-      // Lerping feels weird... IDK what's going on...
-      //   const playerBodyAngle = PhaserMath.Linear(
-      //     this.physicsBody.angle,
-      //     terrain.angle,
-      //     PARAMS.player.terrainRotationLerp
-      //   );
-
-      //   this.scene.matter.body.setAngle(this.physicsBody, playerBodyAngle, false);
-
-      this.scene.matter.body.setAngle(this.physicsBody, terrain.angle, false);
+      this.rotationTarget = terrain.angle;
     }
   }
 

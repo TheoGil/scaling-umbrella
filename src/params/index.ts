@@ -9,7 +9,7 @@ const PARAMS = {
       min: 100,
       max: 1000,
     },
-    subdivisions: 30,
+    subdivisions: 5,
     noise: {
       amplitude: 75,
       frequency: 0.002,

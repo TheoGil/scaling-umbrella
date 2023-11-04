@@ -183,6 +183,12 @@ class PrototypeScene extends Phaser.Scene {
       expanded: false,
     });
 
+    playerFolder.addBinding(PARAMS.player, "terrainRotationLerp", {
+      min: 0,
+      max: 1,
+      label: "rot lerp",
+    });
+
     const playerVelocityFolder = playerFolder.addFolder({
       title: "Velocity",
     });
