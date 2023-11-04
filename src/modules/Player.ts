@@ -1,4 +1,4 @@
-import { Input, Math as PhaserMath } from "phaser";
+import { Input } from "phaser";
 
 import { PARAMS } from "../params";
 import { PrototypeScene } from "../main";
@@ -9,7 +9,6 @@ const TERRAIN_ANGLE_SENSOR_LABEL = "terrain-rotation-sensor";
 class Player {
   scene: PrototypeScene;
   physicsBody: MatterJS.BodyType;
-  terrainAngleSensorNose: MatterJS.BodyType;
   terrainAngleSensor: MatterJS.BodyType;
   groundSensor: MatterJS.BodyType;
   isGrounded = false;

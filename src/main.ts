@@ -1,7 +1,7 @@
 import "./style.css";
 
 import { AUTO, Scale, Game, Input, GameObjects } from "phaser";
-import { Pane } from "tweakpane";
+import { Pane, FolderApi } from "tweakpane";
 import PhaserMatterCollisionPlugin from "phaser-matter-collision-plugin";
 
 import { TerrainChunk, Player } from "./modules";
@@ -13,6 +13,7 @@ class PrototypeScene extends Phaser.Scene {
   player: any;
   spacebar?: Input.Keyboard.Key;
   graphics!: GameObjects.Graphics;
+  matterCollision: any;
 
   constructor() {
     super("PrototypeScene");
@@ -73,7 +74,7 @@ class PrototypeScene extends Phaser.Scene {
   }
 
   initDebug() {
-    const pane = new Pane();
+    const pane = new Pane() as FolderApi;
 
     pane
       .addButton({
