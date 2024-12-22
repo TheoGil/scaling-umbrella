@@ -2,11 +2,25 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Prototype</title>
+    <title>🛷💨</title>
   </head>
   <body>
+    <canvas id="matter-canvas" class="debug-canvas"></canvas>
+    <canvas id="debug-canvas" class="debug-canvas"></canvas>
+    <div class="gui">
+      <div>Distance: <span id="gui-distance"></span>m</div>
+    </div>
+    <div id="fail">
+      You crashed !
+      <button>Restart</button>
+    </div>
+    <div class="help">
+      <p>Press SPACE to jump</p>
+      <p>Hold SPACE to backflip</p>
+      <p>You'll crash if landing at angle greater than 45°</p>
+    </div>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

@@ -1,145 +1,147 @@
-import { degToRad, randomFloat } from "math-toolbox";
-import { Vector } from "matter-js";
+import { Bodies, Body } from "matter-js";
 import { createNoise2D } from "simplex-noise";
-import { Types } from "phaser";
-
-import { PARAMS } from "../params";
-import { divideIntoSegments } from "../utils";
-import { PrototypeScene } from "../main";
+import { randomFloat, degToRad, splitIntoSegments } from "./utils";
+import { SETTINGS } from "../settings";
 
 const TERRAIN_CHUNK_PHYSICS_BODY_LABEL = "terrain-chunk";
 
 const noise2D = createNoise2D();
 
 class TerrainChunk {
-  x: number;
-  y: number;
-  left: number;
-  top: number;
-  right: number;
-  bottom: number;
-  width: number;
-  height: number;
-  segments: { position: Vector; angle: number; length: number }[] = [];
-  vertices: Vector[] = [];
-  scene: PrototypeScene;
-  bodies: Types.Physics.Matter.MatterBody[] = [];
+  bbox!: {
+    x: number;
+    y: number;
+    right: number;
+    bottom: number;
+    width: number;
+    height: number;
+  };
 
-  constructor(x: number, y: number, scene: PrototypeScene) {
-    this.x = this.left = x;
-    this.y = this.top = y;
-    this.scene = scene;
+  bodies: Body[] = [];
 
-    const diagonal = randomFloat(
-      PARAMS.chunks.diagonal.min,
-      PARAMS.chunks.diagonal.max
-    );
+  // Both vertices and offsetVertices are not technically needed to be stored on the instance
+  // in order for the game to run but it is handy to be able to debug render those.
+  vertices: { x: number; y: number }[] = [];
+  offsetVertices: { x: number; y: number }[] = [];
 
-    const angle = degToRad(
-      randomFloat(PARAMS.chunks.angle.min, PARAMS.chunks.angle.max)
-    );
-
-    this.right = this.x + diagonal * Math.cos(angle);
-    this.bottom = this.y + diagonal * Math.sin(angle);
-
-    this.width = this.right - this.left;
-    this.height = this.bottom - this.top;
-
-    this.initVertices();
-    this.initSegments();
-    this.initPhysics();
-
-    this.scene.graphics.lineStyle(1, 0x00ff00, 0.1);
-    this.scene.graphics.strokeRect(
-      this.left,
-      this.top,
-      this.width,
-      this.height
-    );
-    this.scene.graphics.lineBetween(
-      this.left,
-      this.top,
-      this.right,
-      this.bottom
-    );
+  constructor(x: number, y: number) {
+    this.initBoundingBox(x, y);
+    this.initPhysicsBodies();
   }
 
-  initVertices() {
-    const diagonalSegments = divideIntoSegments(
-      {
-        x: this.x,
-        y: this.y,
-      },
-      {
-        x: this.right,
-        y: this.bottom,
-      },
-      PARAMS.chunks.subdivisions
+  /**
+   * Generate the BBox of the chunk by randomizing parameters in given range.
+   * The bounding box is computed from it's diagonal. Might seems counter intuitive
+   * logic-wise but it is actually easier to think of terrain chunks of a line with an angle instead of a box.
+   */
+  initBoundingBox(x: number, y: number) {
+    const diagonalLength = randomFloat(
+      SETTINGS.terrain.chunks.diagonal.length.min,
+      SETTINGS.terrain.chunks.diagonal.length.max
     );
 
-    diagonalSegments.forEach(({ x, y }) => {
+    const diagonalAngle = degToRad(
+      randomFloat(
+        SETTINGS.terrain.chunks.diagonal.angle.min,
+        SETTINGS.terrain.chunks.diagonal.angle.max
+      )
+    );
+
+    const right = x + diagonalLength * Math.cos(diagonalAngle);
+    const bottom = y + diagonalLength * Math.sin(diagonalAngle);
+    const width = right - x;
+    const height = bottom - y;
+
+    this.bbox = {
+      x,
+      y,
+      right,
+      bottom,
+      width,
+      height,
+    };
+  }
+
+  /**
+   * Split the chunk BBox diagonal into multiple segments
+   */
+  initSegments() {
+    const segments: {
+      position: { x: number; y: number };
+      angle: number;
+      length: number;
+    }[] = [];
+
+    // Split the bbox diagonal into equidistant points
+    this.vertices = splitIntoSegments(
+      { x: this.bbox.x, y: this.bbox.y },
+      { x: this.bbox.right, y: this.bbox.bottom },
+      SETTINGS.terrain.chunks.divisions
+    );
+
+    // Offset those point vertically using noise
+    this.offsetVertices = this.vertices.map((point) => {
       const noise = noise2D(
-        x * PARAMS.chunks.noise.frequency,
-        y * PARAMS.chunks.noise.frequency
+        point.x * SETTINGS.terrain.chunks.noise.freq,
+        point.y * SETTINGS.terrain.chunks.noise.freq
       );
 
-      this.vertices.push({
-        x: x,
-        y: y + noise * PARAMS.chunks.noise.amplitude,
-      });
+      return {
+        x: point.x,
+        y: point.y + noise * SETTINGS.terrain.chunks.noise.amp,
+      };
     });
-  }
 
-  initSegments() {
-    this.segments = [];
-    this.vertices.forEach((vertice, i) => {
-      const isLast = i === this.vertices.length - 1;
-      const from = isLast ? this.vertices[i - 1] : vertice;
-      const to = isLast ? vertice : this.vertices[i + 1];
+    // Iterate over the vertices to compute a definition of every segments as
+    // a position, a length and an angle
+    this.offsetVertices.forEach((vertice, i) => {
+      const isLast = i === this.offsetVertices.length - 1;
+      const from = isLast ? this.offsetVertices[i - 1] : vertice;
+      const to = isLast ? vertice : this.offsetVertices[i + 1];
 
       const angle = Math.atan2(to.y - from.y, to.x - from.x);
       const length = Math.hypot(from.x - to.x, from.y - to.y);
 
-      this.segments.push({
+      segments.push({
         position: from,
-        angle: angle,
-        length: length,
+        angle,
+        length,
       });
     });
+
+    return segments;
   }
 
-  initPhysics() {
-    this.segments.forEach((segment) => {
-      const body = this.scene.matter.bodies.rectangle(
+  initPhysicsBodies() {
+    const segments = this.initSegments();
+
+    segments.forEach((segment) => {
+      const body = Bodies.rectangle(
         segment.position.x + segment.length / 2,
-        segment.position.y + PARAMS.chunks.thickness / 2,
+        segment.position.y + SETTINGS.terrain.chunks.thickness / 2,
         segment.length,
-        PARAMS.chunks.thickness,
+        SETTINGS.terrain.chunks.thickness,
         {
           isStatic: true,
           label: TERRAIN_CHUNK_PHYSICS_BODY_LABEL,
         }
       );
 
-      this.scene.matter.body.setCentre(
+      Body.setCentre(
         body,
         {
           x: -segment.length / 2,
-          y: -PARAMS.chunks.thickness / 2,
+          y: -SETTINGS.terrain.chunks.thickness / 2,
         },
         true
       );
 
-      this.scene.matter.body.setAngle(body, segment.angle, false);
+      Body.setAngle(body, segment.angle);
 
       this.bodies.push(body);
     });
 
-    this.scene.matter.world.add(this.bodies);
-  }
-
-  destroy() {
-    this.scene.matter.world.remove(this.bodies);
+    // this.scene.matter.world.add(this.bodies);
   }
 }
 

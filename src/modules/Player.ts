@@ -1,61 +1,90 @@
-import { Input, Math as PhaserMath } from "phaser";
-
-import { PARAMS } from "../params";
-import { PrototypeScene } from "../main";
-import { TERRAIN_CHUNK_PHYSICS_BODY_LABEL } from ".";
+import { TERRAIN_CHUNK_PHYSICS_BODY_LABEL } from "./TerrainChunk";
+import { Bodies, Body, Engine, Events, IEventCollision, Pair } from "matter-js";
+import { SETTINGS } from "../settings";
+import { lerp } from "./utils/lerp";
+import { getDeltaAngle } from "./utils/getDeltaAngle";
+import { degToRad } from "./utils";
+import { emitter } from "./emitter";
 
 const TERRAIN_ANGLE_SENSOR_LABEL = "terrain-rotation-sensor";
+const PLAYER_BODY_LABEL = "player-body";
+const GROUND_SENSOR_LABEL = "player-ground-sensor";
+
+const findPair = (pairs: Pair[], labelA: string, labelB: string) =>
+  pairs.find(
+    (pair) => pair.bodyA.label === labelA && pair.bodyB.label === labelB
+  );
+
+const findPairs = (pairs: Pair[], labelA: string, labelB: string) =>
+  pairs.filter(
+    (pair) => pair.bodyA.label === labelA && pair.bodyB.label === labelB
+  );
 
 class Player {
-  scene: PrototypeScene;
-  physicsBody: MatterJS.BodyType;
-  terrainAngleSensor: MatterJS.BodyType;
-  groundSensor: MatterJS.BodyType;
+  private physicsEngine: Engine;
+
+  physicsBody!: Body;
+  groundSensor!: Body;
+  terrainAngleSensor!: Body;
+  desiredRotation = 0;
+  isBackflipping = false;
   isGrounded = false;
-  rotationTarget = 0;
+  isDead = false;
+  collidingTerrainChunks: Body[] = [];
 
-  constructor(scene: PrototypeScene) {
-    this.scene = scene;
+  constructor(options: { physicsEngine: Engine }) {
+    this.onCollisionStart = this.onCollisionStart.bind(this);
+    this.onCollisionEnd = this.onCollisionEnd.bind(this);
+    this.onKeyDown = this.onKeyDown.bind(this);
+    this.reset = this.reset.bind(this);
 
-    // Native Matter modules (for brevity)
-    const { bodies, body } = this.scene.matter;
+    this.physicsEngine = options.physicsEngine;
 
-    const playerBody = bodies.rectangle(
-      PARAMS.player.startPosition.x,
-      PARAMS.player.startPosition.y,
-      PARAMS.player.width,
-      PARAMS.player.height,
+    this.initGroundSensor();
+    this.initPhysicsBody();
+    this.initTerrainAngleSensor();
+
+    document.addEventListener("keydown", this.onKeyDown);
+    emitter.on("resetPlayer", this.reset);
+  }
+
+  initPhysicsBody() {
+    const body = Bodies.rectangle(
+      SETTINGS.player.startPosition.x,
+      SETTINGS.player.startPosition.y,
+      SETTINGS.player.width,
+      SETTINGS.player.height,
       {
         chamfer: {
-          radius: PARAMS.player.chamfer,
+          radius: SETTINGS.player.chamfer,
         },
-        friction: PARAMS.player.friction,
+        friction: SETTINGS.player.friction,
         isStatic: false,
-        label: "player-body",
+        label: PLAYER_BODY_LABEL,
       }
     );
 
-    this.groundSensor = bodies.rectangle(
-      playerBody.position.x,
-      playerBody.position.y + PARAMS.player.height / 2,
-      PARAMS.player.width * 1.25,
-      10,
-      {
-        isSensor: true,
-      }
-    );
-
-    this.physicsBody = body.create({
-      parts: [playerBody, this.groundSensor],
+    this.physicsBody = Body.create({
+      parts: [body, this.groundSensor],
     });
 
-    this.scene.matter.world.add(this.physicsBody);
+    // this.physicsBody = Bodies.circle(
+    //   SETTINGS.player.startPosition.x,
+    //   SETTINGS.player.startPosition.y,
+    //   SETTINGS.player.width / 2
+    // );
+  }
 
-    this.terrainAngleSensor = this.scene.matter.add.rectangle(
-      PARAMS.player.startPosition.x,
-      PARAMS.player.startPosition.y,
-      PARAMS.player.groundSensor.width,
-      PARAMS.player.groundSensor.height,
+  /**
+   * This sensor checks for the terrain chunk segment right underneath player
+   * and copy its angle to the desired player rotation.
+   */
+  initTerrainAngleSensor() {
+    this.terrainAngleSensor = Bodies.rectangle(
+      SETTINGS.player.startPosition.x,
+      SETTINGS.player.startPosition.y,
+      SETTINGS.player.terrainAngleSensor.width,
+      SETTINGS.player.terrainAngleSensor.height,
       {
         isSensor: true,
         isStatic: false,
@@ -63,145 +92,200 @@ class Player {
       }
     );
 
-    // Debug code to move player body with mouse
-    // this.scene.input.on("pointermove", ({ x, y }: PointerEvent) => {
-    //   this.scene.matter.body.setPosition(
-    //     this.physicsBody,
-    //     {
-    //       x: x,
-    //       y: y,
-    //     },
-    //     false
-    //   );
-    // });
+    Events.on(this.physicsEngine, "collisionStart", this.onCollisionStart);
+    Events.on(this.physicsEngine, "collisionEnd", this.onCollisionEnd);
+  }
 
-    this.scene.matterCollision.addOnCollideStart({
-      objectA: [this.terrainAngleSensor],
-      callback: this.onTerrainAngleSensorCollision,
-      context: this,
-    });
-
-    this.scene.matterCollision.addOnCollideStart({
-      objectA: [this.groundSensor],
-      callback: this.onGroundSensorCollisionStart,
-      context: this,
-    });
-
-    this.scene.matterCollision.addOnCollideEnd({
-      objectA: [this.groundSensor],
-      callback: this.onGroundSensorCollisionStop,
-      context: this,
-    });
+  initGroundSensor() {
+    this.groundSensor = Bodies.rectangle(
+      SETTINGS.player.startPosition.x,
+      SETTINGS.player.startPosition.y,
+      SETTINGS.player.width + SETTINGS.player.groundSensorThickness * 2,
+      SETTINGS.player.height + SETTINGS.player.groundSensorThickness * 2,
+      {
+        isSensor: true,
+        label: GROUND_SENSOR_LABEL,
+      }
+    );
   }
 
   update() {
-    // Prevent player from rotating
-    this.scene.matter.body.setAngularVelocity(this.physicsBody, 0);
+    // Update ground angle sensor position to match body position
+    // Sensor is not part of compound physic body because we want to keep
+    // its rotation always facing down.
+    Body.setPosition(this.terrainAngleSensor, {
+      x: this.physicsBody.position.x,
+      y:
+        this.physicsBody.position.y +
+        SETTINGS.player.terrainAngleSensor.height / 2,
+    });
 
-    // Update camera scroll to follow player
-    this.scene.cameras.main.setScroll(
-      this.physicsBody.position.x -
-        this.scene.scale.width / 2 +
-        PARAMS.camera.offset.x,
-      this.physicsBody.position.y -
-        this.scene.scale.height / 2 +
-        PARAMS.camera.offset.y
-    );
+    if (this.isDead) {
+      return;
+    }
 
-    // Set player velocity
-    this.scene.matter.body.setVelocity(this.physicsBody, {
-      x: PARAMS.player.velocity.x,
+    // Ground sensor can collide with multiple terrain chunks simultaneously.
+    // Because of that, it is tricky to rely only on collide start / stop to update isGrounded.
+    // Instead, we keep track of every terrain segment colliding with sensor and check if
+    // any is currently colliding.
+    this.isGrounded = this.collidingTerrainChunks.length > 0;
+
+    // Continuously apply horizontal velocity
+    Body.setVelocity(this.physicsBody, {
+      x: SETTINGS.player.velocity.x,
       y: this.physicsBody.velocity.y,
     });
 
-    // Set player rotation
-    const rotationAngle = PhaserMath.Linear(
-      this.physicsBody.angle,
-      this.rotationTarget,
-      PARAMS.player.terrainRotationLerp
-    );
-    this.scene.matter.body.setAngle(this.physicsBody, rotationAngle, false);
+    // Prevent physics from rotating physics body
+    Body.setAngularVelocity(this.physicsBody, 0);
 
-    // Jump logic
-    if (
-      this.scene.spacebar &&
-      this.isGrounded &&
-      Input.Keyboard.JustDown(this.scene.spacebar)
-    ) {
-      this.scene.matter.body.setVelocity(this.physicsBody, {
-        x: this.physicsBody.velocity.x,
-        y: PARAMS.player.velocity.jump,
-      });
+    if (!this.isBackflipping) {
+      const angleDiff = getDeltaAngle(
+        this.physicsBody.angle,
+        this.desiredRotation
+      );
+
+      const angle = lerp(
+        this.physicsBody.angle,
+        this.physicsBody.angle + angleDiff,
+        SETTINGS.player.autoRotateLerpAmount
+      );
+
+      Body.setAngle(this.physicsBody, angle);
+    }
+  }
+
+  onCollisionStart(e: IEventCollision<Engine>) {
+    this.onTerrainAngleSensorCollisionStart(e.pairs);
+    this.onGroundSensorCollisionStart(e.pairs);
+  }
+
+  onCollisionEnd(e: IEventCollision<Engine>) {
+    this.onGroundSensorCollisionEnd(e.pairs);
+  }
+
+  /**
+   * Given collection of colliding elements, check if the terrain angle sensor is
+   * colliding with a terrain chun segment. If so copy the angle of terrain chunk segment
+   * to player body
+   */
+  onTerrainAngleSensorCollisionStart(pairs: Pair[]) {
+    const collision = findPair(
+      pairs,
+      TERRAIN_CHUNK_PHYSICS_BODY_LABEL,
+      TERRAIN_ANGLE_SENSOR_LABEL
+    );
+
+    if (collision) {
+      this.desiredRotation = collision.bodyA.angle;
+    }
+  }
+
+  /**
+   * Add terrain segments to list of colliding terrain bodies when it starts colliding
+   */
+  onGroundSensorCollisionStart(pairs: Pair[]) {
+    const chunks = findPairs(
+      pairs,
+      TERRAIN_CHUNK_PHYSICS_BODY_LABEL,
+      GROUND_SENSOR_LABEL
+    ).map((pair) => pair.bodyA);
+
+    if (chunks.length) {
+      const playerTerrainCollisionStart =
+        this.collidingTerrainChunks.length < 1;
+
+      this.collidingTerrainChunks.push(...chunks);
+      this.isBackflipping = false;
+
+      if (playerTerrainCollisionStart) {
+        this.onPlayerTerrainCollisionStart();
+      }
+    }
+  }
+
+  /**
+   * Remove terrain segments from list of colliding terrain bodies when it stops colliding
+   */
+  onGroundSensorCollisionEnd(pairs: Pair[]) {
+    const chunks = findPairs(
+      pairs,
+      TERRAIN_CHUNK_PHYSICS_BODY_LABEL,
+      GROUND_SENSOR_LABEL
+    ).map((pair) => pair.bodyA);
+
+    chunks.forEach((chunk) => {
+      const index = this.collidingTerrainChunks.findIndex(
+        (c) => c.id === chunk.id
+      );
+
+      if (index > -1) {
+        this.collidingTerrainChunks.splice(index, 1);
+      }
+    });
+  }
+
+  onPlayerTerrainCollisionStart() {
+    let chunksAngleSum = 0;
+    this.collidingTerrainChunks.forEach((chunk) => {
+      chunksAngleSum += chunk.angle;
+    });
+
+    const medianChunksAngle =
+      chunksAngleSum / this.collidingTerrainChunks.length;
+
+    const angleDiff = getDeltaAngle(this.physicsBody.angle, medianChunksAngle);
+
+    if (Math.abs(angleDiff) >= degToRad(45)) {
+      this.isDead = true;
+      emitter.emit("fail");
+    }
+  }
+
+  onKeyDown(e: KeyboardEvent) {
+    if (this.isDead) {
+      return;
     }
 
-    // Move ground sensor to player position
-    this.scene.matter.body.setPosition(
-      this.terrainAngleSensor,
-      {
-        x: this.physicsBody.position.x,
-        y: this.physicsBody.position.y + PARAMS.player.groundSensor.height / 2,
-      },
-      false
-    );
-    this.scene.matter.body.setVelocity(this.terrainAngleSensor, {
-      x: 0,
-      y: 0,
+    if (e.code === "Space") {
+      if (this.isGrounded) {
+        this.doJump();
+      } else {
+        this.doBackflip();
+      }
+    }
+  }
+
+  doJump() {
+    Body.setVelocity(this.physicsBody, {
+      x: this.physicsBody.velocity.x,
+      y: SETTINGS.player.velocity.jump,
     });
+  }
+
+  doBackflip() {
+    this.isBackflipping = true;
+
+    Body.setAngle(
+      this.physicsBody,
+      this.physicsBody.angle - SETTINGS.player.backFlipRotationSpeed
+    );
   }
 
   reset() {
-    this.scene.matter.body.setPosition(
-      this.physicsBody,
-      {
-        x: PARAMS.player.startPosition.x,
-        y: PARAMS.player.startPosition.y,
-      },
-      false
-    );
+    Events.off(this.physicsEngine, "collisionStart", this.onCollisionStart);
+    Events.off(this.physicsEngine, "collisionEnd", this.onCollisionEnd);
 
-    this.scene.matter.body.setVelocity(this.physicsBody, {
-      x: 0,
-      y: 0,
-    });
-  }
+    Body.setPosition(this.physicsBody, SETTINGS.player.startPosition);
+    Body.setAngle(this.physicsBody, 0);
+    Body.setVelocity(this.physicsBody, { x: 0, y: 0 });
 
-  onTerrainAngleSensorCollision({
-    bodyA: _sensor,
-    bodyB: terrain,
-  }: {
-    bodyA: MatterJS.BodyType;
-    bodyB: MatterJS.BodyType;
-  }) {
-    if (terrain.label === TERRAIN_CHUNK_PHYSICS_BODY_LABEL) {
-      this.rotationTarget = terrain.angle;
-    }
-  }
+    this.isDead = false;
+    this.isBackflipping = false;
+    this.isGrounded = false;
 
-  onGroundSensorCollisionStart({
-    bodyA: _sensor,
-    bodyB: terrain,
-  }: {
-    bodyA: MatterJS.BodyType;
-    bodyB: MatterJS.BodyType;
-  }) {
-    if (
-      !this.isGrounded &&
-      terrain.label === TERRAIN_CHUNK_PHYSICS_BODY_LABEL
-    ) {
-      this.isGrounded = true;
-    }
-  }
-
-  onGroundSensorCollisionStop({
-    bodyA: _sensor,
-    bodyB: terrain,
-  }: {
-    bodyA: MatterJS.BodyType;
-    bodyB: MatterJS.BodyType;
-  }) {
-    if (this.isGrounded && terrain.label === TERRAIN_CHUNK_PHYSICS_BODY_LABEL) {
-      this.isGrounded = false;
-    }
+    Events.on(this.physicsEngine, "collisionStart", this.onCollisionStart);
+    Events.on(this.physicsEngine, "collisionEnd", this.onCollisionEnd);
   }
 }
 

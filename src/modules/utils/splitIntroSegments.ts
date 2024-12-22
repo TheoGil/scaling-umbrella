@@ -1,5 +1,5 @@
 // https://stackoverflow.com/a/39463118
-function divideIntoSegments(
+function splitIntoSegments(
   startPoint: { x: number; y: number },
   endPoint: { x: number; y: number },
   divide: number
@@ -18,4 +18,4 @@ function divideIntoSegments(
   return [startPoint, ...interiorPoints, endPoint];
 }
 
-export { divideIntoSegments };
+export { splitIntoSegments };
