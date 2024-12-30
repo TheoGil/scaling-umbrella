@@ -4,7 +4,7 @@ function drawCrossHair(
   y: number,
   color = "red"
 ) {
-  const size = 10;
+  const size = 5;
   const halfSize = size / 2;
   ctx.save();
   ctx.beginPath();

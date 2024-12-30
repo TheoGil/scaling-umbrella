@@ -7,20 +7,9 @@
     <title>🛷💨</title>
   </head>
   <body>
-    <canvas id="matter-canvas" class="debug-canvas"></canvas>
+    <canvas id="webgl-canvas" class="debug-canvas"></canvas>
     <canvas id="debug-canvas" class="debug-canvas"></canvas>
-    <div class="gui">
-      <div>Distance: <span id="gui-distance"></span>m</div>
-    </div>
-    <div id="fail">
-      You crashed !
-      <button>Restart</button>
-    </div>
-    <div class="help">
-      <p>Press SPACE to jump</p>
-      <p>Hold SPACE to backflip</p>
-      <p>You'll crash if landing at angle greater than 45°</p>
-    </div>
-    <script type="module" src="/src/main.ts"></script>
+    <canvas id="matter-canvas" class="debug-canvas"></canvas>
+    <script type="module" src="/src/index.ts"></script>
   </body>
 </html>

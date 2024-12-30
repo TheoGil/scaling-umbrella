@@ -18,6 +18,10 @@ body {
   inset: 0;
 }
 
+.debug-canvas:not(#webgl-canvas) {
+  pointer-events: none;
+}
+
 .debug-canvas#debug-canvas {
   /* opacity: 0.1; */
 }
@@ -51,4 +55,8 @@ body {
 
 .help p {
   margin: 0;
+}
+
+.tp-dfwv {
+  position: fixed !important;
 }
