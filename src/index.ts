@@ -187,23 +187,22 @@ class App {
 
   onDebugBeforeRender() {
     // Center and pad camera to target on curve
-    const target = this.curve.getPointAt(DEBUG_PARAMS.p);
+    // const target = this.curve.getPointAt(DEBUG_PARAMS.p);
 
-    Render.lookAt(
-      this.matterRenderer,
-      {
-        position: {
-          x: target.x,
-          y: target.y,
-        },
-      },
-      {
-        x: window.innerWidth / 2,
-        y: window.innerHeight / 2,
-      }
-    );
+    // Render.lookAt(
+    //   this.matterRenderer,
+    //   {
+    //     position: {
+    //       x: target.x,
+    //       y: target.y,
+    //     },
+    //   },
+    //   {
+    //     x: window.innerWidth / 2,
+    //     y: window.innerHeight / 2,
+    //   }
+    // );
 
-    /*
     Render.lookAt(
       this.matterRenderer,
       {
@@ -217,7 +216,6 @@ class App {
         y: window.innerHeight / 2,
       }
     );
-    */
   }
 
   // Additional custom debug 2D rendering on top of matterJS debug render
@@ -241,8 +239,8 @@ class App {
 
   // Fired once at the end of the browser frame, after beforeTick, tick and after any engine updates.
   onAfterTick() {
-    // this.player.update();
-    // this.focusCameraOnPlayer();
+    this.player.update();
+    this.focusCameraOnPlayer();
     this.renderer.render(this.scene!, this.camera!);
   }
 
