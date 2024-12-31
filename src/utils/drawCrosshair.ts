@@ -2,9 +2,9 @@ function drawCrossHair(
   ctx: CanvasRenderingContext2D,
   x: number,
   y: number,
-  color = "red"
+  color = "red",
+  size = 5
 ) {
-  const size = 5;
   const halfSize = size / 2;
   ctx.save();
   ctx.beginPath();
