@@ -13,11 +13,14 @@ import { GLTFLoader } from "three/examples/jsm/Addons.js";
 import playerGlbUrl from "/player.glb?url";
 import { emitter } from "./emitter";
 import { LABEL_TERRAIN_CHUNK } from "./curve";
+import gsap from "gsap";
 
 const LABEL_TERRAIN_CHUNK_SENSOR = "ground-sensor";
 const LABEL_TERRAIN_ANGLE_SENSOR = "terrain-angle-sensor";
 const START_POS_X = 10;
 const START_POS_Y = 300;
+
+const MAGIC_SCALE_NUMBER_FIXME = 25;
 
 const findPairs = (pairs: Pair[], labelA: string, labelB: string) =>
   pairs.filter(
@@ -39,6 +42,7 @@ class Player {
   terrainAngleSensor!: Body;
   collidingTerrainChunks: Body[] = [];
   desiredRotation = 0;
+  object3DTween?: gsap.core.Tween;
 
   constructor() {
     this.onKeyDown = this.onKeyDown.bind(this);
@@ -79,9 +83,6 @@ class Player {
       skate.traverse((o) => {
         fixMaterial(o as Mesh<BufferGeometry, MeshBasicMaterial>);
       });
-
-      skate.position.y -= 0.5;
-      elephant.position.y -= 0.5;
 
       const magicGroup = new Group();
       magicGroup.add(elephant);
@@ -175,9 +176,31 @@ class Player {
       x: DEBUG_PARAMS.player.velocity.x,
       y: this.physicsBody.velocity.y,
     });
+
+    // The Y axis is inverted in canvas 2D / threejs space
+    this.object3D.position.set(
+      this.physicsBody.position.x,
+      -this.physicsBody.position.y - MAGIC_SCALE_NUMBER_FIXME,
+      0
+    );
   }
 
   jump() {
+    this.object3DTween?.kill();
+    this.object3DTween = gsap.fromTo(
+      this.object3D.scale,
+      {
+        y: 1.5,
+        x: 0.5,
+      },
+      {
+        y: 1,
+        x: 1,
+        ease: "elastic.out(1,0.3)",
+        duration: 1,
+      }
+    );
+
     Body.setVelocity(this.physicsBody, {
       x: this.physicsBody.velocity.x,
       y: DEBUG_PARAMS.player.velocity.jump,
@@ -221,6 +244,11 @@ class Player {
       pairs,
       LABEL_TERRAIN_CHUNK_SENSOR
     );
+
+    if (this.collidingTerrainChunks.length === 0 && terrainChunks.length) {
+      this.onGroundBack();
+    }
+
     terrainChunks.length && this.collidingTerrainChunks.push(...terrainChunks);
   }
 
@@ -243,6 +271,22 @@ class Player {
         this.collidingTerrainChunks.splice(index, 1);
       }
     });
+  }
+
+  onGroundBack() {
+    this.object3DTween?.kill();
+    this.object3DTween = gsap.fromTo(
+      this.object3D.scale,
+      {
+        y: 0.75,
+        x: 1.5,
+      },
+      {
+        y: 1,
+        x: 1,
+        ease: "elastic.out(1,0.3)",
+      }
+    );
   }
 
   reset() {

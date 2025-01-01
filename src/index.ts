@@ -185,13 +185,6 @@ class App {
 
     this.destroyOutOfViewChunks();
 
-    // The Y axis is inverted in canvas 2D / threejs space
-    this.player.object3D.position.set(
-      this.player.physicsBody.position.x,
-      -this.player.physicsBody.position.y,
-      0
-    );
-
     this.player.update();
     this.focusCameraOnPlayer();
 
