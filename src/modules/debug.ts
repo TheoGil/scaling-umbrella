@@ -3,7 +3,7 @@ import * as EssentialsPlugin from "@tweakpane/plugin-essentials";
 
 import { DEBUG_PARAMS } from "../settings";
 import { App } from "..";
-import { Render, Runner } from "matter-js";
+import { Render } from "matter-js";
 
 function initDebug(app: App) {
   const debug = new Pane() as FolderApi;

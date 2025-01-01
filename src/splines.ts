@@ -1,23 +1,6 @@
-import { Pane, FolderApi } from "tweakpane";
-import * as EssentialsPlugin from "@tweakpane/plugin-essentials";
-import { Composite, Engine, Events, Render, Runner } from "matter-js";
-import { OrbitControls } from "three/addons/controls/OrbitControls.js";
-
 import "./style.css";
-import { drawCrossHair } from "./utils/drawCrosshair";
-import { generateCurve, generatePhysicBodiesFromCurve } from "./modules/curve";
-import {
-  CatmullRomCurve3,
-  MathUtils,
-  Mesh,
-  MeshNormalMaterial,
-  PerspectiveCamera,
-  Scene,
-  TubeGeometry,
-  WebGLRenderer,
-} from "three";
-import { DEBUG_PARAMS } from "./settings";
-import { Player } from "./modules/Player";
+import { generateCurve } from "./modules/curve";
+import { CatmullRomCurve3, MathUtils } from "three";
 
 /*
 const debug = new Pane() as FolderApi;
