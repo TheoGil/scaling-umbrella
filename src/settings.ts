@@ -1,7 +1,7 @@
 const DEBUG_PARAMS = {
   p: 0,
   segments: {
-    definition: 1500,
+    definition: 100,
     count: 10,
     angle: {
       min: 0,
@@ -18,6 +18,10 @@ const DEBUG_PARAMS = {
     restitution: 0,
     velocity: {
       x: 10,
+    },
+    groundSensor: {
+      width: 25,
+      height: 10,
     },
   },
 };

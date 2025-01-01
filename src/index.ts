@@ -1,6 +1,13 @@
 import { Pane, FolderApi } from "tweakpane";
 import * as EssentialsPlugin from "@tweakpane/plugin-essentials";
-import { Composite, Engine, Events, Render, Runner } from "matter-js";
+import {
+  Composite,
+  Engine,
+  Events,
+  IEventCollision,
+  Render,
+  Runner,
+} from "matter-js";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 
 import "./style.css";
@@ -9,9 +16,7 @@ import { DEBUG_PARAMS } from "./settings";
 import { Player } from "./modules/Player";
 import { TerrainChunk } from "./modules/TerrainChunk";
 import { getCameraFrustrumDimensionsAtDepth } from "./utils/getCameraFrustrumDimensionsAtDepth";
-
-////////////////
-////////////////
+import { emitter } from "./modules/emitter";
 
 const debug = new Pane() as FolderApi;
 debug.registerPlugin(EssentialsPlugin);
@@ -62,13 +67,9 @@ class App {
   terrainChunks: TerrainChunk[] = [];
 
   constructor() {
-    this.onDebugBeforeRender = this.onDebugBeforeRender.bind(this);
-    this.onDebugAfterRender = this.onDebugAfterRender.bind(this);
     this.onAfterTick = this.onAfterTick.bind(this);
-    this.onPhysicsEngineBeforeUpdate =
-      this.onPhysicsEngineBeforeUpdate.bind(this);
-    this.onPhysicsEngineAfterUpdate =
-      this.onPhysicsEngineAfterUpdate.bind(this);
+    this.onCollisionStart = this.onCollisionStart.bind(this);
+    this.onCollisionEnd = this.onCollisionEnd.bind(this);
 
     this.initRendering();
     this.initPhysics();
@@ -77,12 +78,8 @@ class App {
 
   initPhysics() {
     this.matterEngine = Engine.create();
-
-    Events.on(
-      this.matterEngine,
-      "afterUpdate",
-      this.onPhysicsEngineAfterUpdate
-    );
+    Events.on(this.matterEngine, "collisionStart", this.onCollisionStart);
+    Events.on(this.matterEngine, "collisionEnd", this.onCollisionEnd);
 
     this.matterRenderer = Render.create({
       canvas: document.getElementById("matter-canvas") as HTMLCanvasElement,
@@ -91,11 +88,10 @@ class App {
         width: innerWidth,
         height: innerHeight,
         wireframeBackground: "transparent",
+        wireframes: true,
       },
     });
     Render.run(this.matterRenderer);
-    Events.on(this.matterRenderer, "beforeRender", this.onDebugBeforeRender);
-    Events.on(this.matterRenderer, "afterRender", this.onDebugAfterRender);
 
     this.runner = Runner.create();
 
@@ -194,24 +190,8 @@ class App {
     }
   }
 
-  onDebugBeforeRender() {
-    // Center and pad camera to target on curve
-    // const target = this.curve.getPointAt(DEBUG_PARAMS.p);
-
-    // Render.lookAt(
-    //   this.matterRenderer,
-    //   {
-    //     position: {
-    //       x: target.x,
-    //       y: target.y,
-    //     },
-    //   },
-    //   {
-    //     x: window.innerWidth / 2,
-    //     y: window.innerHeight / 2,
-    //   }
-    // );
-
+  // Fired once at the end of the browser frame, after beforeTick, tick and after any engine updates.
+  onAfterTick() {
     Render.lookAt(
       this.matterRenderer,
       {
@@ -225,40 +205,9 @@ class App {
         y: window.innerHeight / 2,
       }
     );
-  }
 
-  // Additional custom debug 2D rendering on top of matterJS debug render
-  onDebugAfterRender({
-    source,
-  }: {
-    source: { context: CanvasRenderingContext2D };
-  }) {
-    source.context.save();
-
-    const target = this.curve.getPointAt(DEBUG_PARAMS.p);
-    const cameraOffsetX = target.x - window.innerWidth / 2;
-    const cameraOffsetY = target.y - window.innerHeight / 2;
-    source.context.translate(-cameraOffsetX, -cameraOffsetY);
-
-    source.context.lineWidth = 1;
-    drawCrossHair(source.context, target.x, target.y, "green");
-
-    source.context.restore();
-  }
-
-  // Fired once at the end of the browser frame, after beforeTick, tick and after any engine updates.
-  onAfterTick() {
     this.destroyOutOfViewChunks();
 
-    this.player.update();
-    this.focusCameraOnPlayer();
-
-    this.renderer.render(this.scene!, this.camera!);
-  }
-
-  onPhysicsEngineBeforeUpdate() {}
-
-  onPhysicsEngineAfterUpdate() {
     // The Y axis is inverted in canvas 2D / threejs space
     this.player.object3D.position.set(
       this.player.physicsBody.position.x,
@@ -266,8 +215,18 @@ class App {
       0
     );
 
-    // Prevent unwanted body rotation
-    // Body.setAngularVelocity(this.player.physicsBody, 0);
+    this.player.update();
+    this.focusCameraOnPlayer();
+
+    this.renderer.render(this.scene!, this.camera!);
+  }
+
+  onCollisionStart(e: IEventCollision<Engine>) {
+    emitter.emit("onCollisionStart", e);
+  }
+
+  onCollisionEnd(e: IEventCollision<Engine>) {
+    emitter.emit("onCollisionEnd", e);
   }
 }
 

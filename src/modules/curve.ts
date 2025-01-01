@@ -2,6 +2,8 @@ import { CatmullRomCurve3, MathUtils, Vector3, Vector3Like } from "three";
 import { DEBUG_PARAMS } from "../settings";
 import { Bodies, Body } from "matter-js";
 
+const LABEL_TERRAIN_CHUNK = "ground";
+
 function rotatePoint2D(p: Vector3, a: number, o: Vector3) {
   return new Vector3(
     Math.cos(a) * (p.x - o.x) - Math.sin(a) * (p.y - o.y) + o.x,
@@ -134,6 +136,8 @@ function generatePhysicBodiesFromCurve(curve: CatmullRomCurve3) {
         isStatic: true,
         friction: 0,
         frictionStatic: 0,
+        restitution: DEBUG_PARAMS.restitution,
+        label: LABEL_TERRAIN_CHUNK,
       }
     );
 
@@ -160,4 +164,5 @@ export {
   generateCurve,
   splitCurveIntoLinearSegments,
   generatePhysicBodiesFromCurve,
+  LABEL_TERRAIN_CHUNK,
 };
