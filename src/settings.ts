@@ -18,6 +18,7 @@ const DEBUG_PARAMS = {
     restitution: 0,
     velocity: {
       x: 10,
+      jump: -10,
     },
     groundSensor: {
       width: 25,

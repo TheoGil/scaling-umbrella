@@ -39,7 +39,7 @@ class Player {
   collidingTerrainChunks: Body[] = [];
 
   constructor() {
-    // this.onKeyDown = this.onKeyDown.bind(this);
+    this.onKeyDown = this.onKeyDown.bind(this);
     this.onCollisionStart = this.onCollisionStart.bind(this);
     this.onCollisionEnd = this.onCollisionEnd.bind(this);
 
@@ -51,8 +51,7 @@ class Player {
 
     emitter.on("onCollisionStart", this.onCollisionStart);
     emitter.on("onCollisionEnd", this.onCollisionEnd);
-
-    // document.addEventListener("keydown", this.onKeyDown);
+    document.addEventListener("keydown", this.onKeyDown);
   }
 
   // Lot of magic numbers here
@@ -139,15 +138,20 @@ class Player {
     });
   }
 
-  //   onKeyDown(e: KeyboardEvent) {
-  //     if (e.code === "Space") {
-  //       if (this.isGrounded) {
-  //         this.doJump();
-  //       } else {
-  //         this.doBackflip();
-  //       }
-  //     }
-  //   }
+  jump() {
+    Body.setVelocity(this.physicsBody, {
+      x: this.physicsBody.velocity.x,
+      y: DEBUG_PARAMS.player.velocity.jump,
+    });
+  }
+
+  onKeyDown(e: KeyboardEvent) {
+    if (e.code === "Space") {
+      if (this.isGrounded) {
+        this.jump();
+      }
+    }
+  }
 
   onCollisionStart(e: IEventCollision<Engine>) {
     this.onGroundSensorCollisionStart(e.pairs);
