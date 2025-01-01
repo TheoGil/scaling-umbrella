@@ -19,7 +19,7 @@ const LABEL_TERRAIN_CHUNK_SENSOR = "ground-sensor";
 const LABEL_TERRAIN_ANGLE_SENSOR = "terrain-angle-sensor";
 const START_POS_X = 10;
 const START_POS_Y = 300;
-
+const JUMP_BUFFER_TIMER_MAX = 5;
 const MAGIC_SCALE_NUMBER_FIXME = 25;
 
 const findPairs = (pairs: Pair[], labelA: string, labelB: string) =>
@@ -43,6 +43,8 @@ class Player {
   collidingTerrainChunks: Body[] = [];
   desiredRotation = 0;
   object3DTween?: gsap.core.Tween;
+  isJumpBuffering = false;
+  jumpBufferTimer = 0;
 
   constructor() {
     this.onKeyDown = this.onKeyDown.bind(this);
@@ -143,6 +145,10 @@ class Player {
   }
 
   update() {
+    if (this.isJumpBuffering) {
+      this.jumpBufferTimer += 1;
+    }
+
     // Update ground angle sensor position to match body position
     // Sensor is not part of compound physic body because we want to keep
     // its rotation always facing down.
@@ -186,6 +192,8 @@ class Player {
   }
 
   jump() {
+    this.stopJumpBuffering();
+
     this.object3DTween?.kill();
     this.object3DTween = gsap.fromTo(
       this.object3D.scale,
@@ -211,6 +219,8 @@ class Player {
     if (e.code === "Space") {
       if (this.isGrounded) {
         this.jump();
+      } else {
+        this.startJumpBuffering();
       }
     }
   }
@@ -287,6 +297,22 @@ class Player {
         ease: "elastic.out(1,0.3)",
       }
     );
+
+    if (this.isJumpBuffering && this.jumpBufferTimer < JUMP_BUFFER_TIMER_MAX) {
+      this.jump();
+    }
+
+    this.stopJumpBuffering();
+  }
+
+  startJumpBuffering() {
+    this.isJumpBuffering = true;
+    this.jumpBufferTimer = 0;
+  }
+
+  stopJumpBuffering() {
+    this.isJumpBuffering = false;
+    this.jumpBufferTimer = 0;
   }
 
   reset() {
