@@ -37,6 +37,16 @@ const DEBUG_PARAMS = {
     frictionAir: 0,
     frictionStatic: 0,
     gaps: { min: 400, max: 500 },
+    ties: {
+      width: 10,
+      height: 5,
+      depth: 50,
+      color: 0x5b3b30,
+    },
+    profiles: {
+      depth: 40,
+      color: 0x62656d,
+    },
   },
   webgl: {
     enabled: true,

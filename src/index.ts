@@ -122,7 +122,7 @@ class App {
     const terrainChunk = new TerrainChunk(x, y);
 
     Composite.add(this.matterEngine!.world, terrainChunk.bodies);
-    this.scene.add(terrainChunk.mesh);
+    this.scene.add(terrainChunk.object3D);
 
     this.terrainChunks.push(terrainChunk);
 
@@ -152,13 +152,10 @@ class App {
     for (let i = this.terrainChunks.length - 1; i >= 0; i--) {
       const chunk = this.terrainChunks[i];
 
-      if (
-        chunk.mesh.geometry.boundingBox &&
-        frustumX > chunk.mesh.geometry.boundingBox.max.x
-      ) {
+      if (chunk.boundingBox && frustumX > chunk.boundingBox.max.x) {
         // Cleanup chunk mesh, physic bodies...
         Composite.remove(this.matterEngine!.world, chunk.bodies);
-        this.scene.remove(chunk.mesh);
+        this.scene.remove(chunk.object3D);
 
         this.terrainChunks.splice(i, 1);
 
@@ -215,7 +212,7 @@ class App {
   reset() {
     for (let i = this.terrainChunks.length - 1; i >= 0; i--) {
       Composite.remove(this.matterEngine!.world, this.terrainChunks[i].bodies);
-      this.scene.remove(this.terrainChunks[i].mesh);
+      this.scene.remove(this.terrainChunks[i].object3D);
     }
     this.terrainChunks = [];
 
