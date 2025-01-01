@@ -264,13 +264,18 @@ class Player {
   }
 
   onTerrainAngleSensorCollisionStart(pairs: Pair[]) {
-    const terrainChunks = getCollidingTerrainChunks(
-      pairs,
-      LABEL_TERRAIN_ANGLE_SENSOR
-    );
+    // Only autorotate if player is grounded or falling down.
+    // Maintaining player rotation when it leaves the ground feels
+    // more natural
+    if (this.isGrounded || this.physicsBody.velocity.y > 0) {
+      const terrainChunks = getCollidingTerrainChunks(
+        pairs,
+        LABEL_TERRAIN_ANGLE_SENSOR
+      );
 
-    if (terrainChunks.length) {
-      this.desiredRotation = terrainChunks[0].angle;
+      if (terrainChunks.length) {
+        this.desiredRotation = terrainChunks[0].angle;
+      }
     }
   }
 
