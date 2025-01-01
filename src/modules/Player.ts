@@ -15,6 +15,7 @@ import { emitter } from "./emitter";
 import { LABEL_TERRAIN_CHUNK } from "./curve";
 
 const LABEL_TERRAIN_CHUNK_SENSOR = "ground-sensor";
+const LABEL_TERRAIN_ANGLE_SENSOR = "terrain-angle-sensor";
 const START_POS_X = 10;
 const START_POS_Y = 300;
 
@@ -25,10 +26,9 @@ const findPairs = (pairs: Pair[], labelA: string, labelB: string) =>
       (pair.bodyA.label === labelB && pair.bodyB.label === labelA)
   );
 
-const getCollidingTerrainChunks = (pairs: Pair[]) =>
-  findPairs(pairs, LABEL_TERRAIN_CHUNK, LABEL_TERRAIN_CHUNK_SENSOR).map(
-    (pair) =>
-      pair.bodyA.label === LABEL_TERRAIN_CHUNK ? pair.bodyA : pair.bodyB
+const getCollidingTerrainChunks = (pairs: Pair[], sensorLabel: string) =>
+  findPairs(pairs, LABEL_TERRAIN_CHUNK, sensorLabel).map((pair) =>
+    pair.bodyA.label === LABEL_TERRAIN_CHUNK ? pair.bodyA : pair.bodyB
   );
 
 class Player {
@@ -36,7 +36,9 @@ class Player {
   object3D: Object3D;
   physicsBody!: Body;
   groundSensor!: Body;
+  terrainAngleSensor!: Body;
   collidingTerrainChunks: Body[] = [];
+  desiredRotation = 0;
 
   constructor() {
     this.onKeyDown = this.onKeyDown.bind(this);
@@ -47,6 +49,7 @@ class Player {
 
     this.initGroundSensor();
     this.initPhysicsBody();
+    this.initTerrainAngleSensor();
     this.initObject3D();
 
     emitter.on("onCollisionStart", this.onCollisionStart);
@@ -77,14 +80,16 @@ class Player {
         fixMaterial(o as Mesh<BufferGeometry, MeshBasicMaterial>);
       });
 
-      this.object3D.add(elephant);
-      this.object3D.add(skate);
-
       skate.position.y -= 0.5;
       elephant.position.y -= 0.5;
 
-      this.object3D.rotateY(MathUtils.degToRad(90));
-      this.object3D.scale.setScalar(50);
+      const magicGroup = new Group();
+      magicGroup.add(elephant);
+      magicGroup.add(skate);
+      magicGroup.rotateY(MathUtils.degToRad(90));
+      magicGroup.scale.setScalar(50);
+
+      this.object3D.add(magicGroup);
     });
   }
 
@@ -97,6 +102,21 @@ class Player {
       {
         isSensor: true,
         label: LABEL_TERRAIN_CHUNK_SENSOR,
+      }
+    );
+  }
+
+  // This sensor checks for the terrain chunk segment right underneath player and copy its angle to the desired player rotation.
+  initTerrainAngleSensor() {
+    this.terrainAngleSensor = Bodies.rectangle(
+      START_POS_X,
+      START_POS_Y,
+      DEBUG_PARAMS.player.terrainAngleSensor.width,
+      DEBUG_PARAMS.player.terrainAngleSensor.height,
+      {
+        isSensor: true,
+        isStatic: false,
+        label: LABEL_TERRAIN_ANGLE_SENSOR,
       }
     );
   }
@@ -122,11 +142,30 @@ class Player {
   }
 
   update() {
+    // Update ground angle sensor position to match body position
+    // Sensor is not part of compound physic body because we want to keep
+    // its rotation always facing down.
+    Body.setPosition(this.terrainAngleSensor, {
+      x: this.physicsBody.position.x,
+      y:
+        this.physicsBody.position.y +
+        DEBUG_PARAMS.player.terrainAngleSensor.height / 2,
+    });
+
     // Ground sensor can collide with multiple terrain chunks simultaneously.
     // Because of that, it is tricky to rely only on collide start / stop to update isGrounded.
     // Instead, we keep track of every terrain segment colliding with sensor and check if
     // any is currently colliding.
     this.isGrounded = this.collidingTerrainChunks.length > 0;
+
+    // Autorotate based on terrain chunk angle sensor
+    const angle = MathUtils.lerp(
+      this.physicsBody.angle,
+      this.desiredRotation,
+      DEBUG_PARAMS.player.autoRotateLerpAmount
+    );
+    Body.setAngle(this.physicsBody, angle);
+    this.object3D.rotation.z = -angle;
 
     // Prevent rotation, always stands up
     Body.setAngularVelocity(this.physicsBody, 0);
@@ -154,6 +193,7 @@ class Player {
   }
 
   onCollisionStart(e: IEventCollision<Engine>) {
+    this.onTerrainAngleSensorCollisionStart(e.pairs);
     this.onGroundSensorCollisionStart(e.pairs);
   }
 
@@ -161,12 +201,26 @@ class Player {
     this.onGroundSensorCollisionEnd(e.pairs);
   }
 
+  onTerrainAngleSensorCollisionStart(pairs: Pair[]) {
+    const terrainChunks = getCollidingTerrainChunks(
+      pairs,
+      LABEL_TERRAIN_ANGLE_SENSOR
+    );
+
+    if (terrainChunks.length) {
+      this.desiredRotation = terrainChunks[0].angle;
+    }
+  }
+
   /**
    * Add all colliding terrain chunks to array.
    * Note that there might be no terrain chunks at all.
    */
   onGroundSensorCollisionStart(pairs: Pair[]) {
-    const terrainChunks = getCollidingTerrainChunks(pairs);
+    const terrainChunks = getCollidingTerrainChunks(
+      pairs,
+      LABEL_TERRAIN_CHUNK_SENSOR
+    );
     terrainChunks.length && this.collidingTerrainChunks.push(...terrainChunks);
   }
 
@@ -175,7 +229,10 @@ class Player {
    * from array
    */
   onGroundSensorCollisionEnd(pairs: Pair[]) {
-    const terrainChunks = getCollidingTerrainChunks(pairs);
+    const terrainChunks = getCollidingTerrainChunks(
+      pairs,
+      LABEL_TERRAIN_CHUNK_SENSOR
+    );
 
     terrainChunks.forEach((chunk) => {
       const index = this.collidingTerrainChunks.findIndex(

@@ -16,6 +16,7 @@ const DEBUG_PARAMS = {
   player: {
     radius: 25,
     restitution: 0,
+    autoRotateLerpAmount: 0.1,
     velocity: {
       x: 10,
       jump: -10,
@@ -23,6 +24,10 @@ const DEBUG_PARAMS = {
     groundSensor: {
       width: 25,
       height: 10,
+    },
+    terrainAngleSensor: {
+      width: 2,
+      height: 100,
     },
   },
 };
