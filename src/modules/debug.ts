@@ -53,6 +53,13 @@ function initDebug(app: App) {
       });
     });
 
+  terrainFolder.addBinding(DEBUG_PARAMS.terrain, "gaps", {
+    min: 0,
+    max: 500,
+    step: 10,
+    label: "Gap",
+  });
+
   terrainFolder.addBinding(DEBUG_PARAMS.segments, "angle", {
     min: -Math.PI / 2,
     max: Math.PI / 2,

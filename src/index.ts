@@ -10,7 +10,7 @@ import {
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 
 import "./style.css";
-import { PerspectiveCamera, Scene, WebGLRenderer } from "three";
+import { MathUtils, PerspectiveCamera, Scene, WebGLRenderer } from "three";
 
 import { Player } from "./modules/Player";
 import { TerrainChunk } from "./modules/TerrainChunk";
@@ -21,8 +21,6 @@ import { DEBUG_PARAMS } from "./settings";
 
 ////////////////
 ////////////////
-
-const DISTANCE_BETWEEN_CHUNKS = 400;
 
 class App {
   matterEngine!: Engine;
@@ -104,7 +102,10 @@ class App {
 
       chunkX =
         terrainChunk.curve.points[terrainChunk.curve.points.length - 1].x +
-        DISTANCE_BETWEEN_CHUNKS;
+        MathUtils.randFloat(
+          DEBUG_PARAMS.terrain.gaps.min,
+          DEBUG_PARAMS.terrain.gaps.max
+        );
       chunkY =
         terrainChunk.curve.points[terrainChunk.curve.points.length - 1].y;
     }
@@ -166,7 +167,11 @@ class App {
         const curveLastPoint =
           lastChunk.curve.points[lastChunk.curve.points.length - 1];
         this.initTerrainChunk(
-          curveLastPoint.x + DISTANCE_BETWEEN_CHUNKS,
+          curveLastPoint.x +
+            MathUtils.randFloat(
+              DEBUG_PARAMS.terrain.gaps.min,
+              DEBUG_PARAMS.terrain.gaps.max
+            ),
           curveLastPoint.y
         );
       }

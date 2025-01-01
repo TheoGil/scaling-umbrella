@@ -36,6 +36,7 @@ const DEBUG_PARAMS = {
     friction: 0,
     frictionAir: 0,
     frictionStatic: 0,
+    gaps: { min: 400, max: 500 },
   },
   webgl: {
     enabled: true,
