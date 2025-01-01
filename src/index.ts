@@ -1,6 +1,5 @@
-import { Pane, FolderApi } from "tweakpane";
-import * as EssentialsPlugin from "@tweakpane/plugin-essentials";
 import {
+  Body,
   Composite,
   Engine,
   Events,
@@ -12,47 +11,14 @@ import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 
 import "./style.css";
 import { PerspectiveCamera, Scene, WebGLRenderer } from "three";
-import { DEBUG_PARAMS } from "./settings";
+
 import { Player } from "./modules/Player";
 import { TerrainChunk } from "./modules/TerrainChunk";
 import { getCameraFrustrumDimensionsAtDepth } from "./utils/getCameraFrustrumDimensionsAtDepth";
 import { emitter } from "./modules/emitter";
+import { initDebug } from "./modules/debug";
+import { DEBUG_PARAMS } from "./settings";
 
-const debug = new Pane() as FolderApi;
-debug.registerPlugin(EssentialsPlugin);
-
-debug.addBinding(DEBUG_PARAMS, "p", {
-  min: 0,
-  max: 1,
-  step: 0.001,
-  label: "Progress",
-});
-/*
-const curveFolder = debug
-  .addFolder({
-    title: "Curve segments",
-  })
-  .on("change", () => {
-    curve = initCurve();
-  });
-
-curveFolder.addBinding(DEBUG_PARAMS.segments, "angle", {
-  min: 0,
-  max: Math.PI / 2,
-  label: "Angle",
-});
-
-curveFolder.addBinding(DEBUG_PARAMS.segments, "alternateAngle", {
-  label: "Alternate angle",
-});
-
-curveFolder.addBinding(DEBUG_PARAMS.segments, "length", {
-  min: 0,
-  max: 400,
-  label: "Length",
-});
-
-*/
 ////////////////
 ////////////////
 
@@ -74,6 +40,7 @@ class App {
     this.initRendering();
     this.initPhysics();
     this.init();
+    initDebug(this);
   }
 
   initPhysics() {
@@ -91,7 +58,9 @@ class App {
         wireframes: true,
       },
     });
-    Render.run(this.matterRenderer);
+    if (DEBUG_PARAMS.debugRenderer.enabled) {
+      Render.run(this.matterRenderer);
+    }
 
     this.runner = Runner.create();
 
@@ -120,6 +89,11 @@ class App {
   }
 
   init() {
+    this.initTerrain();
+    this.initPlayer();
+  }
+
+  initTerrain() {
     const initialChunksCount = 2;
     let chunkX = 0;
     let chunkY = innerHeight / 2;
@@ -131,7 +105,9 @@ class App {
       chunkY =
         terrainChunk.curve.points[terrainChunk.curve.points.length - 1].y;
     }
+  }
 
+  initPlayer() {
     this.player = new Player();
     Composite.add(this.matterEngine.world, [this.player.physicsBody]);
     Composite.add(this.matterEngine.world, [this.player.terrainAngleSensor]);
@@ -219,7 +195,9 @@ class App {
     this.player.update();
     this.focusCameraOnPlayer();
 
-    this.renderer.render(this.scene!, this.camera!);
+    if (DEBUG_PARAMS.webgl.enabled) {
+      this.renderer.render(this.scene!, this.camera!);
+    }
   }
 
   onCollisionStart(e: IEventCollision<Engine>) {
@@ -229,6 +207,24 @@ class App {
   onCollisionEnd(e: IEventCollision<Engine>) {
     emitter.emit("onCollisionEnd", e);
   }
+
+  reset() {
+    for (let i = this.terrainChunks.length - 1; i >= 0; i--) {
+      Composite.remove(this.matterEngine!.world, this.terrainChunks[i].bodies);
+      this.scene.remove(this.terrainChunks[i].mesh);
+    }
+    this.terrainChunks = [];
+
+    this.initTerrain();
+
+    this.player.reset();
+    Body.setPosition(this.player.physicsBody, {
+      x: this.terrainChunks[0].curve.points[0].x + 10,
+      y: this.terrainChunks[0].curve.points[0].y - 200,
+    });
+  }
 }
+
+export { App };
 
 new App();

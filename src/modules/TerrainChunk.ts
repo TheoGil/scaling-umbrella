@@ -3,8 +3,6 @@ import {
   Color,
   Mesh,
   MeshBasicMaterial,
-  MeshNormalMaterial,
-  PlaneGeometry,
   TubeGeometry,
 } from "three";
 import { Body } from "matter-js";
@@ -36,11 +34,15 @@ class TerrainChunk {
       alternateAngle: DEBUG_PARAMS.segments.alternateAngle,
     });
 
-    this.bodies = generatePhysicBodiesFromCurve(this.curve);
+    const tubularSegments = Math.round(
+      this.curve.getLength() / DEBUG_PARAMS.segments.definition
+    );
+
+    this.bodies = generatePhysicBodiesFromCurve(this.curve, tubularSegments);
 
     const curveGeometry = new TubeGeometry(
       this.curve,
-      DEBUG_PARAMS.segments.definition,
+      tubularSegments,
       1,
       8,
       false

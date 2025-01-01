@@ -67,7 +67,7 @@ function generateCurve(options: {
 
 function splitCurveIntoLinearSegments(
   curve: CatmullRomCurve3,
-  definition = DEBUG_PARAMS.segments.definition
+  tubularSegments: number
 ) {
   const segments: {
     position: {
@@ -78,7 +78,7 @@ function splitCurveIntoLinearSegments(
     length: number;
   }[] = [];
 
-  curve.getSpacedPoints(definition).forEach((point, i, points) => {
+  curve.getSpacedPoints(tubularSegments).forEach((point, i, points) => {
     if (i < points.length - 1) {
       const nextPoint = points[i + 1];
 
@@ -116,13 +116,16 @@ function splitCurveIntoLinearSegments(
   return segments;
 }
 
-function generatePhysicBodiesFromCurve(curve: CatmullRomCurve3) {
+function generatePhysicBodiesFromCurve(
+  curve: CatmullRomCurve3,
+  tubularSegments: number
+) {
   const bodies: Body[] = [];
 
   const thickness = 10;
   const halfThickness = thickness / 2;
 
-  const segments = splitCurveIntoLinearSegments(curve);
+  const segments = splitCurveIntoLinearSegments(curve, tubularSegments);
 
   segments.forEach((segment) => {
     const halfLength = segment.length / 2;
@@ -134,9 +137,9 @@ function generatePhysicBodiesFromCurve(curve: CatmullRomCurve3) {
       thickness,
       {
         isStatic: true,
-        friction: 0,
-        frictionStatic: 0,
-        restitution: DEBUG_PARAMS.restitution,
+        friction: DEBUG_PARAMS.terrain.friction,
+        frictionStatic: DEBUG_PARAMS.terrain.frictionStatic,
+        restitution: DEBUG_PARAMS.terrain.restitution,
         label: LABEL_TERRAIN_CHUNK,
       }
     );

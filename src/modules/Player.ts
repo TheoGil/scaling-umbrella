@@ -128,8 +128,8 @@ class Player {
       START_POS_Y,
       DEBUG_PARAMS.player.radius,
       {
-        friction: 100,
-        frictionStatic: 100,
+        friction: DEBUG_PARAMS.player.friction,
+        frictionStatic: DEBUG_PARAMS.player.frictionStatic,
         restitution: DEBUG_PARAMS.player.restitution,
         label: "player-body",
       },
@@ -243,6 +243,13 @@ class Player {
         this.collidingTerrainChunks.splice(index, 1);
       }
     });
+  }
+
+  reset() {
+    Body.setAngle(this.physicsBody, 0);
+    Body.setVelocity(this.physicsBody, { x: 0, y: 0 });
+    Body.setAngularSpeed(this.physicsBody, 0);
+    Body.setAngularVelocity(this.physicsBody, 0);
   }
 }
 

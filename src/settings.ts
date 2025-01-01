@@ -1,7 +1,6 @@
 const DEBUG_PARAMS = {
-  p: 0,
   segments: {
-    definition: 100,
+    definition: 50,
     count: 10,
     angle: {
       min: 0,
@@ -16,9 +15,11 @@ const DEBUG_PARAMS = {
   player: {
     radius: 25,
     restitution: 0,
+    friction: 0,
+    frictionStatic: 0,
     autoRotateLerpAmount: 0.1,
     velocity: {
-      x: 10,
+      x: 9,
       jump: -10,
     },
     groundSensor: {
@@ -29,6 +30,21 @@ const DEBUG_PARAMS = {
       width: 2,
       height: 100,
     },
+  },
+  terrain: {
+    restitution: 0,
+    friction: 0,
+    frictionAir: 0,
+    frictionStatic: 0,
+  },
+  webgl: {
+    enabled: true,
+  },
+  debugRenderer: {
+    enabled: false,
+  },
+  physics: {
+    enabled: true,
   },
 };
 
