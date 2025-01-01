@@ -15,6 +15,7 @@ const DEBUG_PARAMS = {
   },
   player: {
     radius: 25,
+    restitution: 0,
     velocity: {
       x: 10,
     },

@@ -4,19 +4,11 @@ import { Composite, Engine, Events, Render, Runner } from "matter-js";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 
 import "./style.css";
-import { drawCrossHair } from "./utils/drawCrosshair";
-import { generateCurve, generatePhysicBodiesFromCurve } from "./modules/curve";
-import {
-  CatmullRomCurve3,
-  Mesh,
-  MeshNormalMaterial,
-  PerspectiveCamera,
-  Scene,
-  TubeGeometry,
-  WebGLRenderer,
-} from "three";
+import { PerspectiveCamera, Scene, WebGLRenderer } from "three";
 import { DEBUG_PARAMS } from "./settings";
 import { Player } from "./modules/Player";
+import { TerrainChunk } from "./modules/TerrainChunk";
+import { getCameraFrustrumDimensionsAtDepth } from "./utils/getCameraFrustrumDimensionsAtDepth";
 
 ////////////////
 ////////////////
@@ -146,7 +138,7 @@ class App {
 
     this.player = new Player();
     Composite.add(this.matterEngine.world, this.player.physicsBody);
-    this.scene.add(this.player.mesh);
+    this.scene.add(this.player.object3D);
   }
 
   initTerrainChunk(x: number, y: number) {
@@ -162,12 +154,12 @@ class App {
 
   focusCameraOnPlayer() {
     this.camera?.position.set(
-      this.player.mesh.position.x,
-      this.player.mesh.position.y,
+      this.player.object3D.position.x,
+      this.player.object3D.position.y,
       300
     );
 
-    this.camera.lookAt(this.player.mesh.position);
+    this.camera.lookAt(this.player.object3D.position);
   }
 
   // Iterate over terrain chunks and destroy them once they leave the viewport
@@ -268,7 +260,7 @@ class App {
 
   onPhysicsEngineAfterUpdate() {
     // The Y axis is inverted in canvas 2D / threejs space
-    this.player.mesh.position.set(
+    this.player.object3D.position.set(
       this.player.physicsBody.position.x,
       -this.player.physicsBody.position.y,
       0
