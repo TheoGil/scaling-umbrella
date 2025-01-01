@@ -48,9 +48,11 @@ class Player {
   jumpBufferTimer = 0;
   coyoteTimer = 0;
   isJumping = false;
+  jumpButtonHasBeenReleased = true;
 
   constructor() {
     this.onKeyDown = this.onKeyDown.bind(this);
+    this.onKeyUp = this.onKeyUp.bind(this);
     this.onCollisionStart = this.onCollisionStart.bind(this);
     this.onCollisionEnd = this.onCollisionEnd.bind(this);
 
@@ -64,6 +66,7 @@ class Player {
     emitter.on("onCollisionStart", this.onCollisionStart);
     emitter.on("onCollisionEnd", this.onCollisionEnd);
     document.addEventListener("keydown", this.onKeyDown);
+    document.addEventListener("keyup", this.onKeyUp);
   }
 
   // Lot of magic numbers here
@@ -231,7 +234,9 @@ class Player {
   }
 
   onKeyDown(e: KeyboardEvent) {
-    if (e.code === "Space") {
+    if (e.code === "Space" && this.jumpButtonHasBeenReleased) {
+      this.jumpButtonHasBeenReleased = false;
+
       if (
         this.isGrounded ||
         (!this.isJumping && this.coyoteTimer < COYOTE_TIMER_MAX)
@@ -240,6 +245,12 @@ class Player {
       } else {
         this.startJumpBuffering();
       }
+    }
+  }
+
+  onKeyUp(e: KeyboardEvent) {
+    if (e.code === "Space") {
+      this.jumpButtonHasBeenReleased = true;
     }
   }
 
