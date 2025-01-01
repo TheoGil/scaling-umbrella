@@ -22,6 +22,8 @@ import { DEBUG_PARAMS } from "./settings";
 ////////////////
 ////////////////
 
+const DISTANCE_BETWEEN_CHUNKS = 400;
+
 class App {
   matterEngine!: Engine;
   matterRenderer!: Render;
@@ -101,7 +103,8 @@ class App {
       const terrainChunk = this.initTerrainChunk(chunkX, chunkY);
 
       chunkX =
-        terrainChunk.curve.points[terrainChunk.curve.points.length - 1].x;
+        terrainChunk.curve.points[terrainChunk.curve.points.length - 1].x +
+        DISTANCE_BETWEEN_CHUNKS;
       chunkY =
         terrainChunk.curve.points[terrainChunk.curve.points.length - 1].y;
     }
@@ -162,7 +165,10 @@ class App {
         const lastChunk = this.terrainChunks[this.terrainChunks.length - 1];
         const curveLastPoint =
           lastChunk.curve.points[lastChunk.curve.points.length - 1];
-        this.initTerrainChunk(curveLastPoint.x, curveLastPoint.y);
+        this.initTerrainChunk(
+          curveLastPoint.x + DISTANCE_BETWEEN_CHUNKS,
+          curveLastPoint.y
+        );
       }
     }
   }
