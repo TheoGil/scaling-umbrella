@@ -60,7 +60,6 @@ curveFolder.addBinding(DEBUG_PARAMS.segments, "length", {
 ////////////////
 
 class App {
-  curve!: CatmullRomCurve3;
   matterEngine!: Engine;
   matterRenderer!: Render;
   runner!: Runner;
@@ -68,6 +67,7 @@ class App {
   camera!: PerspectiveCamera;
   renderer!: WebGLRenderer;
   player!: Player;
+  terrainChunks: TerrainChunk[] = [];
 
   constructor() {
     this.onDebugBeforeRender = this.onDebugBeforeRender.bind(this);
@@ -81,8 +81,6 @@ class App {
     this.initRendering();
     this.initPhysics();
     this.init();
-
-    console.log(this);
   }
 
   initPhysics() {
@@ -134,45 +132,32 @@ class App {
   }
 
   init() {
-    this.curve = generateCurve({
-      startPosition: {
-        x: 0,
-        y: innerHeight / 2,
-        z: 0,
-      },
-      segmentsCount: DEBUG_PARAMS.segments.count,
-      segmentsAngle: {
-        min: DEBUG_PARAMS.segments.angle.min,
-        max: DEBUG_PARAMS.segments.angle.max,
-      },
-      segmentsLength: {
-        min: DEBUG_PARAMS.segments.length.min,
-        max: DEBUG_PARAMS.segments.length.max,
-      },
-      alternateAngle: DEBUG_PARAMS.segments.alternateAngle,
-    });
+    const initialChunksCount = 2;
+    let chunkX = 0;
+    let chunkY = innerHeight / 2;
+    for (let i = 0; i < initialChunksCount; i++) {
+      const terrainChunk = this.initTerrainChunk(chunkX, chunkY);
 
-    const bodies = generatePhysicBodiesFromCurve(this.curve);
-
-    Composite.add(this.matterEngine!.world, bodies);
-
-    const curveGeometry = new TubeGeometry(
-      this.curve,
-      DEBUG_PARAMS.segments.definition,
-      1,
-      8,
-      false
-    );
-    const curveMaterial = new MeshNormalMaterial();
-    const curveMesh = new Mesh(curveGeometry, curveMaterial);
-    this.scene.add(curveMesh);
-
-    // The Y axis is inverted in canvas 2D / threejs space
-    curveMesh.scale.y = -1;
+      chunkX =
+        terrainChunk.curve.points[terrainChunk.curve.points.length - 1].x;
+      chunkY =
+        terrainChunk.curve.points[terrainChunk.curve.points.length - 1].y;
+    }
 
     this.player = new Player();
     Composite.add(this.matterEngine.world, this.player.physicsBody);
     this.scene.add(this.player.mesh);
+  }
+
+  initTerrainChunk(x: number, y: number) {
+    const terrainChunk = new TerrainChunk(x, y);
+
+    Composite.add(this.matterEngine!.world, terrainChunk.bodies);
+    this.scene.add(terrainChunk.mesh);
+
+    this.terrainChunks.push(terrainChunk);
+
+    return terrainChunk;
   }
 
   focusCameraOnPlayer() {
@@ -183,6 +168,38 @@ class App {
     );
 
     this.camera.lookAt(this.player.mesh.position);
+  }
+
+  // Iterate over terrain chunks and destroy them once they leave the viewport
+  // Leave the viewport === left edge of camera frustum > right edge of chunk BBox
+  destroyOutOfViewChunks() {
+    const { width: cameraFrustrumWidth } = getCameraFrustrumDimensionsAtDepth(
+      this.camera,
+      0
+    );
+    const halfFrustumWidth = cameraFrustrumWidth / 2;
+    const frustumX = this.camera.position.x - halfFrustumWidth;
+
+    for (let i = this.terrainChunks.length - 1; i >= 0; i--) {
+      const chunk = this.terrainChunks[i];
+
+      if (
+        chunk.mesh.geometry.boundingBox &&
+        frustumX > chunk.mesh.geometry.boundingBox.max.x
+      ) {
+        // Cleanup chunk mesh, physic bodies...
+        Composite.remove(this.matterEngine!.world, chunk.bodies);
+        this.scene.remove(chunk.mesh);
+
+        this.terrainChunks.splice(i, 1);
+
+        // Create new one
+        const lastChunk = this.terrainChunks[this.terrainChunks.length - 1];
+        const curveLastPoint =
+          lastChunk.curve.points[lastChunk.curve.points.length - 1];
+        this.initTerrainChunk(curveLastPoint.x, curveLastPoint.y);
+      }
+    }
   }
 
   onDebugBeforeRender() {
@@ -239,8 +256,11 @@ class App {
 
   // Fired once at the end of the browser frame, after beforeTick, tick and after any engine updates.
   onAfterTick() {
+    this.destroyOutOfViewChunks();
+
     this.player.update();
     this.focusCameraOnPlayer();
+
     this.renderer.render(this.scene!, this.camera!);
   }
 
