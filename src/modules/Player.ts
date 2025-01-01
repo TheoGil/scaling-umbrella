@@ -20,6 +20,7 @@ const LABEL_TERRAIN_ANGLE_SENSOR = "terrain-angle-sensor";
 const START_POS_X = 10;
 const START_POS_Y = 300;
 const JUMP_BUFFER_TIMER_MAX = 5;
+const COYOTE_TIMER_MAX = 10;
 const MAGIC_SCALE_NUMBER_FIXME = 25;
 
 const findPairs = (pairs: Pair[], labelA: string, labelB: string) =>
@@ -45,6 +46,8 @@ class Player {
   object3DTween?: gsap.core.Tween;
   isJumpBuffering = false;
   jumpBufferTimer = 0;
+  coyoteTimer = 0;
+  isJumping = false;
 
   constructor() {
     this.onKeyDown = this.onKeyDown.bind(this);
@@ -159,11 +162,21 @@ class Player {
         DEBUG_PARAMS.player.terrainAngleSensor.height / 2,
     });
 
+    const wasGrounded = this.isGrounded;
+
     // Ground sensor can collide with multiple terrain chunks simultaneously.
     // Because of that, it is tricky to rely only on collide start / stop to update isGrounded.
     // Instead, we keep track of every terrain segment colliding with sensor and check if
     // any is currently colliding.
     this.isGrounded = this.collidingTerrainChunks.length > 0;
+
+    if (wasGrounded && !this.isGrounded) {
+      this.onUnground();
+    }
+
+    if (!this.isGrounded) {
+      this.coyoteTimer += 1;
+    }
 
     // Autorotate based on terrain chunk angle sensor
     const angle = MathUtils.lerp(
@@ -192,6 +205,8 @@ class Player {
   }
 
   jump() {
+    this.isJumping = true;
+
     this.stopJumpBuffering();
 
     this.object3DTween?.kill();
@@ -217,7 +232,10 @@ class Player {
 
   onKeyDown(e: KeyboardEvent) {
     if (e.code === "Space") {
-      if (this.isGrounded) {
+      if (
+        this.isGrounded ||
+        (!this.isJumping && this.coyoteTimer < COYOTE_TIMER_MAX)
+      ) {
         this.jump();
       } else {
         this.startJumpBuffering();
@@ -284,6 +302,9 @@ class Player {
   }
 
   onGroundBack() {
+    this.coyoteTimer = 0;
+    this.isJumping = false;
+
     this.object3DTween?.kill();
     this.object3DTween = gsap.fromTo(
       this.object3D.scale,
@@ -303,6 +324,10 @@ class Player {
     }
 
     this.stopJumpBuffering();
+  }
+
+  onUnground() {
+    this.coyoteTimer = 0;
   }
 
   startJumpBuffering() {
