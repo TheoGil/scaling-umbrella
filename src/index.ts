@@ -36,11 +36,14 @@ class App {
     this.onAfterTick = this.onAfterTick.bind(this);
     this.onCollisionStart = this.onCollisionStart.bind(this);
     this.onCollisionEnd = this.onCollisionEnd.bind(this);
+    this.onResize = this.onResize.bind(this);
 
     this.initRendering();
     this.initPhysics();
     this.init();
     initDebug(this);
+
+    window.addEventListener("resize", this.onResize);
   }
 
   initPhysics() {
@@ -223,6 +226,13 @@ class App {
       x: this.terrainChunks[0].curve.points[0].x + 10,
       y: this.terrainChunks[0].curve.points[0].y - 200,
     });
+  }
+
+  onResize() {
+    this.camera.aspect = window.innerWidth / window.innerHeight;
+    this.camera.updateProjectionMatrix();
+
+    this.renderer.setSize(window.innerWidth, window.innerHeight);
   }
 }
 
