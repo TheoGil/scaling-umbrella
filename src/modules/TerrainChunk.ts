@@ -6,7 +6,9 @@ import {
   Group,
   InstancedMesh,
   MathUtils,
+  Mesh,
   MeshBasicMaterial,
+  MeshNormalMaterial,
   Object3D,
   StaticDrawUsage,
   TubeGeometry,
@@ -68,6 +70,24 @@ class TerrainChunk {
     this.initRailProfiles();
     this.initRailTies();
     this.initObstacles();
+
+    //
+    // https://github.com/Pomax/bezierjs/blob/master/src/bezier.js#L520
+    const t = -50;
+
+    const nv = this.curve.points[0].clone().normalize();
+
+    const coords = this.curve.points.map(function (p) {
+      return new Vector3(p.x + t * nv.x, p.y + t * nv.y, 0);
+    });
+
+    console.log(coords);
+
+    const c2 = new CatmullRomCurve3(coords);
+    const geometry = new TubeGeometry(c2, 1000, 1, 8, false);
+    const mat = new MeshNormalMaterial();
+    this.object3D.add(new Mesh(geometry, mat));
+    //
 
     // Invert Y axis
     // The curve is "designed" in canvas 2D coordinates system (positive Y is down)

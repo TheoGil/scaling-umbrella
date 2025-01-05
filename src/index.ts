@@ -27,6 +27,7 @@ import { getCameraFrustrumDimensionsAtDepth } from "./utils/getCameraFrustrumDim
 import { emitter } from "./modules/emitter";
 import { initDebug } from "./modules/debug";
 import { DEBUG_PARAMS } from "./settings";
+import { TestColorMask } from "./modules/TestColorMask";
 
 ////////////////
 ////////////////
@@ -113,6 +114,10 @@ class App {
     this.TEMP_initPlayerObstacleCollisionFXPLane();
     this.initTerrain();
     this.initPlayer();
+
+    const test = new TestColorMask();
+    this.scene.add(test.object3D);
+    console.log(test);
   }
 
   initTerrain() {
@@ -237,7 +242,7 @@ class App {
     this.TEMP_obstacleCollisionFXPlane.scale.set(width, height, 1);
 
     this.player.update();
-    this.focusCameraOnPlayer();
+    // this.focusCameraOnPlayer();
 
     if (DEBUG_PARAMS.webgl.enabled) {
       this.renderer.render(this.scene!, this.camera!);
