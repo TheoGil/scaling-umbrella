@@ -8,9 +8,18 @@ import {
   Runner,
 } from "matter-js";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import gsap from "gsap";
 
 import "./style.css";
-import { MathUtils, PerspectiveCamera, Scene, WebGLRenderer } from "three";
+import {
+  MathUtils,
+  Mesh,
+  MeshBasicMaterial,
+  PerspectiveCamera,
+  PlaneGeometry,
+  Scene,
+  WebGLRenderer,
+} from "three";
 
 import { Player } from "./modules/Player";
 import { TerrainChunk } from "./modules/TerrainChunk";
@@ -31,12 +40,18 @@ class App {
   renderer!: WebGLRenderer;
   player!: Player;
   terrainChunks: TerrainChunk[] = [];
+  latestTerrainChunkIndex = 0;
+
+  // Temporary plane to apply visual feedback when player collides with obstacle
+  TEMP_obstacleCollisionFXPlane!: Mesh<PlaneGeometry, MeshBasicMaterial>;
 
   constructor() {
     this.onAfterTick = this.onAfterTick.bind(this);
     this.onCollisionStart = this.onCollisionStart.bind(this);
     this.onCollisionEnd = this.onCollisionEnd.bind(this);
     this.onResize = this.onResize.bind(this);
+    this.onPlayerCollideWithObstacle =
+      this.onPlayerCollideWithObstacle.bind(this);
 
     this.initRendering();
     this.initPhysics();
@@ -44,6 +59,10 @@ class App {
     initDebug(this);
 
     window.addEventListener("resize", this.onResize);
+    emitter.on(
+      "onPlayerCollisionWithObstacle",
+      this.onPlayerCollideWithObstacle
+    );
   }
 
   initPhysics() {
@@ -80,7 +99,6 @@ class App {
       0.1,
       1000
     );
-    this.camera.position.z = -5;
 
     this.renderer = new WebGLRenderer({
       canvas: document.getElementById("webgl-canvas") as HTMLCanvasElement,
@@ -92,6 +110,7 @@ class App {
   }
 
   init() {
+    this.TEMP_initPlayerObstacleCollisionFXPLane();
     this.initTerrain();
     this.initPlayer();
   }
@@ -122,10 +141,16 @@ class App {
   }
 
   initTerrainChunk(x: number, y: number) {
-    const terrainChunk = new TerrainChunk(x, y);
+    const terrainChunk = new TerrainChunk(x, y, this.latestTerrainChunkIndex);
+    this.latestTerrainChunkIndex++;
 
     Composite.add(this.matterEngine!.world, terrainChunk.bodies);
     this.scene.add(terrainChunk.object3D);
+
+    terrainChunk.obstacles.forEach((obstacle) => {
+      Composite.add(this.matterEngine!.world, obstacle.physicsBody);
+      this.scene.add(obstacle.object3D);
+    });
 
     this.terrainChunks.push(terrainChunk);
 
@@ -159,6 +184,10 @@ class App {
         // Cleanup chunk mesh, physic bodies...
         Composite.remove(this.matterEngine!.world, chunk.bodies);
         this.scene.remove(chunk.object3D);
+        chunk.obstacles.forEach((obstacle) => {
+          Composite.add(this.matterEngine!.world, obstacle.physicsBody);
+          this.scene.add(obstacle.object3D);
+        });
 
         this.terrainChunks.splice(i, 1);
 
@@ -195,6 +224,17 @@ class App {
     );
 
     this.destroyOutOfViewChunks();
+
+    this.TEMP_obstacleCollisionFXPlane.position.set(
+      this.player.object3D.position.x,
+      this.player.object3D.position.y,
+      -100
+    );
+    const { width, height } = getCameraFrustrumDimensionsAtDepth(
+      this.camera,
+      this.TEMP_obstacleCollisionFXPlane.position.z
+    );
+    this.TEMP_obstacleCollisionFXPlane.scale.set(width, height, 1);
 
     this.player.update();
     this.focusCameraOnPlayer();
@@ -233,6 +273,29 @@ class App {
     this.camera.updateProjectionMatrix();
 
     this.renderer.setSize(window.innerWidth, window.innerHeight);
+  }
+
+  onPlayerCollideWithObstacle() {
+    // Temporary visual flash fx to give player feedback when colliding with obstacle
+    // TODO: Determine what happens when player collides with obstacle
+    gsap.from(this.TEMP_obstacleCollisionFXPlane.material, {
+      opacity: 1,
+      duration: 0.5,
+      ease: "power3.out",
+    });
+  }
+
+  TEMP_initPlayerObstacleCollisionFXPLane() {
+    this.TEMP_obstacleCollisionFXPlane = new Mesh(
+      new PlaneGeometry(1, 1),
+      new MeshBasicMaterial({
+        color: 0x7f0900,
+        transparent: true,
+        opacity: 0,
+      })
+    );
+
+    this.scene.add(this.TEMP_obstacleCollisionFXPlane);
   }
 }
 

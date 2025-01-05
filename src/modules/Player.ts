@@ -14,9 +14,11 @@ import playerGlbUrl from "/player.glb?url";
 import { emitter } from "./emitter";
 import { LABEL_TERRAIN_CHUNK } from "./curve";
 import gsap from "gsap";
+import { LABEL_OBSTACLE } from "./Obstacle";
 
 const LABEL_TERRAIN_CHUNK_SENSOR = "ground-sensor";
 const LABEL_TERRAIN_ANGLE_SENSOR = "terrain-angle-sensor";
+const LABEL_PLAYER = "player";
 const START_POS_X = 10;
 const START_POS_Y = 300;
 const JUMP_BUFFER_TIMER_MAX = 5;
@@ -140,7 +142,7 @@ class Player {
         friction: DEBUG_PARAMS.player.friction,
         frictionStatic: DEBUG_PARAMS.player.frictionStatic,
         restitution: DEBUG_PARAMS.player.restitution,
-        label: "player-body",
+        label: LABEL_PLAYER,
       },
       25
     );
@@ -257,6 +259,7 @@ class Player {
   onCollisionStart(e: IEventCollision<Engine>) {
     this.onTerrainAngleSensorCollisionStart(e.pairs);
     this.onGroundSensorCollisionStart(e.pairs);
+    this.onObstacleCollisionStart(e.pairs);
   }
 
   onCollisionEnd(e: IEventCollision<Engine>) {
@@ -275,6 +278,17 @@ class Player {
 
       if (terrainChunks.length) {
         this.desiredRotation = terrainChunks[0].angle;
+      }
+    }
+  }
+
+  onObstacleCollisionStart(p: Pair[]) {
+    const pairs = findPairs(p, LABEL_PLAYER, LABEL_OBSTACLE);
+    if (pairs.length) {
+      if (this.isGrounded) {
+        emitter.emit("onPlayerCollisionWithObstacle");
+      } else {
+        this.jump();
       }
     }
   }

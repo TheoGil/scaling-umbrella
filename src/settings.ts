@@ -57,6 +57,39 @@ const DEBUG_PARAMS = {
   physics: {
     enabled: true,
   },
+  obstacles: {
+    minPosition: 0.1,
+    maxPosition: 0.9,
+    size: {
+      x: 40,
+      y: 25,
+      z: 25,
+    },
+    collider: {
+      radius: 20,
+    },
+    // For chunks between min.chunkIndex and max.chunkIndex,
+    // properties will be interpolated linearly.
+    // Properties are clamped for chunks lower or higher.
+    difficulty: {
+      min: {
+        chunkIndex: 1,
+        count: {
+          min: 0,
+          max: 1,
+        },
+        minDistance: 0.25, // 0 = 0, 1 = 100% of the curve. 0.1 = 1/10th of the curve length
+      },
+      max: {
+        chunkIndex: 10,
+        count: {
+          min: 1,
+          max: 10,
+        },
+        minDistance: 0.025, // 0 = 0, 1 = 100% of the curve. 0.1 = 1/10th of the curve length
+      },
+    },
+  },
 };
 
 export { DEBUG_PARAMS };
