@@ -66,9 +66,16 @@ function initDebug(app: App) {
     label: "Angle",
   });
 
-  terrainFolder.addBinding(DEBUG_PARAMS.segments, "alternateAngle", {
-    label: "Alternate angle",
-  });
+  terrainFolder.addBinding(
+    DEBUG_PARAMS.segments,
+    "alternateAngleEveryNTHChunk",
+    {
+      label: "Alternate angle NTH",
+      step: 1,
+      min: 0,
+      max: 10,
+    }
+  );
 
   terrainFolder.addBinding(DEBUG_PARAMS.segments, "count", {
     min: 5,
