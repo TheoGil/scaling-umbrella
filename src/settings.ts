@@ -6,7 +6,7 @@ const DEBUG_PARAMS = {
       min: 0,
       max: 0.6,
     },
-    alternateAngle: true,
+    alternateAngleEveryNTHChunk: 4,
     length: {
       min: 300,
       max: 500,

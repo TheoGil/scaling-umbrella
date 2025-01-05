@@ -36,6 +36,10 @@ class TerrainChunk {
 
     this.object3D = new Group();
 
+    const alternateAngle =
+      this.index !== 0 &&
+      this.index % DEBUG_PARAMS.segments.alternateAngleEveryNTHChunk === 0;
+
     this.curve = generateCurve({
       startPosition: {
         x: startX,
@@ -51,7 +55,7 @@ class TerrainChunk {
         min: DEBUG_PARAMS.segments.length.min,
         max: DEBUG_PARAMS.segments.length.max,
       },
-      alternateAngle: DEBUG_PARAMS.segments.alternateAngle,
+      alternateAngle,
     });
 
     this.tubularSegments = this.computeTubularSegments();
