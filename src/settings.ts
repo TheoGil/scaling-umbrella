@@ -90,6 +90,22 @@ const DEBUG_PARAMS = {
       },
     },
   },
+  camera: {
+    portrait: {
+      z: 800,
+      offset: {
+        x: 109,
+        y: 126,
+      },
+    },
+    landscape: {
+      z: 300,
+      offset: {
+        x: 163,
+        y: 54,
+      },
+    },
+  },
 };
 
 export { DEBUG_PARAMS };

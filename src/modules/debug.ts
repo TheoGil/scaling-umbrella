@@ -146,6 +146,51 @@ function initDebug(app: App) {
     ).style.opacity = DEBUG_PARAMS.webgl.enabled ? "1" : "0";
   });
 
+  // WEBGL RENDERER
+  const cameraFolder = debug.addFolder({
+    title: "Camera",
+    expanded: false,
+  });
+  const cameraPortraitFolder = cameraFolder.addFolder({
+    title: "Portrait",
+    expanded: true,
+  });
+  cameraPortraitFolder.addBinding(DEBUG_PARAMS.camera.portrait, "z", {
+    step: 1,
+    max: 1000,
+    min: 100,
+  });
+  cameraPortraitFolder.addBinding(DEBUG_PARAMS.camera.portrait.offset, "x", {
+    step: 1,
+    min: -500,
+    max: 500,
+  });
+  cameraPortraitFolder.addBinding(DEBUG_PARAMS.camera.portrait.offset, "y", {
+    step: 1,
+    min: -500,
+    max: 500,
+  });
+
+  const cameraLandscapeFolder = cameraFolder.addFolder({
+    title: "Landscape",
+    expanded: true,
+  });
+  cameraLandscapeFolder.addBinding(DEBUG_PARAMS.camera.landscape, "z", {
+    step: 1,
+    max: 1000,
+    min: 100,
+  });
+  cameraLandscapeFolder.addBinding(DEBUG_PARAMS.camera.landscape.offset, "x", {
+    step: 1,
+    min: -500,
+    max: 500,
+  });
+  cameraLandscapeFolder.addBinding(DEBUG_PARAMS.camera.landscape.offset, "y", {
+    step: 1,
+    min: -500,
+    max: 500,
+  });
+
   debug
     .addButton({
       title: "Reset",

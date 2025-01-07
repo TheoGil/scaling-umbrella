@@ -15,9 +15,10 @@ import {
   MathUtils,
   Mesh,
   MeshBasicMaterial,
-  PerspectiveCamera,
   PlaneGeometry,
   Scene,
+  Vector3,
+  PerspectiveCamera,
   WebGLRenderer,
 } from "three";
 
@@ -28,8 +29,7 @@ import { emitter } from "./modules/emitter";
 import { initDebug } from "./modules/debug";
 import { DEBUG_PARAMS } from "./settings";
 
-////////////////
-////////////////
+const dummyVec3 = new Vector3();
 
 class App {
   matterEngine!: Engine;
@@ -158,13 +158,28 @@ class App {
   }
 
   focusCameraOnPlayer() {
+    const isPortrait = innerWidth < innerHeight;
+
+    const z = isPortrait
+      ? DEBUG_PARAMS.camera.portrait.z
+      : DEBUG_PARAMS.camera.landscape.z;
+
+    const offsetX = isPortrait
+      ? DEBUG_PARAMS.camera.portrait.offset.x
+      : DEBUG_PARAMS.camera.landscape.offset.x;
+
+    const offsetY = isPortrait
+      ? DEBUG_PARAMS.camera.portrait.offset.y
+      : DEBUG_PARAMS.camera.landscape.offset.y;
+
     this.camera?.position.set(
-      this.player.object3D.position.x,
-      this.player.object3D.position.y,
-      300
+      this.player.object3D.position.x + offsetX,
+      this.player.object3D.position.y + offsetY,
+      z
     );
 
-    this.camera.lookAt(this.player.object3D.position);
+    dummyVec3.set(this.camera.position.x, this.camera.position.y, 0);
+    this.camera.lookAt(dummyVec3);
   }
 
   // Iterate over terrain chunks and destroy them once they leave the viewport

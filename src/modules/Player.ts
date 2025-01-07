@@ -192,6 +192,8 @@ class Player {
     Body.setAngle(this.physicsBody, angle);
     this.object3D.rotation.z = -angle;
 
+    Body.setAngle(this.physicsBody, angle);
+
     // Prevent rotation, always stands up
     Body.setAngularVelocity(this.physicsBody, 0);
 
