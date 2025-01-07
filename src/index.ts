@@ -28,6 +28,7 @@ import { getCameraFrustrumDimensionsAtDepth } from "./utils/getCameraFrustrumDim
 import { emitter } from "./modules/emitter";
 import { initDebug } from "./modules/debug";
 import { DEBUG_PARAMS } from "./settings";
+import { AssetsManager } from "./modules/AssetsManager";
 
 const dummyVec3 = new Vector3();
 
@@ -41,6 +42,7 @@ class App {
   player!: Player;
   terrainChunks: TerrainChunk[] = [];
   latestTerrainChunkIndex = 0;
+  assetsManager = new AssetsManager();
 
   // Temporary plane to apply visual feedback when player collides with obstacle
   TEMP_obstacleCollisionFXPlane!: Mesh<PlaneGeometry, MeshBasicMaterial>;
@@ -53,12 +55,10 @@ class App {
     this.onPlayerCollideWithObstacle =
       this.onPlayerCollideWithObstacle.bind(this);
 
-    this.initRendering();
-    this.initPhysics();
     this.init();
-    initDebug(this);
 
     window.addEventListener("resize", this.onResize);
+
     emitter.on(
       "onPlayerCollisionWithObstacle",
       this.onPlayerCollideWithObstacle
@@ -109,10 +109,33 @@ class App {
     new OrbitControls(this.camera, this.renderer.domElement);
   }
 
-  init() {
+  async init() {
+    this.assetsManager.add({
+      id: "LIC",
+      src: sceneGLBUrl,
+      type: "gltf",
+    });
+
+    this.assetsManager.add({
+      id: "color-mask-rgb",
+      src: colorMaskRGBTextureURL,
+      type: "texture",
+    });
+
+    this.assetsManager.add({
+      id: "color-mask-pwy",
+      src: colorMaskPWYTextureURL,
+      type: "texture",
+    });
+
+    await this.assetsManager.loadAll();
+
+    this.initRendering();
+    this.initPhysics();
     this.TEMP_initPlayerObstacleCollisionFXPLane();
     this.initTerrain();
     this.initPlayer();
+    initDebug(this);
   }
 
   initTerrain() {
