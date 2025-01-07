@@ -106,6 +106,9 @@ const DEBUG_PARAMS = {
       },
     },
   },
+  colorMaskFX: {
+    desaturation: 0.75,
+  },
 };
 
 export { DEBUG_PARAMS };

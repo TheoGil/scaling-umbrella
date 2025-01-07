@@ -191,6 +191,91 @@ function initDebug(app: App) {
     max: 500,
   });
 
+  const colorMaskFolder = debug.addFolder({
+    title: "Color Mask",
+    expanded: true,
+  });
+
+  colorMaskFolder.addBinding(
+    app.TEMP_colorMask.LICMaterial.uniforms.uDesaturation,
+    "value",
+    {
+      label: "desaturation",
+      min: 0,
+      max: 1,
+    }
+  );
+
+  colorMaskFolder.addBinding(
+    app.TEMP_colorMask.LICMaterial.uniforms.uRedsAmount,
+    "value",
+    {
+      label: "reds",
+      min: 0,
+      max: 1,
+    }
+  );
+
+  colorMaskFolder.addBinding(
+    app.TEMP_colorMask.LICMaterial.uniforms.uBluesAmount,
+    "value",
+    {
+      label: "blues",
+      min: 0,
+      max: 1,
+    }
+  );
+
+  colorMaskFolder.addBinding(
+    app.TEMP_colorMask.LICMaterial.uniforms.uGreensAmount,
+    "value",
+    {
+      label: "greens",
+      min: 0,
+      max: 1,
+    }
+  );
+
+  colorMaskFolder.addBinding(
+    app.TEMP_colorMask.LICMaterial.uniforms.uPurplesAmount,
+    "value",
+    {
+      label: "purples",
+      min: 0,
+      max: 1,
+    }
+  );
+
+  colorMaskFolder.addBinding(
+    app.TEMP_colorMask.LICMaterial.uniforms.uWhitesAmount,
+    "value",
+    {
+      label: "whites",
+      min: 0,
+      max: 1,
+    }
+  );
+
+  colorMaskFolder.addBinding(
+    app.TEMP_colorMask.LICMaterial.uniforms.uYellowsAmount,
+    "value",
+    {
+      label: "yellows",
+      min: 0,
+      max: 1,
+    }
+  );
+
+  colorMaskFolder.addBinding(
+    app.TEMP_colorMask.LICMaterial.uniforms.uNightOverlayOpacity,
+    "value",
+    {
+      label: "overlay alpha",
+      min: 0,
+      max: 1,
+    }
+  );
+
   debug
     .addButton({
       title: "Reset",

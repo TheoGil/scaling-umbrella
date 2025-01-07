@@ -20,6 +20,7 @@ import {
   Vector3,
   PerspectiveCamera,
   WebGLRenderer,
+  Texture,
 } from "three";
 
 import { Player } from "./modules/Player";
@@ -32,6 +33,12 @@ import { AssetsManager } from "./modules/AssetsManager";
 
 const dummyVec3 = new Vector3();
 
+import colorMaskRGBTextureURL from "/color-mask-red-blue-green.png?url";
+import colorMaskPWYTextureURL from "/color-mask-purple-white-yellow.png?url";
+import sceneGLBUrl from "/lic.glb?url";
+import { GLTF } from "three/examples/jsm/Addons.js";
+import { ColorMasktest } from "./modules/ColorMaskTest";
+
 class App {
   matterEngine!: Engine;
   matterRenderer!: Render;
@@ -43,6 +50,7 @@ class App {
   terrainChunks: TerrainChunk[] = [];
   latestTerrainChunkIndex = 0;
   assetsManager = new AssetsManager();
+  TEMP_colorMask!: ColorMasktest;
 
   // Temporary plane to apply visual feedback when player collides with obstacle
   TEMP_obstacleCollisionFXPlane!: Mesh<PlaneGeometry, MeshBasicMaterial>;
