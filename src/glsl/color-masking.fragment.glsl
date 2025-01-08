@@ -4,6 +4,7 @@ varying vec4 vPos;
 uniform sampler2D uMap;
 uniform sampler2D uColorMaskRGB;
 uniform sampler2D uColorMaskPWY;
+uniform sampler2D uTrailMask;
 uniform float uDesaturation;
 uniform float uRedsAmount;
 uniform float uGreensAmount;
@@ -61,12 +62,25 @@ void main() {
 
     vec4 color = mix(grayscaleColor, baseColor, mask);
 
-    color.rgb = blendOverlay(color.rgb, uNightOverlayColor, uNightOverlayOpacity * (1. - mask));
-
+    // 
     // https://discourse.threejs.org/t/getting-screen-coords-in-shadermaterial-shaders/23783/2
     vec2 screenUv = vPos.xy;
     screenUv /= vPos.w;
     screenUv = screenUv * 0.5 + 0.5;
+
+    float trailMask = texture2D(uTrailMask, screenUv).r;
+    // 
+
+    // color.rgb = blendOverlay(color.rgb, uNightOverlayColor, uNightOverlayOpacity * (1. - mask));
+
+    // color.rgb = blendOverlay(color.rgb, uNightOverlayColor, uNightOverlayOpacity);
+
+    vec3 night = blendOverlay(color.rgb, uNightOverlayColor, uNightOverlayOpacity);
+    vec3 day = color.rgb;
+
+    color.rgb = mix(night, day, clamp(trailMask, 0., 1.));
+
+
   
   	// vec2 uv = fract( screenUv * 10.0 );
     // gl_FragColor = vec4( uv, 0.0, 1.0 );

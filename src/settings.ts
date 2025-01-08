@@ -28,7 +28,7 @@ const DEBUG_PARAMS = {
     },
     terrainAngleSensor: {
       width: 2,
-      height: 75,
+      height: 25,
     },
   },
   terrain: {
@@ -101,13 +101,18 @@ const DEBUG_PARAMS = {
     landscape: {
       z: 300,
       offset: {
-        x: 163,
+        x: 65,
         y: 54,
       },
     },
   },
   colorMaskFX: {
     desaturation: 0.75,
+  },
+  trailFX: {
+    thickness: 0.02,
+    traveling: 0.1,
+    debug: false,
   },
 };
 

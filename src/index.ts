@@ -35,9 +35,11 @@ const dummyVec3 = new Vector3();
 
 import colorMaskRGBTextureURL from "/color-mask-red-blue-green.png?url";
 import colorMaskPWYTextureURL from "/color-mask-purple-white-yellow.png?url";
+import noiseTextureURL from "/noise_1.jpg?url";
 import sceneGLBUrl from "/lic.glb?url";
 import { GLTF } from "three/examples/jsm/Addons.js";
-import { ColorMasktest } from "./modules/ColorMaskTest";
+import { Background } from "./modules/Background";
+import { Trail } from "./modules/Trail";
 
 class App {
   matterEngine!: Engine;
@@ -50,7 +52,8 @@ class App {
   terrainChunks: TerrainChunk[] = [];
   latestTerrainChunkIndex = 0;
   assetsManager = new AssetsManager();
-  TEMP_colorMask!: ColorMasktest;
+  background!: Background;
+  trailFX!: Trail;
 
   // Temporary plane to apply visual feedback when player collides with obstacle
   TEMP_obstacleCollisionFXPlane!: Mesh<PlaneGeometry, MeshBasicMaterial>;
@@ -62,6 +65,7 @@ class App {
     this.onResize = this.onResize.bind(this);
     this.onPlayerCollideWithObstacle =
       this.onPlayerCollideWithObstacle.bind(this);
+    this.onRAF = this.onRAF.bind(this);
 
     this.init();
 
@@ -71,6 +75,8 @@ class App {
       "onPlayerCollisionWithObstacle",
       this.onPlayerCollideWithObstacle
     );
+
+    this.onRAF();
   }
 
   initPhysics() {
@@ -104,13 +110,14 @@ class App {
     this.camera = new PerspectiveCamera(
       75,
       window.innerWidth / window.innerHeight,
-      0.1,
-      1000
+      1,
+      5000
     );
 
     this.renderer = new WebGLRenderer({
       canvas: document.getElementById("webgl-canvas") as HTMLCanvasElement,
       antialias: true,
+      preserveDrawingBuffer: true,
     });
     this.renderer.setSize(window.innerWidth, window.innerHeight);
 
@@ -122,6 +129,12 @@ class App {
       id: "LIC",
       src: sceneGLBUrl,
       type: "gltf",
+    });
+
+    this.assetsManager.add({
+      id: "noise_1",
+      src: noiseTextureURL,
+      type: "texture",
     });
 
     this.assetsManager.add({
@@ -143,6 +156,22 @@ class App {
     this.TEMP_initPlayerObstacleCollisionFXPLane();
     this.initTerrain();
     this.initPlayer();
+
+    this.trailFX = new Trail(
+      this.renderer,
+      this.assetsManager.get<Texture>("noise_1"),
+      this.camera
+    );
+    this.scene.add(this.trailFX.object3D);
+
+    this.background = new Background({
+      gltf: this.assetsManager.get<GLTF>("LIC"),
+      colorMaskRGB: this.assetsManager.get<Texture>("color-mask-rgb"),
+      colorMaskPWY: this.assetsManager.get<Texture>("color-mask-pwy"),
+      trailMask: this.trailFX.bufferSim.output.texture,
+    });
+    this.scene.add(this.background.background);
+
     initDebug(this);
   }
 
@@ -253,7 +282,6 @@ class App {
     }
   }
 
-  // Fired once at the end of the browser frame, after beforeTick, tick and after any engine updates.
   onAfterTick() {
     Render.lookAt(
       this.matterRenderer,
@@ -283,7 +311,6 @@ class App {
     this.TEMP_obstacleCollisionFXPlane.scale.set(width, height, 1);
 
     this.player.update();
-    this.focusCameraOnPlayer();
 
     if (DEBUG_PARAMS.webgl.enabled) {
       this.renderer.render(this.scene!, this.camera!);
@@ -342,6 +369,41 @@ class App {
     );
 
     this.scene.add(this.TEMP_obstacleCollisionFXPlane);
+  }
+
+  onRAF() {
+    this.player && this.focusCameraOnPlayer();
+
+    if (this.trailFX && this.player) {
+      this.trailFX.update({
+        origin: {
+          x: this.player.object3D.position.x,
+          y: this.player.object3D.position.y,
+        },
+        movement: {
+          x: this.player.movement.x / innerWidth,
+          y: (this.player.movement.y / innerHeight) * 0.5,
+        },
+      });
+    }
+
+    if (this.background) {
+      // TODO: Properly handle scaling and positioning of mesh so that it covers the whole viewport without magic numbers.
+      // To ease things a bit, mesh should be re-exported with origin at center
+      this.background.background.scale.setScalar(75);
+      this.background.background.position.set(
+        this.camera.position.x,
+        this.camera.position.y - 250,
+        this.background.background.position.z
+      );
+
+      // Update the trail mask texture value since there is ping pong at play
+      // other wise it will only display every 2 frames
+      this.background.LICMaterial.uniforms.uTrailMask.value =
+        this.trailFX.bufferSim.output.texture;
+    }
+
+    requestAnimationFrame(this.onRAF);
   }
 }
 

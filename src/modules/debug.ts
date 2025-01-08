@@ -197,7 +197,7 @@ function initDebug(app: App) {
   });
 
   colorMaskFolder.addBinding(
-    app.TEMP_colorMask.LICMaterial.uniforms.uDesaturation,
+    app.background.LICMaterial.uniforms.uDesaturation,
     "value",
     {
       label: "desaturation",
@@ -207,7 +207,7 @@ function initDebug(app: App) {
   );
 
   colorMaskFolder.addBinding(
-    app.TEMP_colorMask.LICMaterial.uniforms.uRedsAmount,
+    app.background.LICMaterial.uniforms.uRedsAmount,
     "value",
     {
       label: "reds",
@@ -217,7 +217,7 @@ function initDebug(app: App) {
   );
 
   colorMaskFolder.addBinding(
-    app.TEMP_colorMask.LICMaterial.uniforms.uBluesAmount,
+    app.background.LICMaterial.uniforms.uBluesAmount,
     "value",
     {
       label: "blues",
@@ -227,7 +227,7 @@ function initDebug(app: App) {
   );
 
   colorMaskFolder.addBinding(
-    app.TEMP_colorMask.LICMaterial.uniforms.uGreensAmount,
+    app.background.LICMaterial.uniforms.uGreensAmount,
     "value",
     {
       label: "greens",
@@ -237,7 +237,7 @@ function initDebug(app: App) {
   );
 
   colorMaskFolder.addBinding(
-    app.TEMP_colorMask.LICMaterial.uniforms.uPurplesAmount,
+    app.background.LICMaterial.uniforms.uPurplesAmount,
     "value",
     {
       label: "purples",
@@ -247,7 +247,7 @@ function initDebug(app: App) {
   );
 
   colorMaskFolder.addBinding(
-    app.TEMP_colorMask.LICMaterial.uniforms.uWhitesAmount,
+    app.background.LICMaterial.uniforms.uWhitesAmount,
     "value",
     {
       label: "whites",
@@ -257,7 +257,7 @@ function initDebug(app: App) {
   );
 
   colorMaskFolder.addBinding(
-    app.TEMP_colorMask.LICMaterial.uniforms.uYellowsAmount,
+    app.background.LICMaterial.uniforms.uYellowsAmount,
     "value",
     {
       label: "yellows",
@@ -267,7 +267,7 @@ function initDebug(app: App) {
   );
 
   colorMaskFolder.addBinding(
-    app.TEMP_colorMask.LICMaterial.uniforms.uNightOverlayOpacity,
+    app.background.LICMaterial.uniforms.uNightOverlayOpacity,
     "value",
     {
       label: "overlay alpha",
@@ -275,6 +275,32 @@ function initDebug(app: App) {
       max: 1,
     }
   );
+
+  const trailFXFolder = debug.addFolder({
+    title: "Trail FX",
+    expanded: true,
+  });
+  trailFXFolder.addBinding(
+    app.trailFX.floorSimMat.uniforms.uThickness,
+    "value",
+    {
+      label: "thickness",
+      min: 0,
+      max: 0.1,
+    }
+  );
+  trailFXFolder.addBinding(
+    app.trailFX.floorSimMat.uniforms.uTraveling,
+    "value",
+    {
+      label: "travelling",
+      min: 0,
+      max: 1,
+    }
+  );
+  trailFXFolder.addBinding(app.trailFX.object3D.material, "visible", {
+    label: "debug",
+  });
 
   debug
     .addButton({

@@ -11,30 +11,35 @@ import {
   Color,
   Texture,
   Object3D,
+  Vector3,
 } from "three";
 
 import colorMaskVertex from "../glsl/color-masking.vertex.glsl?raw";
 import colorMaskFragment from "../glsl/color-masking.fragment.glsl?raw";
 import { DEBUG_PARAMS } from "../settings";
 
-class ColorMasktest {
+type LICMesh = Mesh<BufferGeometry, MeshStandardMaterial | ShaderMaterial>;
+
+class Background {
   LICMaterial: ShaderMaterial;
   object3D = new Object3D();
+  background: LICMesh;
+  backgroundSize = new Vector3();
 
   constructor(options: {
     gltf: GLTF;
     colorMaskRGB: Texture;
     colorMaskPWY: Texture;
+    trailMask: Texture;
   }) {
-    type LICMesh = Mesh<BufferGeometry, MeshStandardMaterial | ShaderMaterial>;
-
     const LANDSCAPE_1_NAME = "landscape1";
     const BACKGROUND_NAME = "background";
 
     const landscape = options.gltf.scene.getObjectByName(
       LANDSCAPE_1_NAME
     ) as LICMesh;
-    const background = options.gltf.scene.getObjectByName(
+
+    this.background = options.gltf.scene.getObjectByName(
       BACKGROUND_NAME
     ) as LICMesh;
 
@@ -58,6 +63,7 @@ class ColorMasktest {
         uYellowsAmount: new Uniform(0),
         uNightOverlayColor: new Uniform(new Color(0x3f51b5)),
         uNightOverlayOpacity: new Uniform(1),
+        uTrailMask: new Uniform(options.trailMask),
       },
     });
 
@@ -65,9 +71,11 @@ class ColorMasktest {
     landscape.position.set(0.7, 1, 0);
     this.object3D.add(landscape);
 
-    background.material = this.LICMaterial;
-    this.object3D.add(background);
+    this.background.material = this.LICMaterial;
+    this.background.material.wireframe = false;
+    this.background.geometry.computeBoundingBox();
+    this.background.geometry.boundingBox?.getSize(this.backgroundSize);
   }
 }
 
-export { ColorMasktest };
+export { Background };

@@ -5,6 +5,7 @@ import {
   Mesh,
   MeshBasicMaterial,
   Object3D,
+  Vector2,
 } from "three";
 import { DEBUG_PARAMS } from "../settings";
 import { Bodies, Body, Engine, IEventCollision, Pair } from "matter-js";
@@ -51,6 +52,8 @@ class Player {
   coyoteTimer = 0;
   isJumping = false;
   jumpButtonHasBeenReleased = true;
+
+  movement = new Vector2();
 
   constructor() {
     this.onKeyDown = this.onKeyDown.bind(this);
@@ -203,12 +206,13 @@ class Player {
       y: this.physicsBody.velocity.y,
     });
 
+    const newX = this.physicsBody.position.x;
     // The Y axis is inverted in canvas 2D / threejs space
-    this.object3D.position.set(
-      this.physicsBody.position.x,
-      -this.physicsBody.position.y - MAGIC_SCALE_NUMBER_FIXME,
-      0
-    );
+    const newY = -this.physicsBody.position.y - MAGIC_SCALE_NUMBER_FIXME;
+
+    this.movement.y = newY - this.object3D.position.y;
+
+    this.object3D.position.set(newX, newY, 0);
   }
 
   jump() {
