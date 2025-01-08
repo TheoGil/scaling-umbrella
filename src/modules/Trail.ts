@@ -1,7 +1,6 @@
 import {
   Mesh,
   ShaderMaterial,
-  Object3D,
   PlaneGeometry,
   MeshBasicMaterial,
   Texture,

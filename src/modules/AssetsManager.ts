@@ -27,7 +27,6 @@ export class AssetsManager {
   private GLTFLoader: GLTFLoader;
   private assets: Map<string, Asset>;
   private loadQueue: AssetDefinition[];
-  private isAlive = true;
 
   constructor() {
     this.textureLoader = new TextureLoader();
@@ -93,21 +92,9 @@ export class AssetsManager {
   }
 
   loadAll() {
-    if (!this.isAlive) {
-      logger.warn("[AssetsManager:loadAll] Instance has been destroyed");
-
-      return;
-    }
-
     const queue = [...this.loadQueue];
     this.loadQueue = [];
 
     return Promise.allSettled(queue.map((asset) => this.load(asset)));
-  }
-
-  destroy() {
-    // Remove unneeded web worker
-    this.DRACOLoader.dispose();
-    this.isAlive = false;
   }
 }

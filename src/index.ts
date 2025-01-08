@@ -8,14 +8,10 @@ import {
   Runner,
 } from "matter-js";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
-import gsap from "gsap";
 
 import "./style.css";
 import {
   MathUtils,
-  Mesh,
-  MeshBasicMaterial,
-  PlaneGeometry,
   Scene,
   Vector3,
   PerspectiveCamera,
