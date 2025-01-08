@@ -4,14 +4,14 @@ import {
   MathUtils,
   Mesh,
   MeshBasicMaterial,
-  Object3D,
+  MeshStandardMaterial,
+  SkinnedMesh,
   Vector2,
 } from "three";
 import { DEBUG_PARAMS } from "../settings";
 import { Bodies, Body, Engine, IEventCollision, Pair } from "matter-js";
 
-import { GLTFLoader } from "three/examples/jsm/Addons.js";
-import playerGlbUrl from "/player.glb?url";
+import { GLTF } from "three/examples/jsm/Addons.js";
 import { emitter } from "./emitter";
 import { LABEL_TERRAIN_CHUNK } from "./curve";
 import gsap from "gsap";
@@ -40,7 +40,7 @@ const getCollidingTerrainChunks = (pairs: Pair[], sensorLabel: string) =>
 
 class Player {
   isGrounded = false;
-  object3D: Object3D;
+  object3D = new Group();
   physicsBody!: Body;
   groundSensor!: Body;
   terrainAngleSensor!: Body;
@@ -55,18 +55,16 @@ class Player {
 
   movement = new Vector2();
 
-  constructor() {
+  constructor(options: { gltf: GLTF }) {
     this.onKeyDown = this.onKeyDown.bind(this);
     this.onKeyUp = this.onKeyUp.bind(this);
     this.onCollisionStart = this.onCollisionStart.bind(this);
     this.onCollisionEnd = this.onCollisionEnd.bind(this);
 
-    this.object3D = new Group();
-
     this.initGroundSensor();
     this.initPhysicsBody();
     this.initTerrainAngleSensor();
-    this.initObject3D();
+    this.initObject3D(options.gltf);
 
     emitter.on("onCollisionStart", this.onCollisionStart);
     emitter.on("onCollisionEnd", this.onCollisionEnd);
@@ -74,37 +72,35 @@ class Player {
     document.addEventListener("keyup", this.onKeyUp);
   }
 
-  // Lot of magic numbers here
-  initObject3D() {
-    const loader = new GLTFLoader();
-    loader.load(playerGlbUrl, (gltf) => {
-      const elephant = gltf.scene.children[0];
-      const skate = gltf.scene.children[1];
+  initObject3D(gltf: GLTF) {
+    const PLAYER_NAME = "ski";
 
-      const fixMaterial = (o: Mesh<BufferGeometry, MeshBasicMaterial>) => {
-        if (o.isMesh) {
-          o.material = new MeshBasicMaterial({
-            color: o.material.color,
-            map: o.material.map,
-          });
-        }
-      };
+    const playerMesh = gltf.scene.getObjectByName(PLAYER_NAME) as Mesh<
+      BufferGeometry,
+      MeshStandardMaterial
+    >;
 
-      elephant.traverse((o) => {
-        fixMaterial(o as Mesh<BufferGeometry, MeshBasicMaterial>);
-      });
-      skate.traverse((o) => {
-        fixMaterial(o as Mesh<BufferGeometry, MeshBasicMaterial>);
-      });
-
-      const magicGroup = new Group();
-      magicGroup.add(elephant);
-      magicGroup.add(skate);
-      magicGroup.rotateY(MathUtils.degToRad(90));
-      magicGroup.scale.setScalar(50);
-
-      this.object3D.add(magicGroup);
+    const LICBasicMaterial = new MeshBasicMaterial({
+      map: playerMesh.material.map,
     });
+
+    type RawPlayerMesh =
+      | Mesh<BufferGeometry, MeshStandardMaterial>
+      | SkinnedMesh<BufferGeometry, MeshStandardMaterial>;
+
+    playerMesh.traverse((object) => {
+      if (
+        (object.type === "Mesh" || object.type === "SkinnedMesh") &&
+        (object as RawPlayerMesh).material
+      ) {
+        (object as Mesh<BufferGeometry, MeshBasicMaterial>).material =
+          LICBasicMaterial;
+      }
+    });
+
+    playerMesh.scale.setScalar(DEBUG_PARAMS.player.radius * 2);
+
+    this.object3D.add(playerMesh);
   }
 
   initGroundSensor() {

@@ -55,9 +55,6 @@ class App {
   background!: Background;
   trailFX!: Trail;
 
-  // Temporary plane to apply visual feedback when player collides with obstacle
-  TEMP_obstacleCollisionFXPlane!: Mesh<PlaneGeometry, MeshBasicMaterial>;
-
   constructor() {
     this.onAfterTick = this.onAfterTick.bind(this);
     this.onCollisionStart = this.onCollisionStart.bind(this);
@@ -153,7 +150,6 @@ class App {
 
     this.initRendering();
     this.initPhysics();
-    this.TEMP_initPlayerObstacleCollisionFXPLane();
     this.initTerrain();
     this.initPlayer();
 
@@ -194,7 +190,9 @@ class App {
   }
 
   initPlayer() {
-    this.player = new Player();
+    this.player = new Player({
+      gltf: this.assetsManager.get<GLTF>("LIC"),
+    });
     Composite.add(this.matterEngine.world, [this.player.physicsBody]);
     Composite.add(this.matterEngine.world, [this.player.terrainAngleSensor]);
     this.scene.add(this.player.object3D);
@@ -299,17 +297,6 @@ class App {
 
     this.destroyOutOfViewChunks();
 
-    this.TEMP_obstacleCollisionFXPlane.position.set(
-      this.player.object3D.position.x,
-      this.player.object3D.position.y,
-      -100
-    );
-    const { width, height } = getCameraFrustrumDimensionsAtDepth(
-      this.camera,
-      this.TEMP_obstacleCollisionFXPlane.position.z
-    );
-    this.TEMP_obstacleCollisionFXPlane.scale.set(width, height, 1);
-
     this.player.update();
 
     if (DEBUG_PARAMS.webgl.enabled) {
@@ -351,24 +338,7 @@ class App {
   onPlayerCollideWithObstacle() {
     // Temporary visual flash fx to give player feedback when colliding with obstacle
     // TODO: Determine what happens when player collides with obstacle
-    gsap.from(this.TEMP_obstacleCollisionFXPlane.material, {
-      opacity: 1,
-      duration: 0.5,
-      ease: "power3.out",
-    });
-  }
-
-  TEMP_initPlayerObstacleCollisionFXPLane() {
-    this.TEMP_obstacleCollisionFXPlane = new Mesh(
-      new PlaneGeometry(1, 1),
-      new MeshBasicMaterial({
-        color: 0x7f0900,
-        transparent: true,
-        opacity: 0,
-      })
-    );
-
-    this.scene.add(this.TEMP_obstacleCollisionFXPlane);
+    console.log("BONK 💥");
   }
 
   onRAF() {
