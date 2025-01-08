@@ -108,6 +108,9 @@ const DEBUG_PARAMS = {
   },
   colorMaskFX: {
     desaturation: 0.75,
+    night: {
+      color: 0x003481,
+    },
   },
   background: {
     plane: {

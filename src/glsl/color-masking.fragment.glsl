@@ -15,30 +15,13 @@ uniform float uYellowsAmount;
 uniform vec3 uNightOverlayColor;
 uniform float uNightOverlayOpacity;
 
-// https://github.com/jamieowen/glsl-blend/blob/master/screen.glsl
-float blendScreen(float base, float blend) {
-	return 1.0-((1.0-base)*(1.0-blend));
+// https://github.com/jamieowen/glsl-blend/blob/master/multiply.glsl
+vec3 blendMultiply(vec3 base, vec3 blend) {
+	return base*blend;
 }
 
-vec3 blendScreen(vec3 base, vec3 blend) {
-	return vec3(blendScreen(base.r,blend.r),blendScreen(base.g,blend.g),blendScreen(base.b,blend.b));
-}
-
-vec3 blendScreen(vec3 base, vec3 blend, float opacity) {
-	return (blendScreen(base, blend) * opacity + base * (1.0 - opacity));
-}
-
-//  https://github.com/jamieowen/glsl-blend/blob/master/overlay.glsl
-float blendOverlay(float base, float blend) {
-	return base<0.5?(2.0*base*blend):(1.0-2.0*(1.0-base)*(1.0-blend));
-}
-
-vec3 blendOverlay(vec3 base, vec3 blend) {
-	return vec3(blendOverlay(base.r,blend.r),blendOverlay(base.g,blend.g),blendOverlay(base.b,blend.b));
-}
-
-vec3 blendOverlay(vec3 base, vec3 blend, float opacity) {
-	return (blendOverlay(base, blend) * opacity + base * (1.0 - opacity));
+vec3 blendMultiply(vec3 base, vec3 blend, float opacity) {
+	return (blendMultiply(base, blend) * opacity + base * (1.0 - opacity));
 }
 
 void main() {
@@ -75,7 +58,7 @@ void main() {
 
     // color.rgb = blendOverlay(color.rgb, uNightOverlayColor, uNightOverlayOpacity);
 
-    vec3 night = blendOverlay(color.rgb, uNightOverlayColor, uNightOverlayOpacity);
+    vec3 night = blendMultiply(color.rgb, uNightOverlayColor, uNightOverlayOpacity);
     vec3 day = color.rgb;
 
     color.rgb = mix(night, day, clamp(trailMask, 0., 1.));

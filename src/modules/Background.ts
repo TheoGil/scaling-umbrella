@@ -61,7 +61,9 @@ class Background {
         uPurplesAmount: new Uniform(0),
         uWhitesAmount: new Uniform(0),
         uYellowsAmount: new Uniform(0),
-        uNightOverlayColor: new Uniform(new Color(0x3f51b5)),
+        uNightOverlayColor: new Uniform(
+          new Color(DEBUG_PARAMS.colorMaskFX.night.color)
+        ),
         uNightOverlayOpacity: new Uniform(1),
         uTrailMask: new Uniform(options.trailMask),
       },
