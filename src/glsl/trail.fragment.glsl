@@ -6,6 +6,7 @@ uniform vec2 uTipPosNew;
 uniform float uThickness;
 uniform float uTime;
 uniform float uTraveling;
+uniform float uBanding;
 varying vec2 vUv;
 
 uniform vec2 uMovement;
@@ -15,7 +16,8 @@ float lineSegment(vec2 p, vec2 a, vec2 b, float thickness) {
   vec2 ba = b - a;
   float h = clamp( dot(pa,ba)/dot(ba,ba), 0.0, 1.0 );
   float idk = length(pa - ba*h);
-  idk = smoothstep(thickness, thickness * .5, idk);
+  // idk = smoothstep(thickness, thickness * .5, idk);
+  idk = smoothstep(thickness, thickness - uBanding, idk);
   return idk;
 }
 

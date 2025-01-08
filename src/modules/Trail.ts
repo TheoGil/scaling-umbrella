@@ -127,6 +127,7 @@ class Trail {
         uTipPosNew: new Uniform(new Vector2()),
         uSpeed: new Uniform(0),
         uMovement: new Uniform(new Vector2()),
+        uBanding: new Uniform(DEBUG_PARAMS.trailFX.banding),
       },
       vertexShader: trailVertex,
       fragmentShader: trailFragment,

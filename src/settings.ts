@@ -119,9 +119,10 @@ const DEBUG_PARAMS = {
     },
   },
   trailFX: {
-    thickness: 0.02,
+    thickness: 0.025,
     traveling: 0.1,
     debug: false,
+    banding: 0.03,
   },
 };
 

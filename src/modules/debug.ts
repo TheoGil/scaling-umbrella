@@ -299,17 +299,15 @@ function initDebug(app: App) {
       max: 1,
     }
   );
-  trailFXFolder.addBinding(app.trailFX.object3D.material, "visible", {
-    label: "debug",
+  trailFXFolder.addBinding(app.trailFX.floorSimMat.uniforms.uBanding, "value", {
+    label: "banding",
+    min: 0,
+    max: 0.1,
+    step: 0.0001,
   });
-
-  debug
-    .addButton({
-      title: "Reset",
-    })
-    .on("click", () => {
-      app.reset();
-    });
+  // trailFXFolder.addBinding(app.trailFX.object3D.material, "visible", {
+  //   label: "debug",
+  // });
 
   const backgroundFolder = debug.addFolder({
     title: "Background",
@@ -321,6 +319,14 @@ function initDebug(app: App) {
     min: -1000,
     max: 0,
   });
+
+  debug
+    .addButton({
+      title: "Reset",
+    })
+    .on("click", () => {
+      app.reset();
+    });
 }
 
 export { initDebug };

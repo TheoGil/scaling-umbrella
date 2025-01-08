@@ -45,31 +45,22 @@ void main() {
 
     vec4 color = mix(grayscaleColor, baseColor, mask);
 
-    // 
     // https://discourse.threejs.org/t/getting-screen-coords-in-shadermaterial-shaders/23783/2
     vec2 screenUv = vPos.xy;
     screenUv /= vPos.w;
     screenUv = screenUv * 0.5 + 0.5;
 
-    float trailMask = texture2D(uTrailMask, screenUv).r;
-    // 
-
-    // color.rgb = blendOverlay(color.rgb, uNightOverlayColor, uNightOverlayOpacity * (1. - mask));
-
-    // color.rgb = blendOverlay(color.rgb, uNightOverlayColor, uNightOverlayOpacity);
+    // float trailMask = texture2D(uTrailMask, screenUv).r;
+    float trailMask = 0.;
+    trailMask += smoothstep(0.24, 0.25, texture2D(uTrailMask, screenUv).r) * 0.25;
+    trailMask += smoothstep(0.49, 0.50, texture2D(uTrailMask, screenUv).r) * 0.25;
+    trailMask += smoothstep(0.74, 0.75, texture2D(uTrailMask, screenUv).r) * 0.25;
+    trailMask += smoothstep(0.99, 1.00, texture2D(uTrailMask, screenUv).r) * 0.25;
 
     vec3 night = blendMultiply(color.rgb, uNightOverlayColor, uNightOverlayOpacity);
     vec3 day = color.rgb;
 
     color.rgb = mix(night, day, clamp(trailMask, 0., 1.));
-
-
-  
-  	// vec2 uv = fract( screenUv * 10.0 );
-    // gl_FragColor = vec4( uv, 0.0, 1.0 );
-    // color.r = screenUv.x;
-    // color.g = screenUv.y;
-    // color.b = 0.;
 
     gl_FragColor = vec4(color);
 }
