@@ -26,7 +26,7 @@ void main() {
   
   vec2 stretchUv = vUv;
   stretchUv -= uTipPosNew;
-  stretchUv *= .96 + (.5-noise1.b) * .1;
+  stretchUv *= .94 + (.5-noise1.b) * .1;
   stretchUv += uTipPosNew;
   
   vec2 displacement = vec2(uTraveling, (.5-noise1.r)*.001);
