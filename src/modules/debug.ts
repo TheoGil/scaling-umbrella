@@ -193,7 +193,7 @@ function initDebug(app: App) {
 
   const colorMaskFolder = debug.addFolder({
     title: "Color Mask",
-    expanded: true,
+    expanded: false,
   });
 
   colorMaskFolder.addBinding(
@@ -278,7 +278,7 @@ function initDebug(app: App) {
 
   const trailFXFolder = debug.addFolder({
     title: "Trail FX",
-    expanded: true,
+    expanded: false,
   });
   trailFXFolder.addBinding(
     app.trailFX.floorSimMat.uniforms.uThickness,
@@ -310,33 +310,16 @@ function initDebug(app: App) {
       app.reset();
     });
 
-  //   debug.registerPlugin(EssentialsPlugin);
-  //   debug.addBinding(DEBUG_PARAMS, "p", {
-  //     min: 0,
-  //     max: 1,
-  //     step: 0.001,
-  //     label: "Progress",
-  //   });
-  //   const curveFolder = debug
-  //     .addFolder({
-  //       title: "Curve segments",
-  //     })
-  //     .on("change", () => {
-  //       curve = initCurve();
-  //     });
-  //   curveFolder.addBinding(DEBUG_PARAMS.segments, "angle", {
-  //     min: 0,
-  //     max: Math.PI / 2,
-  //     label: "Angle",
-  //   });
-  //   curveFolder.addBinding(DEBUG_PARAMS.segments, "alternateAngle", {
-  //     label: "Alternate angle",
-  //   });
-  //   curveFolder.addBinding(DEBUG_PARAMS.segments, "length", {
-  //     min: 0,
-  //     max: 400,
-  //     label: "Length",
-  //   });
+  const backgroundFolder = debug.addFolder({
+    title: "Background",
+    expanded: true,
+  });
+
+  backgroundFolder.addBinding(DEBUG_PARAMS.background.plane, "z", {
+    label: "depth",
+    min: -1000,
+    max: 0,
+  });
 }
 
 export { initDebug };

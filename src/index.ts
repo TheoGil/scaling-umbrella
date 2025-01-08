@@ -394,7 +394,7 @@ class App {
       this.background.background.position.set(
         this.camera.position.x,
         this.camera.position.y - 250,
-        this.background.background.position.z
+        DEBUG_PARAMS.background.plane.z
       );
 
       // Update the trail mask texture value since there is ping pong at play

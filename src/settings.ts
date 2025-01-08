@@ -109,6 +109,11 @@ const DEBUG_PARAMS = {
   colorMaskFX: {
     desaturation: 0.75,
   },
+  background: {
+    plane: {
+      z: -100,
+    },
+  },
   trailFX: {
     thickness: 0.02,
     traveling: 0.1,
