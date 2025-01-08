@@ -372,7 +372,9 @@ class App {
   }
 
   onRAF() {
-    this.player && this.focusCameraOnPlayer();
+    if (DEBUG_PARAMS.camera.followPlayer && this.player) {
+      this.focusCameraOnPlayer();
+    }
 
     if (this.trailFX && this.player) {
       this.trailFX.update({

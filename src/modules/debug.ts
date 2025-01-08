@@ -151,6 +151,7 @@ function initDebug(app: App) {
     title: "Camera",
     expanded: false,
   });
+  cameraFolder.addBinding(DEBUG_PARAMS.camera, "followPlayer");
   const cameraPortraitFolder = cameraFolder.addFolder({
     title: "Portrait",
     expanded: true,

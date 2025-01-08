@@ -147,10 +147,15 @@ class Trail {
   update({ origin, movement }: { origin: Vector2Like; movement: Vector2Like }) {
     const delta = this.clock.getDelta();
 
-    // Convert origin (player world position) to screen space
-    dummyVec3.set(origin.x, origin.y, 0);
-    dummyVec3.project(this.camera);
-    this.desiredTrailOrigin.set((dummyVec3.x + 1) / 2, (dummyVec3.y + 1) / 2);
+    if (DEBUG_PARAMS.camera.followPlayer) {
+      // Convert origin (player world position) to screen space
+      dummyVec3.set(origin.x, origin.y, 0);
+      dummyVec3.project(this.camera);
+      this.desiredTrailOrigin.set((dummyVec3.x + 1) / 2, (dummyVec3.y + 1) / 2);
+    } else {
+      // Set trail origin to center of screen, this is only useful for visual debuging
+      this.desiredTrailOrigin.set(0.5, 0.5);
+    }
 
     this.trailOrigin.lerp(this.desiredTrailOrigin, delta * 5);
 
