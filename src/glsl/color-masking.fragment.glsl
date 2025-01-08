@@ -62,5 +62,7 @@ void main() {
 
     color.rgb = mix(night, day, clamp(trailMask, 0., 1.));
 
+    color = linearToOutputTexel(color);
+
     gl_FragColor = vec4(color);
 }

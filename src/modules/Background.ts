@@ -7,7 +7,6 @@ import {
   DoubleSide,
   ShaderMaterial,
   Uniform,
-  LinearSRGBColorSpace,
   Color,
   Texture,
   Object3D,
@@ -44,7 +43,6 @@ class Background {
     ) as LICMesh;
 
     const colorMap = (landscape.material as MeshStandardMaterial).map;
-    colorMap!.colorSpace = LinearSRGBColorSpace; // Fixes "texture too dark" issue
 
     this.LICMaterial = new ShaderMaterial({
       vertexShader: colorMaskVertex,
