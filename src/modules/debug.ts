@@ -151,7 +151,23 @@ function initDebug(app: App) {
     title: "Camera",
     expanded: false,
   });
+
+  cameraFolder
+    .addBinding(DEBUG_PARAMS.camera, "cameraName", {
+      view: "list",
+      label: "camera",
+      options: [
+        { text: "main", value: "camera" },
+        { text: "debug", value: "debugCamera" },
+      ],
+    })
+    .on("change", () => {
+      app.cameraHelper.visible =
+        DEBUG_PARAMS.camera.cameraName === "debugCamera";
+    });
+
   cameraFolder.addBinding(DEBUG_PARAMS.camera, "followPlayer");
+
   const cameraPortraitFolder = cameraFolder.addFolder({
     title: "Portrait",
     expanded: true,

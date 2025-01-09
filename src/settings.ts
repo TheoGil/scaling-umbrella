@@ -91,6 +91,7 @@ const DEBUG_PARAMS = {
     },
   },
   camera: {
+    cameraName: "camera",
     followPlayer: true,
     portrait: {
       z: 800,

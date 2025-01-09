@@ -21,6 +21,7 @@ import {
   BufferGeometry,
   ShaderMaterial,
   MeshBasicMaterial,
+  CameraHelper,
 } from "three";
 
 import { Player } from "./modules/Player";
@@ -48,6 +49,9 @@ class App {
 
   scene!: Scene;
   camera!: PerspectiveCamera;
+  debugCamera!: PerspectiveCamera;
+  cameraHelper!: CameraHelper;
+
   renderer!: WebGLRenderer;
   assetsManager = new AssetsManager();
 
@@ -125,7 +129,17 @@ class App {
       1,
       5000
     );
+
+    // Will be overriden in update loop but needs to be explicitly set initially
+    // otherwise camera controls won't work
     this.camera.position.z = 500;
+
+    this.cameraHelper = new CameraHelper(this.camera);
+    this.cameraHelper.visible =
+      DEBUG_PARAMS.camera.cameraName === "debugCamera";
+    this.scene.add(this.cameraHelper);
+
+    this.debugCamera = this.camera.clone();
 
     this.renderer = new WebGLRenderer({
       canvas: document.getElementById("webgl-canvas") as HTMLCanvasElement,
@@ -134,7 +148,7 @@ class App {
     });
     this.renderer.setSize(window.innerWidth, window.innerHeight);
 
-    new OrbitControls(this.camera, this.renderer.domElement);
+    new OrbitControls(this.debugCamera, this.renderer.domElement);
   }
 
   async init() {
@@ -337,7 +351,10 @@ class App {
     this.player.update();
 
     if (DEBUG_PARAMS.webgl.enabled) {
-      this.renderer.render(this.scene!, this.camera!);
+      this.renderer.render(
+        this.scene!,
+        this[DEBUG_PARAMS.camera.cameraName as "camera" | "debugCamera"]
+      );
     }
   }
 
