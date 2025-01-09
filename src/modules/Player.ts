@@ -44,18 +44,25 @@ class Player {
   collidingTerrainChunks: Body[] = [];
   desiredRotation = 0;
   object3DTween?: gsap.core.Tween;
-  isJumpBuffering = false;
-  jumpBufferTimer = 0;
-  coyoteTimer = 0;
-  isJumping = false;
-  jumpButtonHasBeenReleased = true;
   velocityX = DEBUG_PARAMS.player.velocity.x;
   isSlowingDown = false;
   slowDownDelayedCall?: gsap.core.Tween;
   rampUpVelocityTween?: gsap.core.Tween;
   movement = new Vector2();
 
-  constructor(mesh: Mesh<BufferGeometry, MeshBasicMaterial>) {
+  physicsEngine: Engine;
+
+  isJumping = false;
+  jumpButtonDown = false;
+  jumpBufferTimer = 0;
+  jumpButtonDownTimer = 0;
+  isJumpBuffering = false;
+  coyoteTimer = 0;
+
+  constructor(
+    mesh: Mesh<BufferGeometry, MeshBasicMaterial>,
+    physicsEngine: Engine
+  ) {
     this.onKeyDown = this.onKeyDown.bind(this);
     this.onKeyUp = this.onKeyUp.bind(this);
     this.onCollisionStart = this.onCollisionStart.bind(this);
@@ -64,6 +71,8 @@ class Player {
     this.initGroundSensor();
     this.initPhysicsBody();
     this.initObject3D(mesh);
+
+    this.physicsEngine = physicsEngine;
 
     emitter.on("onCollisionStart", this.onCollisionStart);
     emitter.on("onCollisionEnd", this.onCollisionEnd);
@@ -111,7 +120,17 @@ class Player {
     });
   }
 
-  update() {
+  update(deltaTime: number) {
+    if (
+      this.jumpButtonDown &&
+      this.jumpButtonDownTimer < DEBUG_PARAMS.player.variableJump.maxTime
+    ) {
+      this.jumpButtonDownTimer += deltaTime;
+      this.physicsEngine.gravity.y = DEBUG_PARAMS.player.variableJump.gravity;
+    } else {
+      this.physicsEngine.gravity.y = DEBUG_PARAMS.physics.gravity.y;
+    }
+
     if (this.isJumpBuffering) {
       this.jumpBufferTimer += 1;
     }
@@ -171,6 +190,8 @@ class Player {
   jump() {
     this.isJumping = true;
 
+    this.jumpButtonDownTimer = 0;
+
     this.stopJumpBuffering();
 
     this.object3DTween?.kill();
@@ -195,8 +216,8 @@ class Player {
   }
 
   onKeyDown(e: KeyboardEvent) {
-    if (e.code === "Space" && this.jumpButtonHasBeenReleased) {
-      this.jumpButtonHasBeenReleased = false;
+    if (e.code === "Space" && !this.jumpButtonDown) {
+      this.jumpButtonDown = true;
 
       if (
         (this.isGrounded ||
@@ -212,7 +233,7 @@ class Player {
 
   onKeyUp(e: KeyboardEvent) {
     if (e.code === "Space") {
-      this.jumpButtonHasBeenReleased = true;
+      this.jumpButtonDown = false;
     }
   }
 

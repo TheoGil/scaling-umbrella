@@ -4,7 +4,7 @@ const DEBUG_PARAMS = {
     count: 10,
     angle: {
       min: 0,
-      max: 0.6,
+      max: 0,
     },
     alternateAngleEveryNTHChunk: 4,
     length: {
@@ -25,11 +25,15 @@ const DEBUG_PARAMS = {
     autoRotateLerpAmount: 0.1,
     velocity: {
       x: 9,
-      jump: -10,
+      jump: -15,
     },
     groundSensor: {
       width: 25,
       height: 10,
+    },
+    variableJump: {
+      maxTime: 250,
+      gravity: 1,
     },
     slowdown: {
       timeToMaxVel: 0.5, // s
@@ -61,6 +65,9 @@ const DEBUG_PARAMS = {
   },
   physics: {
     enabled: true,
+    gravity: {
+      y: 4,
+    },
   },
   obstacles: {
     minPosition: 0.1,

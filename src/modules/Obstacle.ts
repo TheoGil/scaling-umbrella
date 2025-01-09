@@ -25,7 +25,10 @@ class Obstacle {
     // this.object3D.add(
     //   new Mesh(
     //     new SphereGeometry(DEBUG_PARAMS.obstacles.collider.radius, 6, 6),
-    //     obstacleMaterial
+    //     new MeshBasicMaterial({
+    //       color: 0xff0000,
+    //       wireframe: true,
+    //     })
     //   )
     // );
 

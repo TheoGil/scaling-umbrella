@@ -5,6 +5,8 @@ import {
   Engine,
   Events,
   IEventCollision,
+  IEventTimestamped,
+  IRunnerCallback,
   Render,
 } from "matter-js";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
@@ -132,7 +134,12 @@ class App {
   initPhysics() {
     Common.setDecomp(decomp);
 
-    this.matterEngine = Engine.create();
+    this.matterEngine = Engine.create({
+      positionIterations: 1,
+      gravity: {
+        y: DEBUG_PARAMS.physics.gravity.y,
+      },
+    });
     Events.on(this.matterEngine, "collisionStart", this.onCollisionStart);
     Events.on(this.matterEngine, "collisionEnd", this.onCollisionEnd);
 
@@ -277,7 +284,7 @@ class App {
   }
 
   initPlayer() {
-    this.player = new Player(this.models.player);
+    this.player = new Player(this.models.player, this.matterEngine);
     Composite.add(this.matterEngine.world, [this.player.physicsBody]);
     this.scene.add(this.player.object3D);
   }
@@ -402,10 +409,6 @@ class App {
       }
     }
   }
-
-  // onAfterTick() {
-
-  // }
 
   onCollisionStart(e: IEventCollision<Engine>) {
     emitter.emit("onCollisionStart", e);

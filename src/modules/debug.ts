@@ -19,19 +19,37 @@ function initDebug(app: App) {
     expanded: false,
   });
 
-  const playerVelocityFolder = playerFolder.addFolder({
-    title: "Velocity",
-    expanded: false,
-  });
-
-  playerVelocityFolder.addBinding(DEBUG_PARAMS.player.velocity, "x", {
-    label: "Vel X",
+  playerFolder.addBinding(DEBUG_PARAMS.player.velocity, "x", {
+    label: "Speed",
     min: 0,
     max: 20,
   });
 
-  playerVelocityFolder.addBinding(DEBUG_PARAMS.player.velocity, "jump", {
-    label: "Vel jump",
+  const playerJumpFolder = playerFolder.addFolder({
+    title: "Jump",
+    expanded: false,
+  });
+
+  playerJumpFolder.addBinding(DEBUG_PARAMS.player.velocity, "jump", {
+    label: "Vel",
+    min: -20,
+    max: 0,
+  });
+
+  playerJumpFolder.addBinding(DEBUG_PARAMS.player.variableJump, "maxTime", {
+    label: "Max jump time",
+    min: 0,
+    max: 1000,
+  });
+
+  playerJumpFolder.addBinding(DEBUG_PARAMS.player.variableJump, "gravity", {
+    label: "Jump gravity",
+    min: 0,
+    max: 10,
+  });
+
+  playerJumpFolder.addBinding(DEBUG_PARAMS.player.velocity, "jump", {
+    label: "Vel",
     min: -20,
     max: 0,
   });
