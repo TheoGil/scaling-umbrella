@@ -1,4 +1,10 @@
-import { Object3D, Vector3 } from "three";
+import {
+  Mesh,
+  MeshBasicMaterial,
+  Object3D,
+  SphereGeometry,
+  Vector3,
+} from "three";
 import type { TerrainChunk } from "./TerrainChunk";
 import { frustumCuller } from "./frustumCulling";
 import { DEBUG_PARAMS } from "../settings";
@@ -123,6 +129,17 @@ const pillManager = {
         this.object3D.add(pill.object3D);
       }
     });
+
+    // Useful to visually debug the collider
+    // this.object3D.add(
+    //   new Mesh(
+    //     new SphereGeometry(DEBUG_PARAMS.pills.physicsBodyRadius, 6, 6),
+    //     new MeshBasicMaterial({
+    //       color: 0xff0000,
+    //       wireframe: true,
+    //     })
+    //   )
+    // );
   },
 };
 

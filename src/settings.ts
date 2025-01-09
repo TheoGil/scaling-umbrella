@@ -132,7 +132,7 @@ const DEBUG_PARAMS = {
   },
   pills: {
     scale: 100,
-    physicsBodyRadius: 10,
+    physicsBodyRadius: 15,
     terrainOffset: -100,
   },
 };
