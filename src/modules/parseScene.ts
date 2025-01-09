@@ -12,8 +12,6 @@ import {
 } from "three";
 import { GLTF } from "three/examples/jsm/Addons.js";
 
-type LICMesh = Mesh<BufferGeometry, MeshStandardMaterial | ShaderMaterial>;
-
 type RawPlayerMesh =
   | Mesh<BufferGeometry, MeshStandardMaterial>
   | SkinnedMesh<BufferGeometry, MeshStandardMaterial>;
@@ -38,21 +36,39 @@ function parseScene(assetsManager: AssetsManager) {
 
   console.log(gltf);
 
-  const landscape1 = gltf.scene.getObjectByName(LANDSCAPE_1_NAME) as LICMesh;
-  const landscape2 = gltf.scene.getObjectByName(LANDSCAPE_2_NAME) as LICMesh;
-  const landscape3 = gltf.scene.getObjectByName(LANDSCAPE_3_NAME) as LICMesh;
-  const landscape4 = gltf.scene.getObjectByName(LANDSCAPE_4_NAME) as LICMesh;
+  const landscape1 = gltf.scene.getObjectByName(LANDSCAPE_1_NAME) as Mesh<
+    BufferGeometry,
+    ShaderMaterial
+  >;
+
+  const landscape2 = gltf.scene.getObjectByName(LANDSCAPE_2_NAME) as Mesh<
+    BufferGeometry,
+    ShaderMaterial
+  >;
+
+  const landscape3 = gltf.scene.getObjectByName(LANDSCAPE_3_NAME) as Mesh<
+    BufferGeometry,
+    ShaderMaterial
+  >;
+
+  const landscape4 = gltf.scene.getObjectByName(LANDSCAPE_4_NAME) as Mesh<
+    BufferGeometry,
+    ShaderMaterial
+  >;
+
   const background = gltf.scene.getObjectByName(BACKGROUND_NAME) as Mesh<
     BufferGeometry,
     ShaderMaterial
   >;
+
   const player = gltf.scene.getObjectByName(PLAYER_NAME) as Mesh<
     BufferGeometry,
     MeshBasicMaterial
   >;
 
   // Retrieve the base texture from the landscape1 model but it could be from any model
-  const baseTexture = (landscape1.material as MeshStandardMaterial).map;
+  const baseTexture = (landscape1.material as unknown as MeshStandardMaterial)
+    .map;
 
   // Setup the shared "color mask" material
   const colorMaskRGB = assetsManager.get<Texture>("color-mask-rgb");

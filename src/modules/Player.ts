@@ -4,14 +4,11 @@ import {
   MathUtils,
   Mesh,
   MeshBasicMaterial,
-  MeshStandardMaterial,
-  SkinnedMesh,
   Vector2,
 } from "three";
 import { DEBUG_PARAMS } from "../settings";
 import { Bodies, Body, Engine, IEventCollision, Pair } from "matter-js";
 
-import { GLTF } from "three/examples/jsm/Addons.js";
 import { emitter } from "./emitter";
 import { LABEL_TERRAIN_CHUNK } from "./curve";
 import gsap from "gsap";
