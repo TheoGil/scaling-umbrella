@@ -6,12 +6,12 @@ import { App } from "..";
 import { Render } from "matter-js";
 
 function initDebug(app: App) {
-  const debug = new Pane() as FolderApi;
-  debug.registerPlugin(EssentialsPlugin);
-
   if (!window.location.search.includes("debug")) {
     return;
   }
+
+  const debug = new Pane() as FolderApi;
+  debug.registerPlugin(EssentialsPlugin);
 
   // PLAYER
   const playerFolder = debug.addFolder({
