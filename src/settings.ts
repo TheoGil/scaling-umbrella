@@ -130,6 +130,11 @@ const DEBUG_PARAMS = {
     debug: false,
     banding: 0.03,
   },
+  pills: {
+    scale: 100,
+    physicsBodyRadius: 10,
+    terrainOffset: -50,
+  },
 };
 
 export { DEBUG_PARAMS };

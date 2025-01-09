@@ -13,6 +13,7 @@ import { emitter } from "./emitter";
 import { LABEL_TERRAIN_CHUNK } from "./curve";
 import gsap from "gsap";
 import { LABEL_OBSTACLE } from "./Obstacle";
+import { LABEL_PILL } from "./Pill";
 
 const LABEL_TERRAIN_CHUNK_SENSOR = "ground-sensor";
 const LABEL_TERRAIN_ANGLE_SENSOR = "terrain-angle-sensor";
@@ -233,6 +234,7 @@ class Player {
     this.onTerrainAngleSensorCollisionStart(e.pairs);
     this.onGroundSensorCollisionStart(e.pairs);
     this.onObstacleCollisionStart(e.pairs);
+    this.onPillCollisionStart(e.pairs);
   }
 
   onCollisionEnd(e: IEventCollision<Engine>) {
@@ -263,6 +265,13 @@ class Player {
       } else {
         this.jump();
       }
+    }
+  }
+
+  onPillCollisionStart(p: Pair[]) {
+    const pairs = findPairs(p, LABEL_PLAYER, LABEL_PILL);
+    if (pairs.length) {
+      emitter.emit("onPlayerCollisionWithPill");
     }
   }
 

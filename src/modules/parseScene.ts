@@ -26,6 +26,12 @@ const LANDSCAPE_2_NAME = "landscape2";
 const LANDSCAPE_3_NAME = "landscape3";
 const LANDSCAPE_4_NAME = "landscape4";
 const BACKGROUND_NAME = "background";
+const PILL1_NAME = "pillBlue";
+const PILL2_NAME = "pillRed";
+const PILL3_NAME = "pillGreen";
+const PILL4_NAME = "pillYellow";
+const PILL5_NAME = "pillPurples";
+const PILL6_NAME = "pillWhite";
 const PLAYER_NAME = "ski";
 
 /**
@@ -64,6 +70,36 @@ function parseScene(assetsManager: AssetsManager) {
     MeshBasicMaterial
   >;
 
+  const pill1 = gltf.scene.getObjectByName(PILL1_NAME) as Mesh<
+    BufferGeometry,
+    MeshBasicMaterial
+  >;
+
+  const pill2 = gltf.scene.getObjectByName(PILL2_NAME) as Mesh<
+    BufferGeometry,
+    MeshBasicMaterial
+  >;
+
+  const pill3 = gltf.scene.getObjectByName(PILL3_NAME) as Mesh<
+    BufferGeometry,
+    MeshBasicMaterial
+  >;
+
+  const pill4 = gltf.scene.getObjectByName(PILL4_NAME) as Mesh<
+    BufferGeometry,
+    MeshBasicMaterial
+  >;
+
+  const pill5 = gltf.scene.getObjectByName(PILL5_NAME) as Mesh<
+    BufferGeometry,
+    MeshBasicMaterial
+  >;
+
+  const pill6 = gltf.scene.getObjectByName(PILL6_NAME) as Mesh<
+    BufferGeometry,
+    MeshBasicMaterial
+  >;
+
   // Retrieve the base texture from the landscape1 model but it could be from any model
   const baseTexture = (landscape1.material as unknown as MeshStandardMaterial)
     .map;
@@ -97,6 +133,7 @@ function parseScene(assetsManager: AssetsManager) {
   // Setup the shared unlit basic material
   const basicMaterial = new MeshBasicMaterial({
     map: baseTexture,
+    side: DoubleSide,
   });
 
   // Update the player model material
@@ -109,6 +146,13 @@ function parseScene(assetsManager: AssetsManager) {
         basicMaterial;
     }
   });
+
+  pill1.material = basicMaterial;
+  pill2.material = basicMaterial;
+  pill3.material = basicMaterial;
+  pill4.material = basicMaterial;
+  pill5.material = basicMaterial;
+  pill6.material = basicMaterial;
 
   background.material = colorMaskMaterial;
   landscape1.material = colorMaskMaterial;
@@ -123,6 +167,12 @@ function parseScene(assetsManager: AssetsManager) {
       landscape2,
       landscape3,
       landscape4,
+      pill1,
+      pill2,
+      pill3,
+      pill4,
+      pill5,
+      pill6,
       player,
     },
     materials: { colorMaskMaterial, basicMaterial },

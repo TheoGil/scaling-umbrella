@@ -5,6 +5,7 @@ const emitter = mitt<{
   onCollisionStart: IEventCollision<Engine>;
   onCollisionEnd: IEventCollision<Engine>;
   onPlayerCollisionWithObstacle?: null;
+  onPlayerCollisionWithPill?: null;
 }>();
 
 export { emitter };

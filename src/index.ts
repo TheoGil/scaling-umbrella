@@ -44,7 +44,9 @@ import sceneGLBUrl from "/lic.glb?url";
 import { Background } from "./modules/Background";
 import { Trail } from "./modules/Trail";
 import { parseScene } from "./modules/parseScene";
+import { pillManager } from "./modules/Pill";
 import { frustumCuller } from "./modules/frustumCulling";
+import gsap from "gsap";
 
 class BackgroundFloatingDecoration {
   object3D = new Object3D();
@@ -81,6 +83,12 @@ class App {
     landscape2: Mesh<BufferGeometry, ShaderMaterial>;
     landscape3: Mesh<BufferGeometry, ShaderMaterial>;
     landscape4: Mesh<BufferGeometry, ShaderMaterial>;
+    pill1: Mesh<BufferGeometry, MeshBasicMaterial>;
+    pill2: Mesh<BufferGeometry, MeshBasicMaterial>;
+    pill3: Mesh<BufferGeometry, MeshBasicMaterial>;
+    pill4: Mesh<BufferGeometry, MeshBasicMaterial>;
+    pill5: Mesh<BufferGeometry, MeshBasicMaterial>;
+    pill6: Mesh<BufferGeometry, MeshBasicMaterial>;
     player: Mesh<BufferGeometry, MeshBasicMaterial>;
   };
   materials!: {
@@ -103,6 +111,7 @@ class App {
     this.onPlayerCollideWithObstacle =
       this.onPlayerCollideWithObstacle.bind(this);
     this.onRAF = this.onRAF.bind(this);
+    this.onPlayerCollideWithPill = this.onPlayerCollideWithPill.bind(this);
 
     this.init();
 
@@ -112,6 +121,8 @@ class App {
       "onPlayerCollisionWithObstacle",
       this.onPlayerCollideWithObstacle
     );
+
+    emitter.on("onPlayerCollisionWithPill", this.onPlayerCollideWithPill);
 
     this.onRAF();
   }
@@ -139,6 +150,8 @@ class App {
 
     Runner.run(this.runner, this.matterEngine);
     Events.on(this.runner, "afterTick", this.onAfterTick);
+
+    Composite.add(this.matterEngine.world, pillManager.physicsBody);
   }
 
   initRendering() {
@@ -168,8 +181,20 @@ class App {
       preserveDrawingBuffer: true,
     });
     this.renderer.setSize(window.innerWidth, window.innerHeight);
+    this.renderer.setClearColor(0x333333);
 
     new OrbitControls(this.debugCamera, this.renderer.domElement);
+
+    pillManager.init(
+      this.models.pill1,
+      this.models.pill2,
+      this.models.pill3,
+      this.models.pill4,
+      this.models.pill5,
+      this.models.pill6
+    );
+    this.scene.add(pillManager.object3D);
+    this.scene.add(frustumCuller.object3D);
   }
 
   async init() {
@@ -299,6 +324,9 @@ class App {
         });
       }
     }
+
+    if (pillManager.canSpawnPill) {
+      pillManager.spawnPill(terrainChunk);
     }
 
     return terrainChunk;
@@ -430,6 +458,19 @@ class App {
   onPlayerCollideWithObstacle() {
     // Temporary visual flash fx to give player feedback when colliding with obstacle
     // TODO: Determine what happens when player collides with obstacle
+  }
+
+  onPlayerCollideWithPill() {
+    gsap.to(
+      this.materials.colorMaskMaterial.uniforms[
+        pillManager.pills[pillManager.currentPillIndex].uniformName
+      ],
+      {
+        value: 1,
+      }
+    );
+
+    pillManager.goToNext();
   }
 
   onRAF() {
