@@ -9,7 +9,7 @@ type CulledObject = {
 };
 
 const SAFE_PADDING = 100;
-const DEBUG = true;
+const DEBUG = false;
 
 const frustumCuller = {
   objects: [] as CulledObject[],

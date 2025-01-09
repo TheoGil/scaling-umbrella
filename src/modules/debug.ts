@@ -9,6 +9,10 @@ function initDebug(app: App) {
   const debug = new Pane() as FolderApi;
   debug.registerPlugin(EssentialsPlugin);
 
+  if (!window.location.search.includes("debug")) {
+    return;
+  }
+
   // PLAYER
   const playerFolder = debug.addFolder({
     title: "Player",
@@ -327,7 +331,7 @@ function initDebug(app: App) {
 
   const backgroundFolder = debug.addFolder({
     title: "Background",
-    expanded: true,
+    expanded: false,
   });
 
   backgroundFolder.addBinding(DEBUG_PARAMS.background.plane, "z", {

@@ -36,12 +36,12 @@ class Obstacle {
     this.object3D.position.set(x, -y, 0);
 
     // Debug sphere just to visualize the physics collider
-    this.object3D.add(
-      new Mesh(
-        new SphereGeometry(DEBUG_PARAMS.obstacles.collider.radius, 6, 6),
-        obstacleMaterial
-      )
-    );
+    // this.object3D.add(
+    //   new Mesh(
+    //     new SphereGeometry(DEBUG_PARAMS.obstacles.collider.radius, 6, 6),
+    //     obstacleMaterial
+    //   )
+    // );
 
     // This is the actual "render mesh"
     // this.object3D.add(obstacleMesh.clone());
