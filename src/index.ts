@@ -112,6 +112,7 @@ class App {
       this.onPlayerCollideWithObstacle.bind(this);
     this.onRAF = this.onRAF.bind(this);
     this.onPlayerCollideWithPill = this.onPlayerCollideWithPill.bind(this);
+    this.onGameComplete = this.onGameComplete.bind(this);
 
     this.init();
 
@@ -123,6 +124,7 @@ class App {
     );
 
     emitter.on("onPlayerCollisionWithPill", this.onPlayerCollideWithPill);
+    emitter.on("onGameComplete", this.onGameComplete);
 
     this.onRAF();
   }
@@ -510,6 +512,13 @@ class App {
     frustumCuller.update(this.camera);
 
     requestAnimationFrame(this.onRAF);
+  }
+
+  onGameComplete() {
+    gsap.to(this.trailFX.floorSimMat.uniforms.uThickness, {
+      value: 1,
+      duration: 5,
+    });
   }
 }
 

@@ -3,6 +3,7 @@ import type { TerrainChunk } from "./TerrainChunk";
 import { frustumCuller } from "./frustumCulling";
 import { DEBUG_PARAMS } from "../settings";
 import { Bodies, Body } from "matter-js";
+import { emitter } from "./emitter";
 
 const dummyVec3 = new Vector3();
 
@@ -63,6 +64,10 @@ const pillManager = {
   goToNext() {
     if (this.currentPillIndex < this.pills.length - 1) {
       this.currentPillIndex++;
+
+      if (this.currentPillIndex === this.pills.length - 1) {
+        emitter.emit("onGameComplete");
+      }
     }
   },
   goToPrev() {
