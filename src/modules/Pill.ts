@@ -1,10 +1,4 @@
-import {
-  Mesh,
-  MeshBasicMaterial,
-  Object3D,
-  SphereGeometry,
-  Vector3,
-} from "three";
+import { Object3D, Vector3 } from "three";
 import type { TerrainChunk } from "./TerrainChunk";
 import { frustumCuller } from "./frustumCulling";
 import { DEBUG_PARAMS } from "../settings";
