@@ -17,6 +17,7 @@ import { Body } from "matter-js";
 import { DEBUG_PARAMS } from "../settings";
 import { generateCurve, generatePhysicBodiesFromCurve } from "./curve";
 import { Obstacle } from "./Obstacle";
+import { attachPillToTerrainChunk } from "./Pill";
 
 const dummyObject3D = new Object3D();
 const dummyVec3 = new Vector3();
@@ -123,6 +124,8 @@ class TerrainChunk {
     }
 
     this.object3D.add(mesh);
+
+    attachPillToTerrainChunk(this);
   }
 
   initRailTies() {
