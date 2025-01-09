@@ -198,7 +198,7 @@ function initDebug(app: App) {
   });
 
   colorMaskFolder.addBinding(
-    app.background.LICMaterial.uniforms.uDesaturation,
+    app.materials.colorMaskMaterial.uniforms.uDesaturation,
     "value",
     {
       label: "desaturation",
@@ -208,7 +208,7 @@ function initDebug(app: App) {
   );
 
   colorMaskFolder.addBinding(
-    app.background.LICMaterial.uniforms.uRedsAmount,
+    app.materials.colorMaskMaterial.uniforms.uRedsAmount,
     "value",
     {
       label: "reds",
@@ -218,7 +218,7 @@ function initDebug(app: App) {
   );
 
   colorMaskFolder.addBinding(
-    app.background.LICMaterial.uniforms.uBluesAmount,
+    app.materials.colorMaskMaterial.uniforms.uBluesAmount,
     "value",
     {
       label: "blues",
@@ -228,7 +228,7 @@ function initDebug(app: App) {
   );
 
   colorMaskFolder.addBinding(
-    app.background.LICMaterial.uniforms.uGreensAmount,
+    app.materials.colorMaskMaterial.uniforms.uGreensAmount,
     "value",
     {
       label: "greens",
@@ -238,7 +238,7 @@ function initDebug(app: App) {
   );
 
   colorMaskFolder.addBinding(
-    app.background.LICMaterial.uniforms.uPurplesAmount,
+    app.materials.colorMaskMaterial.uniforms.uPurplesAmount,
     "value",
     {
       label: "purples",
@@ -248,7 +248,7 @@ function initDebug(app: App) {
   );
 
   colorMaskFolder.addBinding(
-    app.background.LICMaterial.uniforms.uWhitesAmount,
+    app.materials.colorMaskMaterial.uniforms.uWhitesAmount,
     "value",
     {
       label: "whites",
@@ -258,7 +258,7 @@ function initDebug(app: App) {
   );
 
   colorMaskFolder.addBinding(
-    app.background.LICMaterial.uniforms.uYellowsAmount,
+    app.materials.colorMaskMaterial.uniforms.uYellowsAmount,
     "value",
     {
       label: "yellows",
@@ -268,7 +268,7 @@ function initDebug(app: App) {
   );
 
   colorMaskFolder.addBinding(
-    app.background.LICMaterial.uniforms.uNightOverlayOpacity,
+    app.materials.colorMaskMaterial.uniforms.uNightOverlayOpacity,
     "value",
     {
       label: "overlay alpha",

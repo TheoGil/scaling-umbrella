@@ -17,6 +17,10 @@ import {
   PerspectiveCamera,
   WebGLRenderer,
   Texture,
+  Mesh,
+  BufferGeometry,
+  ShaderMaterial,
+  MeshBasicMaterial,
 } from "three";
 
 import { Player } from "./modules/Player";
@@ -33,21 +37,32 @@ import colorMaskRGBTextureURL from "/color-mask-red-blue-green.png?url";
 import colorMaskPWYTextureURL from "/color-mask-purple-white-yellow.png?url";
 import noiseTextureURL from "/noise_1.jpg?url";
 import sceneGLBUrl from "/lic.glb?url";
-import { GLTF } from "three/examples/jsm/Addons.js";
 import { Background } from "./modules/Background";
 import { Trail } from "./modules/Trail";
+import { parseScene } from "./modules/parseScene";
 
 class App {
   matterEngine!: Engine;
   matterRenderer!: Render;
   runner!: Runner;
+
   scene!: Scene;
   camera!: PerspectiveCamera;
   renderer!: WebGLRenderer;
+  assetsManager = new AssetsManager();
+
+  models!: {
+    background: Mesh<BufferGeometry, ShaderMaterial>;
+    player: Mesh<BufferGeometry, MeshBasicMaterial>;
+  };
+  materials!: {
+    colorMaskMaterial: ShaderMaterial;
+    basicMaterial: MeshBasicMaterial;
+  };
+
   player!: Player;
   terrainChunks: TerrainChunk[] = [];
   latestTerrainChunkIndex = 0;
-  assetsManager = new AssetsManager();
   background!: Background;
   trailFX!: Trail;
 
@@ -118,6 +133,28 @@ class App {
   }
 
   async init() {
+    await this.loadAssets();
+    this.initRendering();
+    this.initPhysics();
+    this.initTerrain();
+    this.initPlayer();
+
+    this.trailFX = new Trail(
+      this.renderer,
+      this.assetsManager.get<Texture>("noise_1"),
+      this.camera
+    );
+    this.scene.add(this.trailFX.object3D);
+
+    this.background = new Background(
+      this.models.background as Mesh<BufferGeometry, ShaderMaterial>
+    );
+    this.scene.add(this.background.background);
+
+    initDebug(this);
+  }
+
+  async loadAssets() {
     this.assetsManager.add({
       id: "LIC",
       src: sceneGLBUrl,
@@ -144,27 +181,9 @@ class App {
 
     await this.assetsManager.loadAll();
 
-    this.initRendering();
-    this.initPhysics();
-    this.initTerrain();
-    this.initPlayer();
-
-    this.trailFX = new Trail(
-      this.renderer,
-      this.assetsManager.get<Texture>("noise_1"),
-      this.camera
-    );
-    this.scene.add(this.trailFX.object3D);
-
-    this.background = new Background({
-      gltf: this.assetsManager.get<GLTF>("LIC"),
-      colorMaskRGB: this.assetsManager.get<Texture>("color-mask-rgb"),
-      colorMaskPWY: this.assetsManager.get<Texture>("color-mask-pwy"),
-      trailMask: this.trailFX.bufferSim.output.texture,
-    });
-    this.scene.add(this.background.background);
-
-    initDebug(this);
+    const { models, materials } = parseScene(this.assetsManager);
+    this.models = models;
+    this.materials = materials;
   }
 
   initTerrain() {
@@ -186,9 +205,7 @@ class App {
   }
 
   initPlayer() {
-    this.player = new Player({
-      gltf: this.assetsManager.get<GLTF>("LIC"),
-    });
+    this.player = new Player(this.models.player);
     Composite.add(this.matterEngine.world, [this.player.physicsBody]);
     Composite.add(this.matterEngine.world, [this.player.terrainAngleSensor]);
     this.scene.add(this.player.object3D);
@@ -367,7 +384,7 @@ class App {
 
       // Update the trail mask texture value since there is ping pong at play
       // other wise it will only display every 2 frames
-      this.background.LICMaterial.uniforms.uTrailMask.value =
+      this.materials.colorMaskMaterial.uniforms.uTrailMask.value =
         this.trailFX.bufferSim.output.texture;
     }
 

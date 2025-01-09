@@ -55,7 +55,7 @@ class Player {
 
   movement = new Vector2();
 
-  constructor(options: { gltf: GLTF }) {
+  constructor(mesh: Mesh<BufferGeometry, MeshBasicMaterial>) {
     this.onKeyDown = this.onKeyDown.bind(this);
     this.onKeyUp = this.onKeyUp.bind(this);
     this.onCollisionStart = this.onCollisionStart.bind(this);
@@ -64,7 +64,7 @@ class Player {
     this.initGroundSensor();
     this.initPhysicsBody();
     this.initTerrainAngleSensor();
-    this.initObject3D(options.gltf);
+    this.initObject3D(mesh);
 
     emitter.on("onCollisionStart", this.onCollisionStart);
     emitter.on("onCollisionEnd", this.onCollisionEnd);
@@ -72,35 +72,9 @@ class Player {
     document.addEventListener("keyup", this.onKeyUp);
   }
 
-  initObject3D(gltf: GLTF) {
-    const PLAYER_NAME = "ski";
-
-    const playerMesh = gltf.scene.getObjectByName(PLAYER_NAME) as Mesh<
-      BufferGeometry,
-      MeshStandardMaterial
-    >;
-
-    const LICBasicMaterial = new MeshBasicMaterial({
-      map: playerMesh.material.map,
-    });
-
-    type RawPlayerMesh =
-      | Mesh<BufferGeometry, MeshStandardMaterial>
-      | SkinnedMesh<BufferGeometry, MeshStandardMaterial>;
-
-    playerMesh.traverse((object) => {
-      if (
-        (object.type === "Mesh" || object.type === "SkinnedMesh") &&
-        (object as RawPlayerMesh).material
-      ) {
-        (object as Mesh<BufferGeometry, MeshBasicMaterial>).material =
-          LICBasicMaterial;
-      }
-    });
-
-    playerMesh.scale.setScalar(DEBUG_PARAMS.player.radius * 2);
-
-    this.object3D.add(playerMesh);
+  initObject3D(mesh: Mesh<BufferGeometry, MeshBasicMaterial>) {
+    mesh.scale.setScalar(DEBUG_PARAMS.player.radius * 2);
+    this.object3D.add(mesh);
   }
 
   initGroundSensor() {
