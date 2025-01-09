@@ -39,6 +39,7 @@ const getCollidingTerrainChunks = (pairs: Pair[], sensorLabel: string) =>
 class Player {
   isGrounded = false;
   object3D = new Group();
+  rotationContainer = new Group();
   physicsBody!: Body;
   groundSensor!: Body;
   terrainAngleSensor!: Body;
@@ -50,7 +51,10 @@ class Player {
   coyoteTimer = 0;
   isJumping = false;
   jumpButtonHasBeenReleased = true;
-
+  velocityX = DEBUG_PARAMS.player.velocity.x;
+  isSlowingDown = false;
+  slowDownDelayedCall?: gsap.core.Tween;
+  rampUpVelocityTween?: gsap.core.Tween;
   movement = new Vector2();
 
   constructor(mesh: Mesh<BufferGeometry, MeshBasicMaterial>) {
@@ -72,7 +76,8 @@ class Player {
 
   initObject3D(mesh: Mesh<BufferGeometry, MeshBasicMaterial>) {
     mesh.scale.setScalar(DEBUG_PARAMS.player.radius * 2);
-    this.object3D.add(mesh);
+    this.rotationContainer.add(mesh);
+    this.object3D.add(this.rotationContainer);
   }
 
   initGroundSensor() {
@@ -168,11 +173,13 @@ class Player {
     // Prevent rotation, always stands up
     Body.setAngularVelocity(this.physicsBody, 0);
 
-    // Continuously apply horizontal velocity
-    Body.setVelocity(this.physicsBody, {
-      x: DEBUG_PARAMS.player.velocity.x,
-      y: this.physicsBody.velocity.y,
-    });
+    // Continuously apply horizontal velocity unless player has hit an obstacle
+    if (!this.isSlowingDown) {
+      Body.setVelocity(this.physicsBody, {
+        x: this.velocityX,
+        y: this.physicsBody.velocity.y,
+      });
+    }
 
     const newX = this.physicsBody.position.x;
     // The Y axis is inverted in canvas 2D / threejs space
@@ -214,8 +221,9 @@ class Player {
       this.jumpButtonHasBeenReleased = false;
 
       if (
-        this.isGrounded ||
-        (!this.isJumping && this.coyoteTimer < COYOTE_TIMER_MAX)
+        (this.isGrounded ||
+          (!this.isJumping && this.coyoteTimer < COYOTE_TIMER_MAX)) &&
+        !this.isSlowingDown
       ) {
         this.jump();
       } else {
@@ -261,6 +269,8 @@ class Player {
     const pairs = findPairs(p, LABEL_PLAYER, LABEL_OBSTACLE);
     if (pairs.length) {
       if (this.isGrounded) {
+        this.slowDown();
+
         emitter.emit("onPlayerCollisionWithObstacle");
       } else {
         this.jump();
@@ -357,6 +367,35 @@ class Player {
     Body.setVelocity(this.physicsBody, { x: 0, y: 0 });
     Body.setAngularSpeed(this.physicsBody, 0);
     Body.setAngularVelocity(this.physicsBody, 0);
+  }
+
+  slowDown() {
+    this.isSlowingDown = true;
+
+    this.slowDownDelayedCall?.kill();
+    this.slowDownDelayedCall = gsap.delayedCall(
+      DEBUG_PARAMS.player.slowdown.duration,
+      () => {
+        this.isSlowingDown = false;
+
+        this.rotationContainer.rotation.z = MathUtils.degToRad(0);
+
+        this.rampUpVelocityTween?.kill();
+        this.rampUpVelocityTween = gsap.fromTo(
+          this,
+          {
+            velocityX: this.physicsBody.velocity.x,
+          },
+          {
+            velocityX: DEBUG_PARAMS.player.velocity.x,
+            duration: DEBUG_PARAMS.player.slowdown.timeToMaxVel,
+            ease: "power2.in",
+          }
+        );
+      }
+    );
+
+    this.rotationContainer.rotation.z = MathUtils.degToRad(-90);
   }
 }
 

@@ -18,27 +18,75 @@ function initDebug(app: App) {
     title: "Player",
     expanded: false,
   });
-  playerFolder.addBinding(DEBUG_PARAMS.player.velocity, "x", {
+
+  const playerVelocityFolder = playerFolder.addFolder({
+    title: "Velocity",
+    expanded: false,
+  });
+
+  playerVelocityFolder.addBinding(DEBUG_PARAMS.player.velocity, "x", {
     label: "Vel X",
     min: 0,
     max: 20,
   });
-  playerFolder.addBinding(DEBUG_PARAMS.player.velocity, "jump", {
+
+  playerVelocityFolder.addBinding(DEBUG_PARAMS.player.velocity, "jump", {
     label: "Vel jump",
     min: -20,
     max: 0,
   });
 
-  playerFolder.addBinding(DEBUG_PARAMS.player, "autoRotateLerpAmount", {
-    label: "Autorotate lerp",
-    min: 0,
-    max: 1,
-    step: 0.001,
+  const playerSlowdownFolder = playerFolder.addFolder({
+    title: "Slowdown",
+    expanded: false,
   });
 
-  playerFolder.addBinding(app.player.physicsBody.parts[1], "restitution");
-  playerFolder.addBinding(app.player.physicsBody.parts[1], "friction");
-  playerFolder.addBinding(app.player.physicsBody.parts[1], "frictionStatic");
+  playerSlowdownFolder.addBinding(DEBUG_PARAMS.player.slowdown, "duration", {
+    label: "Duration",
+    min: 0,
+    max: 5,
+  });
+
+  playerSlowdownFolder.addBinding(
+    DEBUG_PARAMS.player.slowdown,
+    "timeToMaxVel",
+    {
+      label: "Time to max vel",
+      min: 0,
+      max: 5,
+    }
+  );
+
+  const playerAutorotateFolder = playerFolder.addFolder({
+    title: "Auto-rotate",
+    expanded: false,
+  });
+
+  playerAutorotateFolder.addBinding(
+    DEBUG_PARAMS.player,
+    "autoRotateLerpAmount",
+    {
+      label: "Lerp",
+      min: 0,
+      max: 1,
+      step: 0.001,
+    }
+  );
+
+  const playerPhysicsFolder = playerFolder.addFolder({
+    title: "Physics",
+    expanded: false,
+  });
+
+  playerPhysicsFolder.addBinding(
+    app.player.physicsBody.parts[1],
+    "restitution"
+  );
+  playerPhysicsFolder.addBinding(app.player.physicsBody.parts[1], "friction");
+  playerPhysicsFolder.addBinding(
+    app.player.physicsBody.parts[1],
+    "frictionStatic"
+  );
 
   // TERRAIN
   const terrainFolder = debug

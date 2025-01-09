@@ -30,6 +30,10 @@ const DEBUG_PARAMS = {
       width: 2,
       height: 25,
     },
+    slowdown: {
+      timeToMaxVel: 0.5, // s
+      duration: 1, // s
+    },
   },
   terrain: {
     restitution: 0,
