@@ -115,7 +115,12 @@ const DEBUG_PARAMS = {
   },
   background: {
     plane: {
-      z: -100,
+      z: -1000,
+    },
+    islands: {
+      scale: 250,
+      yOffset: 300,
+      z: -700,
     },
   },
   trailFX: {

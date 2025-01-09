@@ -24,6 +24,9 @@ import { AssetsManager } from "./AssetsManager";
 import { DEBUG_PARAMS } from "../settings";
 
 const LANDSCAPE_1_NAME = "landscape1";
+const LANDSCAPE_2_NAME = "landscape2";
+const LANDSCAPE_3_NAME = "landscape3";
+const LANDSCAPE_4_NAME = "landscape4";
 const BACKGROUND_NAME = "background";
 const PLAYER_NAME = "ski";
 
@@ -33,7 +36,12 @@ const PLAYER_NAME = "ski";
 function parseScene(assetsManager: AssetsManager) {
   const gltf = assetsManager.get<GLTF>("LIC");
 
+  console.log(gltf);
+
   const landscape1 = gltf.scene.getObjectByName(LANDSCAPE_1_NAME) as LICMesh;
+  const landscape2 = gltf.scene.getObjectByName(LANDSCAPE_2_NAME) as LICMesh;
+  const landscape3 = gltf.scene.getObjectByName(LANDSCAPE_3_NAME) as LICMesh;
+  const landscape4 = gltf.scene.getObjectByName(LANDSCAPE_4_NAME) as LICMesh;
   const background = gltf.scene.getObjectByName(BACKGROUND_NAME) as Mesh<
     BufferGeometry,
     ShaderMaterial
@@ -88,12 +96,21 @@ function parseScene(assetsManager: AssetsManager) {
     }
   });
 
-  // Update the background model material
   background.material = colorMaskMaterial;
   landscape1.material = colorMaskMaterial;
+  landscape2.material = colorMaskMaterial;
+  landscape3.material = colorMaskMaterial;
+  landscape4.material = colorMaskMaterial;
 
   return {
-    models: { background, landscape1, player },
+    models: {
+      background,
+      landscape1,
+      landscape2,
+      landscape3,
+      landscape4,
+      player,
+    },
     materials: { colorMaskMaterial, basicMaterial },
   };
 }

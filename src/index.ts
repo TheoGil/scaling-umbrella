@@ -54,6 +54,9 @@ class App {
   models!: {
     background: Mesh<BufferGeometry, ShaderMaterial>;
     landscape1: Mesh<BufferGeometry, ShaderMaterial>;
+    landscape2: Mesh<BufferGeometry, ShaderMaterial>;
+    landscape3: Mesh<BufferGeometry, ShaderMaterial>;
+    landscape4: Mesh<BufferGeometry, ShaderMaterial>;
     player: Mesh<BufferGeometry, MeshBasicMaterial>;
   };
   materials!: {
@@ -122,6 +125,7 @@ class App {
       1,
       5000
     );
+    this.camera.position.z = 500;
 
     this.renderer = new WebGLRenderer({
       canvas: document.getElementById("webgl-canvas") as HTMLCanvasElement,
@@ -225,6 +229,25 @@ class App {
     });
 
     this.terrainChunks.push(terrainChunk);
+
+    const landscapes = [
+      this.models.landscape1,
+      this.models.landscape2,
+      this.models.landscape3,
+      this.models.landscape4,
+    ];
+
+    const position = terrainChunk.curve.getPointAt(0.5);
+
+    const mesh =
+      landscapes[Math.floor(Math.random() * landscapes.length)].clone();
+    mesh.scale.setScalar(DEBUG_PARAMS.background.islands.scale);
+    mesh.position.set(
+      position.x,
+      -position.y + DEBUG_PARAMS.background.islands.yOffset,
+      DEBUG_PARAMS.background.islands.z
+    );
+    this.scene.add(mesh);
 
     return terrainChunk;
   }
@@ -376,10 +399,10 @@ class App {
     if (this.background) {
       // TODO: Properly handle scaling and positioning of mesh so that it covers the whole viewport without magic numbers.
       // To ease things a bit, mesh should be re-exported with origin at center
-      this.background.background.scale.setScalar(75);
+      this.background.background.scale.setScalar(400);
       this.background.background.position.set(
         this.camera.position.x,
-        this.camera.position.y - 250,
+        this.camera.position.y - 1000,
         DEBUG_PARAMS.background.plane.z
       );
 
