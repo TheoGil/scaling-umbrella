@@ -44,6 +44,7 @@ import sceneGLBUrl from "/lic.glb?url";
 import { Background } from "./modules/Background";
 import { Trail } from "./modules/Trail";
 import { parseScene } from "./modules/parseScene";
+import { frustumCuller } from "./modules/frustumCulling";
 
 class BackgroundFloatingDecoration {
   object3D = new Object3D();
@@ -292,7 +293,12 @@ class App {
       ) {
         this.decorations.push(decoration);
         this.scene.add(decoration.object3D);
+
+        frustumCuller.add(decoration.object3D, () => {
+          this.scene.remove(decoration.object3D);
+        });
       }
+    }
     }
 
     return terrainChunk;
@@ -459,6 +465,8 @@ class App {
       this.materials.colorMaskMaterial.uniforms.uTrailMask.value =
         this.trailFX.bufferSim.output.texture;
     }
+
+    frustumCuller.update(this.camera);
 
     requestAnimationFrame(this.onRAF);
   }
