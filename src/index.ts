@@ -22,6 +22,9 @@ import {
   ShaderMaterial,
   MeshBasicMaterial,
   CameraHelper,
+  Box3,
+  Box3Helper,
+  Object3D,
 } from "three";
 
 import { Player } from "./modules/Player";
@@ -41,6 +44,22 @@ import sceneGLBUrl from "/lic.glb?url";
 import { Background } from "./modules/Background";
 import { Trail } from "./modules/Trail";
 import { parseScene } from "./modules/parseScene";
+
+class BackgroundFloatingDecoration {
+  object3D = new Object3D();
+  box = new Box3();
+  helper: Box3Helper;
+
+  constructor(mesh: Mesh) {
+    this.object3D.add(mesh);
+
+    this.box = new Box3();
+    this.box.setFromObject(mesh);
+
+    this.helper = new Box3Helper(this.box, 0xffff00);
+    this.object3D.add(this.helper);
+  }
+}
 
 class App {
   matterEngine!: Engine;
@@ -68,6 +87,7 @@ class App {
     basicMaterial: MeshBasicMaterial;
   };
 
+  decorations: BackgroundFloatingDecoration[] = [];
   player!: Player;
   terrainChunks: TerrainChunk[] = [];
   latestTerrainChunkIndex = 0;
@@ -251,17 +271,32 @@ class App {
       this.models.landscape4,
     ];
 
-    const position = terrainChunk.curve.getPointAt(0.5);
+    for (let p = 0; p < 1; p += 0.1) {
+      const position = terrainChunk.curve.getPointAt(p);
+      const x = position.x;
+      const y = -position.y + DEBUG_PARAMS.background.islands.yOffset;
+      const z = DEBUG_PARAMS.background.islands.z;
 
-    const mesh =
-      landscapes[Math.floor(Math.random() * landscapes.length)].clone();
-    mesh.scale.setScalar(DEBUG_PARAMS.background.islands.scale);
-    mesh.position.set(
-      position.x,
-      -position.y + DEBUG_PARAMS.background.islands.yOffset,
-      DEBUG_PARAMS.background.islands.z
-    );
-    this.scene.add(mesh);
+      const random = Math.floor(Math.random() * landscapes.length);
+      const mesh = landscapes[random].clone();
+      mesh.scale.setScalar(DEBUG_PARAMS.background.islands.scale);
+      mesh.position.set(x, y, z);
+
+      const decoration = new BackgroundFloatingDecoration(mesh);
+
+      const prevDecoration = this.decorations[this.decorations.length - 1];
+
+      prevDecoration &&
+        console.log(decoration.box.intersectsBox(prevDecoration.box));
+
+      if (
+        !prevDecoration ||
+        !decoration.box.intersectsBox(prevDecoration.box)
+      ) {
+        this.decorations.push(decoration);
+        this.scene.add(decoration.object3D);
+      }
+    }
 
     return terrainChunk;
   }
