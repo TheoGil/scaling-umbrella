@@ -3,9 +3,7 @@ import {
   Group,
   Mesh,
   MeshBasicMaterial,
-  MeshNormalMaterial,
   MeshStandardMaterial,
-  SphereGeometry,
 } from "three";
 import { DEBUG_PARAMS } from "../settings";
 import { Bodies, Body } from "matter-js";
@@ -14,18 +12,6 @@ import { GLTFLoader } from "three/examples/jsm/Addons.js";
 import obstacleModelUrl from "/Traffic Barrier.glb?url";
 
 const LABEL_OBSTACLE = "obstacle";
-
-// const obstacleGeometry = new BoxGeometry(
-//   DEBUG_PARAMS.obstacles.size.x,
-//   DEBUG_PARAMS.obstacles.size.y,
-//   DEBUG_PARAMS.obstacles.size.z
-// );
-
-const obstacleMaterial = new MeshNormalMaterial({
-  wireframe: true,
-});
-
-// const obstacleMesh = new Mesh(obstacleGeometry, obstacleMaterial);
 
 class Obstacle {
   object3D = new Group();
