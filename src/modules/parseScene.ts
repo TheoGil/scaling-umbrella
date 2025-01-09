@@ -34,8 +34,6 @@ const PLAYER_NAME = "ski";
 function parseScene(assetsManager: AssetsManager) {
   const gltf = assetsManager.get<GLTF>("LIC");
 
-  console.log(gltf);
-
   const landscape1 = gltf.scene.getObjectByName(LANDSCAPE_1_NAME) as Mesh<
     BufferGeometry,
     ShaderMaterial

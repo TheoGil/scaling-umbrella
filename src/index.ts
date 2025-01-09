@@ -57,7 +57,7 @@ class BackgroundFloatingDecoration {
     this.box.setFromObject(mesh);
 
     this.helper = new Box3Helper(this.box, 0xffff00);
-    this.object3D.add(this.helper);
+    // this.object3D.add(this.helper);
   }
 }
 
@@ -286,9 +286,6 @@ class App {
 
       const prevDecoration = this.decorations[this.decorations.length - 1];
 
-      prevDecoration &&
-        console.log(decoration.box.intersectsBox(prevDecoration.box));
-
       if (
         !prevDecoration ||
         !decoration.box.intersectsBox(prevDecoration.box)
@@ -427,7 +424,6 @@ class App {
   onPlayerCollideWithObstacle() {
     // Temporary visual flash fx to give player feedback when colliding with obstacle
     // TODO: Determine what happens when player collides with obstacle
-    console.log("BONK 💥");
   }
 
   onRAF() {
