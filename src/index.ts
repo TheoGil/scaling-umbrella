@@ -53,6 +53,7 @@ class App {
 
   models!: {
     background: Mesh<BufferGeometry, ShaderMaterial>;
+    landscape1: Mesh<BufferGeometry, ShaderMaterial>;
     player: Mesh<BufferGeometry, MeshBasicMaterial>;
   };
   materials!: {

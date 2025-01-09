@@ -33,7 +33,7 @@ const PLAYER_NAME = "ski";
 function parseScene(assetsManager: AssetsManager) {
   const gltf = assetsManager.get<GLTF>("LIC");
 
-  const landscape = gltf.scene.getObjectByName(LANDSCAPE_1_NAME) as LICMesh;
+  const landscape1 = gltf.scene.getObjectByName(LANDSCAPE_1_NAME) as LICMesh;
   const background = gltf.scene.getObjectByName(BACKGROUND_NAME) as Mesh<
     BufferGeometry,
     ShaderMaterial
@@ -43,8 +43,8 @@ function parseScene(assetsManager: AssetsManager) {
     MeshBasicMaterial
   >;
 
-  // Retrieve the base texture from the landscape model but it could be from any model
-  const baseTexture = (landscape.material as MeshStandardMaterial).map;
+  // Retrieve the base texture from the landscape1 model but it could be from any model
+  const baseTexture = (landscape1.material as MeshStandardMaterial).map;
 
   // Setup the shared "color mask" material
   const colorMaskRGB = assetsManager.get<Texture>("color-mask-rgb");
@@ -90,9 +90,10 @@ function parseScene(assetsManager: AssetsManager) {
 
   // Update the background model material
   background.material = colorMaskMaterial;
+  landscape1.material = colorMaskMaterial;
 
   return {
-    models: { background, player },
+    models: { background, landscape1, player },
     materials: { colorMaskMaterial, basicMaterial },
   };
 }
