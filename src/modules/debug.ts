@@ -159,7 +159,7 @@ function initDebug(app: App) {
     title: "Physics",
     expanded: false,
   });
-  physicsFolder.addBinding(app.runner, "enabled");
+
   physicsFolder.addBinding(app.matterEngine.gravity, "y", {
     label: "Gravity",
     min: 0,
