@@ -5,9 +5,9 @@ import {
   Events,
   IEventCollision,
   Render,
-  Runner,
 } from "matter-js";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import Tempus from "tempus";
 
 import "./style.css";
 import {
@@ -67,7 +67,6 @@ class BackgroundFloatingDecoration {
 class App {
   matterEngine!: Engine;
   matterRenderer!: Render;
-  runner!: Runner;
 
   scene!: Scene;
   camera!: PerspectiveCamera;
@@ -104,15 +103,14 @@ class App {
   trailFX!: Trail;
 
   constructor() {
-    this.onAfterTick = this.onAfterTick.bind(this);
     this.onCollisionStart = this.onCollisionStart.bind(this);
     this.onCollisionEnd = this.onCollisionEnd.bind(this);
     this.onResize = this.onResize.bind(this);
     this.onPlayerCollideWithObstacle =
       this.onPlayerCollideWithObstacle.bind(this);
-    this.onRAF = this.onRAF.bind(this);
     this.onPlayerCollideWithPill = this.onPlayerCollideWithPill.bind(this);
     this.onGameComplete = this.onGameComplete.bind(this);
+    this.onFixedUpdate = this.onFixedUpdate.bind(this);
 
     this.init();
 
@@ -125,8 +123,6 @@ class App {
 
     emitter.on("onPlayerCollisionWithPill", this.onPlayerCollideWithPill);
     emitter.on("onGameComplete", this.onGameComplete);
-
-    this.onRAF();
   }
 
   initPhysics() {
@@ -144,14 +140,13 @@ class App {
         wireframes: true,
       },
     });
-    if (DEBUG_PARAMS.debugRenderer.enabled) {
-      Render.run(this.matterRenderer);
-    }
+    // if (DEBUG_PARAMS.debugRenderer.enabled) {
+    //   Render.run(this.matterRenderer);
+    // }
 
-    this.runner = Runner.create();
+    // this.runner = Runner.create();
 
-    Runner.run(this.runner, this.matterEngine);
-    Events.on(this.runner, "afterTick", this.onAfterTick);
+    // Runner.run(this.runner, this.matterEngine);
 
     Composite.add(this.matterEngine.world, pillManager.physicsBody);
   }
@@ -219,6 +214,10 @@ class App {
     this.scene.add(this.background.background);
 
     initDebug(this);
+
+    Tempus.add(this.onFixedUpdate, {
+      fps: 60,
+    });
   }
 
   async loadAssets() {
@@ -399,32 +398,9 @@ class App {
     }
   }
 
-  onAfterTick() {
-    Render.lookAt(
-      this.matterRenderer,
-      {
-        position: {
-          x: this.player.physicsBody.position.x,
-          y: this.player.physicsBody.position.y,
-        },
-      },
-      {
-        x: window.innerWidth / 2,
-        y: window.innerHeight / 2,
-      }
-    );
+  // onAfterTick() {
 
-    this.destroyOutOfViewChunks();
-
-    this.player.update();
-
-    if (DEBUG_PARAMS.webgl.enabled) {
-      this.renderer.render(
-        this.scene!,
-        this[DEBUG_PARAMS.camera.cameraName as "camera" | "debugCamera"]
-      );
-    }
-  }
+  // }
 
   onCollisionStart(e: IEventCollision<Engine>) {
     emitter.emit("onCollisionStart", e);
@@ -475,7 +451,41 @@ class App {
     pillManager.goToNext();
   }
 
-  onRAF() {
+  onGameComplete() {
+    gsap.to(this.trailFX.floorSimMat.uniforms.uThickness, {
+      value: 1,
+      duration: 5,
+    });
+  }
+
+  onFixedUpdate(_time: number, _deltaTime: number) {
+    Engine.update(this.matterEngine, 1000 / 60);
+
+    Render.lookAt(
+      this.matterRenderer,
+      {
+        position: {
+          x: this.player.physicsBody.position.x,
+          y: this.player.physicsBody.position.y,
+        },
+      },
+      {
+        x: window.innerWidth / 2,
+        y: window.innerHeight / 2,
+      }
+    );
+
+    this.destroyOutOfViewChunks();
+
+    this.player.update();
+
+    if (DEBUG_PARAMS.webgl.enabled) {
+      this.renderer.render(
+        this.scene!,
+        this[DEBUG_PARAMS.camera.cameraName as "camera" | "debugCamera"]
+      );
+    }
+
     if (DEBUG_PARAMS.camera.followPlayer && this.player) {
       this.focusCameraOnPlayer();
     }
@@ -510,15 +520,6 @@ class App {
     }
 
     frustumCuller.update(this.camera);
-
-    requestAnimationFrame(this.onRAF);
-  }
-
-  onGameComplete() {
-    gsap.to(this.trailFX.floorSimMat.uniforms.uThickness, {
-      value: 1,
-      duration: 5,
-    });
   }
 }
 

@@ -376,6 +376,11 @@ source-map-js@^1.2.1:
   resolved "https://registry.yarnpkg.com/source-map-js/-/source-map-js-1.2.1.tgz#1ce5650fddd87abc099eda37dcff024c2667ae46"
   integrity sha512-UXWMKhLOwVKb728IUtQPXxfYU+usdybtUrK/8uGE8CQMvrhOpwvzDBwj0QhSL7MQc7vIsISBG8VQ8+IDQxpfQA==
 
+tempus@^1.0.0-dev.10:
+  version "1.0.0-dev.10"
+  resolved "https://registry.yarnpkg.com/tempus/-/tempus-1.0.0-dev.10.tgz#87f4e6e3a423cc3e30c25da2d7ec604d85b2baaa"
+  integrity sha512-gsr82C8xlQO4Svh9ozJacJzfDgRc4BIFk3Oh495zZwKLgDN5wXfYZ9/HxrAfMCBymrMidGDcFrn5Bry8g7/XBg==
+
 three@^0.171.0:
   version "0.171.0"
   resolved "https://registry.yarnpkg.com/three/-/three-0.171.0.tgz#3c0dd3f8fa14e78a7f8db6e416b98f264f1185c0"
