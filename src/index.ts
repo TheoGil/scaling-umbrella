@@ -279,7 +279,6 @@ class App {
   initPlayer() {
     this.player = new Player(this.models.player);
     Composite.add(this.matterEngine.world, [this.player.physicsBody]);
-    Composite.add(this.matterEngine.world, [this.player.terrainAngleSensor]);
     this.scene.add(this.player.object3D);
   }
 

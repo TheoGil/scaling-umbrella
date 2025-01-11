@@ -31,10 +31,6 @@ const DEBUG_PARAMS = {
       width: 25,
       height: 10,
     },
-    terrainAngleSensor: {
-      width: 2,
-      height: 25,
-    },
     slowdown: {
       timeToMaxVel: 0.5, // s
       duration: 1, // s
@@ -58,13 +54,13 @@ const DEBUG_PARAMS = {
     },
   },
   webgl: {
-    enabled: true,
-  },
-  debugRenderer: {
     enabled: false,
   },
-  physics: {
+  debugRenderer: {
     enabled: true,
+  },
+  physics: {
+    enabled: false,
   },
   obstacles: {
     minPosition: 0.1,
