@@ -11,6 +11,11 @@ const DEBUG_PARAMS = {
       min: 300,
       max: 500,
     },
+    physicalBodyOptions: {
+      removeCollinear: 0.025,
+      minimumArea: 10,
+      removeDuplicatePoints: 0.01,
+    },
   },
   player: {
     radius: 25,

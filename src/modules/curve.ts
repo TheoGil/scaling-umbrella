@@ -1,6 +1,6 @@
 import { CatmullRomCurve3, MathUtils, Vector3, Vector3Like } from "three";
 import { DEBUG_PARAMS } from "../settings";
-import { Bodies, Body } from "matter-js";
+import { Bodies, Body, Bounds, Vector } from "matter-js";
 
 const LABEL_TERRAIN_CHUNK = "ground";
 
@@ -120,47 +120,56 @@ function generatePhysicBodiesFromCurve(
   curve: CatmullRomCurve3,
   tubularSegments: number
 ) {
-  const bodies: Body[] = [];
+  const POINTS_COUNT = tubularSegments;
+  const BODY_BASE_HEIGHT = 100;
+  let lowestPoint = curve.points[0].y;
+  const vertices: Vector[] = [];
 
-  const thickness = 10;
-  const halfThickness = thickness / 2;
+  curve.getSpacedPoints(POINTS_COUNT).forEach(({ x, y }) => {
+    vertices.push(Vector.create(x, y));
 
-  const segments = splitCurveIntoLinearSegments(curve, tubularSegments);
-
-  segments.forEach((segment) => {
-    const halfLength = segment.length / 2;
-
-    const body = Bodies.rectangle(
-      segment.position.x + halfLength,
-      segment.position.y + halfThickness,
-      segment.length,
-      thickness,
-      {
-        isStatic: true,
-        friction: DEBUG_PARAMS.terrain.friction,
-        frictionStatic: DEBUG_PARAMS.terrain.frictionStatic,
-        restitution: DEBUG_PARAMS.terrain.restitution,
-        label: LABEL_TERRAIN_CHUNK,
-      }
-    );
-
-    // Set the center of the body to the top left corner.
-    // This will also set the transformation origin for the rotation.
-    Body.setCentre(
-      body,
-      {
-        x: -halfLength,
-        y: -halfThickness,
-      },
-      true
-    );
-
-    Body.setAngle(body, segment.angle);
-
-    bodies.push(body);
+    if (y > lowestPoint) {
+      lowestPoint = y;
+    }
   });
 
-  return bodies;
+  vertices.push(
+    Vector.create(
+      vertices[vertices.length - 1].x,
+      lowestPoint + BODY_BASE_HEIGHT
+    )
+  );
+  vertices.push(Vector.create(vertices[0].x, lowestPoint + BODY_BASE_HEIGHT));
+
+  const body = Bodies.fromVertices(
+    vertices[0].x,
+    vertices[0].y,
+    [vertices],
+    {
+      isStatic: true,
+      friction: DEBUG_PARAMS.terrain.friction,
+      frictionStatic: DEBUG_PARAMS.terrain.frictionStatic,
+      restitution: DEBUG_PARAMS.terrain.restitution,
+      label: LABEL_TERRAIN_CHUNK,
+    },
+    false,
+    DEBUG_PARAMS.segments.physicalBodyOptions.removeCollinear,
+    DEBUG_PARAMS.segments.physicalBodyOptions.minimumArea,
+    DEBUG_PARAMS.segments.physicalBodyOptions.removeDuplicatePoints
+  );
+
+  // https://github.com/liabru/matter-js/issues/958#issuecomment-767860577
+  // https://github.com/liabru/matter-js/issues/958#issuecomment-773649689
+  const bounds = Bounds.create(vertices);
+  const offset = Vector.sub(body.position, body.bounds.min);
+
+  Body.setCentre(body, vertices[0]);
+  Body.setPosition(body, {
+    x: offset.x + vertices[0].x,
+    y: offset.y - (vertices[0].y - bounds.min.y) + vertices[0].y,
+  });
+
+  return [body];
 }
 
 export {

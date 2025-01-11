@@ -1,5 +1,6 @@
 import {
   Body,
+  Common,
   Composite,
   Engine,
   Events,
@@ -47,6 +48,9 @@ import { parseScene } from "./modules/parseScene";
 import { pillManager } from "./modules/Pill";
 import { frustumCuller } from "./modules/frustumCulling";
 import gsap from "gsap";
+
+// @ts-expect-error
+import decomp from "poly-decomp";
 
 class BackgroundFloatingDecoration {
   object3D = new Object3D();
@@ -126,6 +130,8 @@ class App {
   }
 
   initPhysics() {
+    Common.setDecomp(decomp);
+
     this.matterEngine = Engine.create();
     Events.on(this.matterEngine, "collisionStart", this.onCollisionStart);
     Events.on(this.matterEngine, "collisionEnd", this.onCollisionEnd);
