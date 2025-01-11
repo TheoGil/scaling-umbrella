@@ -54,13 +54,13 @@ const DEBUG_PARAMS = {
     },
   },
   webgl: {
-    enabled: false,
-  },
-  debugRenderer: {
     enabled: true,
   },
-  physics: {
+  debugRenderer: {
     enabled: false,
+  },
+  physics: {
+    enabled: true,
   },
   obstacles: {
     minPosition: 0.1,
