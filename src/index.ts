@@ -27,6 +27,7 @@ import {
   Box3Helper,
   Object3D,
   AnimationMixer,
+  Color,
 } from "three";
 
 import { Player } from "./modules/Player";
@@ -56,6 +57,7 @@ import {
   distributeObstaclesOnTerrainChunk,
   obstacleManager,
 } from "./modules/obstacleManager";
+import { ParticleEmitter } from "./modules/particle-emitter";
 
 class BackgroundFloatingDecoration {
   object3D = new Object3D();
@@ -247,6 +249,7 @@ class App {
   async init() {
     await this.loadAssets();
     this.initRendering();
+    this.initParticleEmitter();
     this.initPhysics();
     this.initObstacleManager();
     this.initTerrain();
@@ -260,6 +263,15 @@ class App {
     Tempus.add(this.onFixedUpdate, {
       fps: 60,
     });
+  }
+
+  particleEmitter!: ParticleEmitter;
+  initParticleEmitter() {
+    this.particleEmitter = new ParticleEmitter({
+      renderMode: "billboard",
+      particlesCount: 100,
+    });
+    this.scene.add(this.particleEmitter);
   }
 
   async loadAssets() {
@@ -567,6 +579,44 @@ class App {
         y: window.innerHeight / 2,
       }
     );
+
+    this.particleEmitter.update(time / 1000);
+
+    const position = new Vector3().copy(this.player.object3D.position);
+    // position.x += MathUtils.randFloatSpread(100);
+    // position.y += MathUtils.randFloatSpread(100);
+    const velocity = new Vector3(
+      MathUtils.randFloat(-10, 0),
+      MathUtils.randFloat(-100, 300),
+      0
+    );
+    const acceleration = new Vector3();
+    const lifetime = MathUtils.randFloat(0.1, 0.5);
+    const scaleStart = MathUtils.randFloat(1, 15);
+    const scaleEnd = 0;
+    const colorStart = new Color(0xffffff);
+    const colorEnd = new Color(0xffffff);
+    const rotation = new Vector3(
+      MathUtils.randFloat(0, Math.PI),
+      MathUtils.randFloat(0, Math.PI),
+      MathUtils.randFloat(0, Math.PI)
+    );
+    const rotationVelocity = new Vector3();
+
+    for (let i = 0; i < 1; i++) {
+      this.particleEmitter.spawnParticle({
+        position,
+        velocity,
+        acceleration,
+        lifetime,
+        scaleStart,
+        scaleEnd,
+        colorStart,
+        colorEnd,
+        rotation,
+        rotationVelocity,
+      });
+    }
 
     this.destroyOutOfViewChunks();
 
