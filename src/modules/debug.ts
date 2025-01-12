@@ -37,21 +37,9 @@ function initDebug(app: App) {
   });
 
   playerJumpFolder.addBinding(DEBUG_PARAMS.player.variableJump, "maxTime", {
-    label: "Max jump time",
+    label: "Max jump time (ms)",
     min: 0,
     max: 1000,
-  });
-
-  playerJumpFolder.addBinding(DEBUG_PARAMS.player.variableJump, "gravity", {
-    label: "Jump gravity",
-    min: 0,
-    max: 10,
-  });
-
-  playerJumpFolder.addBinding(DEBUG_PARAMS.player.velocity, "jump", {
-    label: "Vel",
-    min: -20,
-    max: 0,
   });
 
   const playerSlowdownFolder = playerFolder.addFolder({
@@ -60,7 +48,7 @@ function initDebug(app: App) {
   });
 
   playerSlowdownFolder.addBinding(DEBUG_PARAMS.player.slowdown, "duration", {
-    label: "Duration",
+    label: "Duration (s)",
     min: 0,
     max: 5,
   });
@@ -69,7 +57,7 @@ function initDebug(app: App) {
     DEBUG_PARAMS.player.slowdown,
     "timeToMaxVel",
     {
-      label: "Time to max vel",
+      label: "Time to max vel (s)",
       min: 0,
       max: 5,
     }
@@ -172,14 +160,25 @@ function initDebug(app: App) {
   terrainFolder.addBinding(DEBUG_PARAMS.terrain, "friction");
   terrainFolder.addBinding(DEBUG_PARAMS.terrain, "frictionStatic");
 
-  // Physics
-  const physicsFolder = debug.addFolder({
-    title: "Physics",
+  const gravityFolder = debug.addFolder({
+    title: "Gravity",
     expanded: false,
   });
 
-  physicsFolder.addBinding(app.matterEngine.gravity, "y", {
-    label: "Gravity",
+  gravityFolder.addBinding(DEBUG_PARAMS.physics.gravity, "falling", {
+    label: "Falling",
+    min: 0,
+    max: 10,
+  });
+
+  gravityFolder.addBinding(DEBUG_PARAMS.physics.gravity, "jumping", {
+    label: "Jumping",
+    min: 0,
+    max: 10,
+  });
+
+  gravityFolder.addBinding(DEBUG_PARAMS.physics.gravity, "grounded", {
+    label: "Grounded",
     min: 0,
     max: 10,
   });

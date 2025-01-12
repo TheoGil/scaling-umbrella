@@ -4,7 +4,7 @@ const DEBUG_PARAMS = {
     count: 10,
     angle: {
       min: 0,
-      max: 0,
+      max: 0.6,
     },
     alternateAngleEveryNTHChunk: 4,
     length: {
@@ -32,8 +32,7 @@ const DEBUG_PARAMS = {
       height: 10,
     },
     variableJump: {
-      maxTime: 250,
-      gravity: 1,
+      maxTime: 280,
     },
     slowdown: {
       timeToMaxVel: 0.5, // s
@@ -66,7 +65,9 @@ const DEBUG_PARAMS = {
   physics: {
     enabled: true,
     gravity: {
-      y: 4,
+      falling: 4.5,
+      jumping: 1,
+      grounded: 1,
     },
   },
   obstacles: {

@@ -5,8 +5,6 @@ import {
   Engine,
   Events,
   IEventCollision,
-  IEventTimestamped,
-  IRunnerCallback,
   Render,
 } from "matter-js";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
@@ -137,7 +135,7 @@ class App {
     this.matterEngine = Engine.create({
       positionIterations: 1,
       gravity: {
-        y: DEBUG_PARAMS.physics.gravity.y,
+        y: DEBUG_PARAMS.physics.gravity.grounded,
       },
     });
     Events.on(this.matterEngine, "collisionStart", this.onCollisionStart);
@@ -466,7 +464,7 @@ class App {
     });
   }
 
-  onFixedUpdate(_time: number, _deltaTime: number) {
+  onFixedUpdate(_time: number, deltaTime: number) {
     Engine.update(this.matterEngine, 1000 / 60);
 
     Render.lookAt(
@@ -485,7 +483,7 @@ class App {
 
     this.destroyOutOfViewChunks();
 
-    this.player.update();
+    this.player.update(deltaTime);
 
     if (DEBUG_PARAMS.webgl.enabled) {
       this.renderer.render(

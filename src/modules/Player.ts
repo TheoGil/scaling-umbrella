@@ -126,9 +126,9 @@ class Player {
       this.jumpButtonDownTimer < DEBUG_PARAMS.player.variableJump.maxTime
     ) {
       this.jumpButtonDownTimer += deltaTime;
-      this.physicsEngine.gravity.y = DEBUG_PARAMS.player.variableJump.gravity;
+      this.physicsEngine.gravity.y = DEBUG_PARAMS.physics.gravity.jumping;
     } else {
-      this.physicsEngine.gravity.y = DEBUG_PARAMS.physics.gravity.y;
+      this.physicsEngine.gravity.y = DEBUG_PARAMS.physics.gravity.falling;
     }
 
     if (this.isJumpBuffering) {
@@ -169,6 +169,10 @@ class Player {
     // Prevent rotation, always stands up
 
     // this.object3D.rotation.z = -this.physicsBody.angle;
+
+    if (this.isGrounded) {
+      this.physicsEngine.gravity.y = DEBUG_PARAMS.physics.gravity.grounded;
+    }
 
     // Continuously apply horizontal velocity unless player has hit an obstacle
     if (!this.isSlowingDown) {
