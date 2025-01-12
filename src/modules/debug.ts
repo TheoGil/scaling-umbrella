@@ -236,6 +236,11 @@ function initDebug(app: App) {
     });
 
   cameraFolder.addBinding(DEBUG_PARAMS.camera, "followPlayer");
+  cameraFolder.addBinding(DEBUG_PARAMS.camera, "yLerp", {
+    min: 0,
+    max: 1,
+    label: "yLerp",
+  });
 
   const cameraPortraitFolder = cameraFolder.addFolder({
     title: "Portrait",

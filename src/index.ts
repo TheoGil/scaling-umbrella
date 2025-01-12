@@ -358,11 +358,13 @@ class App {
       ? DEBUG_PARAMS.camera.portrait.offset.y
       : DEBUG_PARAMS.camera.landscape.offset.y;
 
-    this.camera?.position.set(
-      this.player.object3D.position.x + offsetX,
+    const y = MathUtils.lerp(
+      this.camera!.position.y,
       this.player.object3D.position.y + offsetY,
-      z
+      DEBUG_PARAMS.camera.yLerp
     );
+
+    this.camera?.position.set(this.player.object3D.position.x + offsetX, y, z);
 
     dummyVec3.set(this.camera.position.x, this.camera.position.y, 0);
     this.camera.lookAt(dummyVec3);

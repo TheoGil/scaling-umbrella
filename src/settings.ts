@@ -120,6 +120,7 @@ const DEBUG_PARAMS = {
         y: 54,
       },
     },
+    yLerp: 0.1,
   },
   colorMaskFX: {
     desaturation: 0.75,
