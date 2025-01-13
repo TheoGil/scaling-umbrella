@@ -26,6 +26,7 @@ import {
   Box3,
   Box3Helper,
   Object3D,
+  AnimationMixer,
 } from "three";
 
 import { Player } from "./modules/Player";
@@ -44,7 +45,7 @@ import noiseTextureURL from "/noise_1.jpg?url";
 import sceneGLBUrl from "/lic.glb?url";
 import { BackgroundPlane } from "./modules/BackgroundPlane";
 import { Trail } from "./modules/Trail";
-import { parseScene } from "./modules/parseScene";
+import { parseScene, PlayerAnimations } from "./modules/parseScene";
 import { pillManager } from "./modules/Pill";
 import { frustumCuller } from "./modules/frustumCulling";
 import gsap from "gsap";
@@ -99,7 +100,8 @@ class App {
     backgroundPlaneMaterial: ShaderMaterial;
     basicMaterial: MeshBasicMaterial;
   };
-
+  animationMixer!: AnimationMixer;
+  animations!: PlayerAnimations;
   decorations: BackgroundFloatingDecoration[] = [];
   player!: Player;
   terrainChunks: TerrainChunk[] = [];
@@ -149,6 +151,7 @@ class App {
         height: innerHeight,
         wireframeBackground: "transparent",
         wireframes: true,
+        showAngleIndicator: true,
       },
     });
     // if (DEBUG_PARAMS.debugRenderer.enabled) {
@@ -254,9 +257,13 @@ class App {
 
     await this.assetsManager.loadAll();
 
-    const { models, materials } = parseScene(this.assetsManager);
+    const { models, materials, animationMixer, animations } = parseScene(
+      this.assetsManager
+    );
     this.models = models;
     this.materials = materials;
+    this.animationMixer = animationMixer;
+    this.animations = animations;
   }
 
   initTerrain() {
@@ -278,7 +285,11 @@ class App {
   }
 
   initPlayer() {
-    this.player = new Player(this.models.player, this.matterEngine);
+    this.player = new Player(
+      this.models.player,
+      this.matterEngine,
+      this.animations
+    );
     Composite.add(this.matterEngine.world, [this.player.physicsBody]);
     this.scene.add(this.player.object3D);
   }
@@ -545,6 +556,8 @@ class App {
     }
 
     frustumCuller.update(this.camera);
+
+    this.animationMixer.update(deltaTime / 1000);
   }
 }
 

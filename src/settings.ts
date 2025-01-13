@@ -38,6 +38,7 @@ const DEBUG_PARAMS = {
       timeToMaxVel: 0.5, // s
       duration: 1, // s
     },
+    landingAnimationMinVelocity: 14,
   },
   terrain: {
     restitution: 0,
@@ -60,12 +61,12 @@ const DEBUG_PARAMS = {
     enabled: true,
   },
   debugRenderer: {
-    enabled: false,
+    enabled: true,
   },
   physics: {
     enabled: true,
     gravity: {
-      falling: 4.5,
+      falling: 4,
       jumping: 1,
       grounded: 1,
     },

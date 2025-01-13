@@ -1,7 +1,10 @@
 import {
+  AnimationAction,
+  AnimationMixer,
   BufferGeometry,
   Color,
   DoubleSide,
+  LoopOnce,
   Mesh,
   MeshBasicMaterial,
   MeshStandardMaterial,
@@ -15,6 +18,13 @@ import { GLTF } from "three/examples/jsm/Addons.js";
 type RawPlayerMesh =
   | Mesh<BufferGeometry, MeshStandardMaterial>
   | SkinnedMesh<BufferGeometry, MeshStandardMaterial>;
+
+export type PlayerAnimations = {
+  falling: AnimationAction;
+  jumping: AnimationAction;
+  landing: AnimationAction;
+  sliding: AnimationAction;
+};
 
 import colorMaskVertex from "../glsl/color-masking.vertex.glsl?raw";
 import colorMaskFragment from "../glsl/color-masking.fragment.glsl?raw";
@@ -169,6 +179,20 @@ function parseScene(assetsManager: AssetsManager) {
   landscape3.material = colorMaskMaterial;
   landscape4.material = colorMaskMaterial;
 
+  const animationMixer = new AnimationMixer(gltf.scene);
+  const animations: PlayerAnimations = {
+    falling: animationMixer.clipAction(gltf.animations[0]),
+    jumping: animationMixer.clipAction(gltf.animations[1]),
+    landing: animationMixer.clipAction(gltf.animations[2]),
+    sliding: animationMixer.clipAction(gltf.animations[3]),
+  };
+
+  animations.falling.clampWhenFinished = true;
+  animations.falling.loop = LoopOnce;
+
+  animations.landing.clampWhenFinished = true;
+  animations.landing.loop = LoopOnce;
+
   return {
     models: {
       background,
@@ -185,6 +209,8 @@ function parseScene(assetsManager: AssetsManager) {
       player,
     },
     materials: { colorMaskMaterial, basicMaterial, backgroundPlaneMaterial },
+    animationMixer,
+    animations,
   };
 }
 

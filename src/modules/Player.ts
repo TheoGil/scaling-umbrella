@@ -1,4 +1,5 @@
 import {
+  AnimationAction,
   BufferGeometry,
   Group,
   MathUtils,
@@ -14,6 +15,7 @@ import { LABEL_TERRAIN_CHUNK } from "./curve";
 import gsap from "gsap";
 import { LABEL_OBSTACLE } from "./Obstacle";
 import { LABEL_PILL } from "./Pill";
+import { PlayerAnimations } from "./parseScene";
 
 const LABEL_TERRAIN_CHUNK_SENSOR = "ground-sensor";
 const LABEL_PLAYER = "player";
@@ -38,7 +40,6 @@ const getCollidingTerrainChunks = (pairs: Pair[], sensorLabel: string) =>
 class Player {
   isGrounded = false;
   object3D = new Group();
-  rotationContainer = new Group();
   physicsBody!: Body;
   groundSensor!: Body;
   collidingTerrainChunks: Body[] = [];
@@ -51,6 +52,8 @@ class Player {
   movement = new Vector2();
 
   physicsEngine: Engine;
+  animations!: PlayerAnimations;
+  activeAnimationAction?: AnimationAction;
 
   isJumping = false;
   jumpButtonDown = false;
@@ -61,7 +64,8 @@ class Player {
 
   constructor(
     mesh: Mesh<BufferGeometry, MeshBasicMaterial>,
-    physicsEngine: Engine
+    physicsEngine: Engine,
+    animations: PlayerAnimations
   ) {
     this.onKeyDown = this.onKeyDown.bind(this);
     this.onKeyUp = this.onKeyUp.bind(this);
@@ -73,6 +77,7 @@ class Player {
     this.initObject3D(mesh);
 
     this.physicsEngine = physicsEngine;
+    this.animations = animations;
 
     emitter.on("onCollisionStart", this.onCollisionStart);
     emitter.on("onCollisionEnd", this.onCollisionEnd);
@@ -82,8 +87,7 @@ class Player {
 
   initObject3D(mesh: Mesh<BufferGeometry, MeshBasicMaterial>) {
     mesh.scale.setScalar(DEBUG_PARAMS.player.radius * 2);
-    this.rotationContainer.add(mesh);
-    this.object3D.add(this.rotationContainer);
+    this.object3D.add(mesh);
   }
 
   initGroundSensor() {
@@ -115,20 +119,23 @@ class Player {
     );
 
     this.physicsBody = Body.create({
-      // parts: [body],
       parts: [body, this.groundSensor],
     });
   }
 
   update(deltaTime: number) {
-    if (
-      this.jumpButtonDown &&
-      this.jumpButtonDownTimer < DEBUG_PARAMS.player.variableJump.maxTime
-    ) {
-      this.jumpButtonDownTimer += deltaTime;
-      this.physicsEngine.gravity.y = DEBUG_PARAMS.physics.gravity.jumping;
+    if (this.isGrounded) {
+      this.physicsEngine.gravity.y = DEBUG_PARAMS.physics.gravity.grounded;
     } else {
-      this.physicsEngine.gravity.y = DEBUG_PARAMS.physics.gravity.falling;
+      if (
+        this.jumpButtonDown &&
+        this.jumpButtonDownTimer < DEBUG_PARAMS.player.variableJump.maxTime
+      ) {
+        this.jumpButtonDownTimer += deltaTime;
+        this.physicsEngine.gravity.y = DEBUG_PARAMS.physics.gravity.jumping;
+      } else {
+        this.physicsEngine.gravity.y = DEBUG_PARAMS.physics.gravity.falling;
+      }
     }
 
     if (this.isJumpBuffering) {
@@ -136,7 +143,6 @@ class Player {
     }
 
     const wasGrounded = this.isGrounded;
-
     // Ground sensor can collide with multiple terrain chunks simultaneously.
     // Because of that, it is tricky to rely only on collide start / stop to update isGrounded.
     // Instead, we keep track of every terrain segment colliding with sensor and check if
@@ -150,7 +156,6 @@ class Player {
     if (!this.isGrounded) {
       this.coyoteTimer += 1;
     }
-
     // Autorotate based on terrain chunk angle sensor
     const angle = MathUtils.lerp(
       this.object3D.rotation.z,
@@ -158,21 +163,9 @@ class Player {
       DEBUG_PARAMS.player.autoRotateLerpAmount
     );
 
-    // console.log(MathUtils.radToDeg(this.desiredRotation));
     this.object3D.rotation.z = angle;
 
     Body.setAngularVelocity(this.physicsBody, 0);
-    Body.setAngle(this.physicsBody, 0);
-
-    // Body.setAngle(this.physicsBody, angle);
-
-    // Prevent rotation, always stands up
-
-    // this.object3D.rotation.z = -this.physicsBody.angle;
-
-    if (this.isGrounded) {
-      this.physicsEngine.gravity.y = DEBUG_PARAMS.physics.gravity.grounded;
-    }
 
     // Continuously apply horizontal velocity unless player has hit an obstacle
     if (!this.isSlowingDown) {
@@ -198,20 +191,7 @@ class Player {
 
     this.stopJumpBuffering();
 
-    this.object3DTween?.kill();
-    this.object3DTween = gsap.fromTo(
-      this.object3D.scale,
-      {
-        y: 1.5,
-        x: 0.5,
-      },
-      {
-        y: 1,
-        x: 1,
-        ease: "elastic.out(1,0.3)",
-        duration: 1,
-      }
-    );
+    this.fadeToAction("jumping");
 
     Body.setVelocity(this.physicsBody, {
       x: this.physicsBody.velocity.x,
@@ -276,6 +256,7 @@ class Player {
     if (pairs.length) {
       if (this.isGrounded) {
         this.slowDown();
+        this.fadeToAction("falling");
 
         emitter.emit("onPlayerCollisionWithObstacle");
       } else {
@@ -333,19 +314,14 @@ class Player {
     this.coyoteTimer = 0;
     this.isJumping = false;
 
-    this.object3DTween?.kill();
-    this.object3DTween = gsap.fromTo(
-      this.object3D.scale,
-      {
-        y: 0.75,
-        x: 1.5,
-      },
-      {
-        y: 1,
-        x: 1,
-        ease: "elastic.out(1,0.3)",
-      }
-    );
+    this.fadeToAction("sliding");
+
+    if (
+      this.physicsBody.velocity.y >=
+      DEBUG_PARAMS.player.landingAnimationMinVelocity
+    ) {
+      this.animations.landing.reset().play();
+    }
 
     if (this.isJumpBuffering && this.jumpBufferTimer < JUMP_BUFFER_TIMER_MAX) {
       this.jump();
@@ -383,9 +359,7 @@ class Player {
       DEBUG_PARAMS.player.slowdown.duration,
       () => {
         this.isSlowingDown = false;
-
-        this.rotationContainer.rotation.z = MathUtils.degToRad(0);
-
+        this.fadeToAction("sliding", 0);
         this.rampUpVelocityTween?.kill();
         this.rampUpVelocityTween = gsap.fromTo(
           this,
@@ -400,8 +374,28 @@ class Player {
         );
       }
     );
+  }
 
-    this.rotationContainer.rotation.z = MathUtils.degToRad(-90);
+  fadeToAction(
+    animationName: "sliding" | "jumping" | "falling" | "landing",
+    duration = 0.1
+  ) {
+    // Keep reference to previous action
+    const previousAnimationAction = this.activeAnimationAction;
+
+    // Get new action
+    this.activeAnimationAction = this.animations[animationName];
+
+    // Fade out previous action
+    if (
+      previousAnimationAction &&
+      previousAnimationAction !== this.activeAnimationAction
+    ) {
+      previousAnimationAction.fadeOut(duration);
+    }
+
+    // Fade in new action
+    this.activeAnimationAction?.reset().fadeIn(duration).play();
   }
 }
 

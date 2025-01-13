@@ -16,8 +16,16 @@ function initDebug(app: App) {
   // PLAYER
   const playerFolder = debug.addFolder({
     title: "Player",
-    expanded: false,
+    expanded: true,
   });
+
+  playerFolder
+    .addButton({
+      title: "Fall",
+    })
+    .on("click", () => {
+      app.player.fadeToAction("falling");
+    });
 
   playerFolder.addBinding(DEBUG_PARAMS.player.velocity, "x", {
     label: "Speed",
