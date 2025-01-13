@@ -11,6 +11,7 @@ import { Bodies, Body, Composite } from "matter-js";
 import { frustumCuller } from "./frustumCulling";
 import { TerrainChunk } from "./TerrainChunk";
 import { ObjectPool } from "./ObjectPool";
+import gsap from "gsap";
 
 const LABEL_OBSTACLE = "obstacle";
 
@@ -24,22 +25,25 @@ const obstacleManager = {
   object3D: new Group(),
   pool: new ObjectPool<Obstacle>(),
   physicsWorld: Composite.create(),
+  activeObstacles: [] as Obstacle[],
 
   init(mesh: Mesh<BufferGeometry, MeshBasicMaterial>) {
     for (let index = 0; index < COUNT; index++) {
+      const physicsBody = Bodies.circle(
+        0,
+        0,
+        DEBUG_PARAMS.obstacles.collider.radius,
+        {
+          isStatic: true,
+          isSensor: true,
+          label: LABEL_OBSTACLE,
+        }
+      );
+
       const obstacle = {
-        id: index,
+        id: physicsBody.id,
         object3D: mesh.clone(),
-        physicsBody: Bodies.circle(
-          0,
-          0,
-          DEBUG_PARAMS.obstacles.collider.radius,
-          {
-            isStatic: true,
-            isSensor: true,
-            label: LABEL_OBSTACLE,
-          }
-        ),
+        physicsBody,
       };
 
       obstacle.object3D.scale.set(
@@ -65,12 +69,47 @@ const obstacleManager = {
       obstacle.object3D.rotation.z = rotation;
       obstacle.object3D.visible = true;
 
+      this.activeObstacles.push(obstacle);
+
       frustumCuller.add(obstacle.object3D, () => {
-        Composite.remove(this.physicsWorld!, obstacle.physicsBody);
+        this.remove(obstacle.id);
+      });
+    }
+  },
 
-        obstacle.object3D.visible = false;
+  remove(id: number) {
+    const obstacleIndex = this.activeObstacles.findIndex((o) => o.id === id);
+    if (obstacleIndex > -1) {
+      const obstacle = this.activeObstacles[obstacleIndex];
 
-        this.pool.recycle(obstacle);
+      Composite.remove(this.physicsWorld!, obstacle.physicsBody);
+
+      obstacle.object3D.visible = false;
+
+      this.pool.recycle(obstacle);
+
+      this.activeObstacles.splice(obstacleIndex, 1);
+    }
+  },
+
+  animateOut(id: number) {
+    const obstacleIndex = this.activeObstacles.findIndex((o) => o.id === id);
+    if (obstacleIndex > -1) {
+      const obstacle = this.activeObstacles[obstacleIndex];
+
+      // TEMP ANIMATION
+      gsap.to(obstacle.object3D.scale, {
+        x: 0,
+        y: 0,
+        duration: 0.25,
+        onComplete: () => {
+          this.remove(id);
+          obstacle.object3D.scale.set(
+            DEBUG_PARAMS.obstacles.size.x,
+            DEBUG_PARAMS.obstacles.size.y,
+            DEBUG_PARAMS.obstacles.size.z
+          );
+        },
       });
     }
   },
@@ -78,9 +117,9 @@ const obstacleManager = {
 
 function distributeObstaclesOnTerrainChunk(terrainChunk: TerrainChunk) {
   // No obstacle on first chunk
-  if (terrainChunk.index === 0) {
-    return;
-  }
+  // if (terrainChunk.index === 0) {
+  //   return;
+  // }
 
   const clampedChunkIndex = MathUtils.clamp(
     terrainChunk.index,

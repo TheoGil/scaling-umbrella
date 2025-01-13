@@ -258,7 +258,12 @@ class Player {
         this.slowDown();
         this.fadeToAction("falling");
 
-        emitter.emit("onPlayerCollisionWithObstacle");
+        emitter.emit(
+          "onPlayerCollisionWithObstacle",
+          pairs[0].bodyA.label === LABEL_OBSTACLE
+            ? pairs[0].bodyA.id
+            : pairs[0].bodyB.id
+        );
       } else {
         this.jump();
       }

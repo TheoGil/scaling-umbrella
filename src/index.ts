@@ -466,9 +466,8 @@ class App {
     this.renderer.setSize(window.innerWidth, window.innerHeight);
   }
 
-  onPlayerCollideWithObstacle() {
-    // Temporary visual flash fx to give player feedback when colliding with obstacle
-    // TODO: Determine what happens when player collides with obstacle
+  onPlayerCollideWithObstacle(id: number) {
+    obstacleManager.animateOut(id);
   }
 
   onPlayerCollideWithPill() {

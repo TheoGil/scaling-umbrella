@@ -4,7 +4,7 @@ import mitt from "mitt";
 const emitter = mitt<{
   onCollisionStart: IEventCollision<Engine>;
   onCollisionEnd: IEventCollision<Engine>;
-  onPlayerCollisionWithObstacle?: null;
+  onPlayerCollisionWithObstacle: number;
   onPlayerCollisionWithPill?: null;
   onGameComplete?: null;
 }>();
