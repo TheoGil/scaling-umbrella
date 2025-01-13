@@ -13,7 +13,7 @@ import {
   ShaderMaterial,
   Texture,
   Uniform,
-  Vector3,
+  Vector3Like,
 } from "three";
 
 import billboardFragmentShader from "./glsl/particleEmitter-billboard.frag.glsl";
@@ -239,18 +239,7 @@ export class ParticleEmitter extends Object3D {
     colorEnd,
     rotation,
     rotationVelocity,
-  }: {
-    position: Vector3;
-    velocity: Vector3;
-    acceleration: Vector3;
-    lifetime: number;
-    scaleStart: number;
-    scaleEnd: number;
-    colorStart: Color;
-    colorEnd: Color;
-    rotation: Vector3;
-    rotationVelocity: Vector3;
-  }) {
+  }: Particle) {
     if (this.geometry) {
       const i = this.particleCursor;
 
@@ -302,4 +291,17 @@ export class ParticleEmitter extends Object3D {
 
     this.geometryUpdate();
   }
+}
+
+export interface Particle {
+  position: Vector3Like;
+  velocity: Vector3Like;
+  acceleration: Vector3Like;
+  lifetime: number;
+  scaleStart: number;
+  scaleEnd: number;
+  colorStart: Color;
+  colorEnd: Color;
+  rotation: Vector3Like;
+  rotationVelocity: Vector3Like;
 }

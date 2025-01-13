@@ -208,6 +208,32 @@ const DEBUG_PARAMS = {
       ],
     },
   },
+  particles: {
+    sliding: {
+      velocity: {
+        x: {
+          min: 0,
+          max: 10,
+        },
+        y: {
+          min: 0,
+          max: 300,
+        },
+        z: {
+          min: 0,
+          max: 10,
+        },
+      },
+      scale: {
+        min: 1,
+        max: 15,
+      },
+      lifetime: {
+        min: 0.5,
+        max: 1.5,
+      },
+    },
+  },
 };
 
 export { DEBUG_PARAMS };

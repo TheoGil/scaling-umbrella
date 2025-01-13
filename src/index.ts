@@ -27,7 +27,6 @@ import {
   Box3Helper,
   Object3D,
   AnimationMixer,
-  Color,
 } from "three";
 
 import { Player } from "./modules/Player";
@@ -57,7 +56,7 @@ import {
   distributeObstaclesOnTerrainChunk,
   obstacleManager,
 } from "./modules/obstacleManager";
-import { ParticleEmitter } from "./modules/particle-emitter";
+import { Particle, ParticleEmitter } from "./modules/particle-emitter";
 
 class BackgroundFloatingDecoration {
   object3D = new Object3D();
@@ -129,6 +128,7 @@ class App {
     this.onKeyDown = this.onKeyDown.bind(this);
     this.onKeyUp = this.onKeyUp.bind(this);
     this.onPillLeaveFrustum = this.onPillLeaveFrustum.bind(this);
+    this.spawnParticle = this.spawnParticle.bind(this);
 
     this.init();
 
@@ -142,6 +142,7 @@ class App {
     emitter.on("onPlayerCollisionWithPill", this.onPlayerCollideWithPill);
     emitter.on("onGameComplete", this.onGameComplete);
     emitter.on("onPillLeaveFrustum", this.onPillLeaveFrustum);
+    emitter.on("onSpawnParticle", this.spawnParticle);
   }
 
   initControls() {
@@ -582,42 +583,6 @@ class App {
 
     this.particleEmitter.update(time / 1000);
 
-    const position = new Vector3().copy(this.player.object3D.position);
-    // position.x += MathUtils.randFloatSpread(100);
-    // position.y += MathUtils.randFloatSpread(100);
-    const velocity = new Vector3(
-      MathUtils.randFloat(-10, 0),
-      MathUtils.randFloat(-100, 300),
-      0
-    );
-    const acceleration = new Vector3();
-    const lifetime = MathUtils.randFloat(0.1, 0.5);
-    const scaleStart = MathUtils.randFloat(1, 15);
-    const scaleEnd = 0;
-    const colorStart = new Color(0xffffff);
-    const colorEnd = new Color(0xffffff);
-    const rotation = new Vector3(
-      MathUtils.randFloat(0, Math.PI),
-      MathUtils.randFloat(0, Math.PI),
-      MathUtils.randFloat(0, Math.PI)
-    );
-    const rotationVelocity = new Vector3();
-
-    for (let i = 0; i < 1; i++) {
-      this.particleEmitter.spawnParticle({
-        position,
-        velocity,
-        acceleration,
-        lifetime,
-        scaleStart,
-        scaleEnd,
-        colorStart,
-        colorEnd,
-        rotation,
-        rotationVelocity,
-      });
-    }
-
     this.destroyOutOfViewChunks();
 
     this.player.update(deltaTime);
@@ -690,6 +655,32 @@ class App {
     );
 
     this.spawnPill();
+  }
+
+  spawnParticle({
+    position,
+    velocity,
+    acceleration,
+    lifetime,
+    scaleStart,
+    scaleEnd,
+    colorStart,
+    colorEnd,
+    rotation,
+    rotationVelocity,
+  }: Particle) {
+    this.particleEmitter.spawnParticle({
+      position,
+      velocity,
+      acceleration,
+      lifetime,
+      scaleStart,
+      scaleEnd,
+      colorStart,
+      colorEnd,
+      rotation,
+      rotationVelocity,
+    });
   }
 }
 
