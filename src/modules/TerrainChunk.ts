@@ -5,21 +5,17 @@ import {
   Color,
   Group,
   InstancedMesh,
-  MathUtils,
   MeshBasicMaterial,
   Object3D,
   StaticDrawUsage,
   TubeGeometry,
-  Vector3,
 } from "three";
 import { Body } from "matter-js";
 
 import { DEBUG_PARAMS } from "../settings";
 import { generateCurve, generatePhysicBodiesFromCurve } from "./curve";
-import { Obstacle } from "./Obstacle";
 
 const dummyObject3D = new Object3D();
-const dummyVec3 = new Vector3();
 
 class TerrainChunk {
   curve: CatmullRomCurve3;
@@ -28,12 +24,10 @@ class TerrainChunk {
   instancedRailroadTies!: InstancedMesh;
   tubularSegments: number;
   boundingBox = new Box3();
-  obstacles: Obstacle[] = [];
   index: number;
 
-  constructor(startX = 0, startY = innerHeight / 2, index = 0) {
+  constructor(x = 0, y = innerHeight / 2, index = 0) {
     this.index = index;
-
     this.object3D = new Group();
 
     const alternateAngle =
@@ -42,8 +36,8 @@ class TerrainChunk {
 
     this.curve = generateCurve({
       startPosition: {
-        x: startX,
-        y: startY,
+        x,
+        y,
         z: 0,
       },
       segmentsCount: DEBUG_PARAMS.segments.count,
@@ -67,7 +61,6 @@ class TerrainChunk {
 
     this.initRailProfiles();
     this.initRailTies();
-    this.initObstacles();
 
     // Invert Y axis
     // The curve is "designed" in canvas 2D coordinates system (positive Y is down)
@@ -154,81 +147,6 @@ class TerrainChunk {
 
   destroy() {
     console.log("TODO: Implémenter méthode destroy");
-  }
-
-  initObstacles() {
-    // No obstacle on first chunk
-    if (this.index === 0) {
-      return;
-    }
-
-    const clampedChunkIndex = MathUtils.clamp(
-      this.index,
-      DEBUG_PARAMS.obstacles.difficulty.min.chunkIndex,
-      DEBUG_PARAMS.obstacles.difficulty.max.chunkIndex
-    );
-
-    const obstacleCountMin = MathUtils.mapLinear(
-      clampedChunkIndex,
-      DEBUG_PARAMS.obstacles.difficulty.min.chunkIndex,
-      DEBUG_PARAMS.obstacles.difficulty.max.chunkIndex,
-      DEBUG_PARAMS.obstacles.difficulty.min.count.min,
-      DEBUG_PARAMS.obstacles.difficulty.max.count.min
-    );
-
-    const obstacleCountMax = MathUtils.mapLinear(
-      clampedChunkIndex,
-      DEBUG_PARAMS.obstacles.difficulty.min.chunkIndex,
-      DEBUG_PARAMS.obstacles.difficulty.max.chunkIndex,
-      DEBUG_PARAMS.obstacles.difficulty.min.count.max,
-      DEBUG_PARAMS.obstacles.difficulty.max.count.max
-    );
-
-    const obstaclesCount = Math.round(
-      MathUtils.randFloat(obstacleCountMin, obstacleCountMax)
-    );
-
-    const minObstacleDistance = MathUtils.mapLinear(
-      clampedChunkIndex,
-      DEBUG_PARAMS.obstacles.difficulty.min.chunkIndex,
-      DEBUG_PARAMS.obstacles.difficulty.max.chunkIndex,
-      DEBUG_PARAMS.obstacles.difficulty.min.minDistance,
-      DEBUG_PARAMS.obstacles.difficulty.max.minDistance
-    );
-
-    // Keep track of the position where obstacles are already place to avoid
-    // placing two obstacles too close to each other
-    const positions: number[] = [];
-
-    for (let i = 0; i < obstaclesCount; i++) {
-      // Pick random position, not too close to chunk start not too close to chunk end
-      // to avoid obstale at 0.99 on previous and obstacle at 0.01 on current chunk
-      const randomPosition = MathUtils.randFloat(
-        DEBUG_PARAMS.obstacles.minPosition,
-        DEBUG_PARAMS.obstacles.maxPosition
-      );
-
-      // Check if another obstacle on this chunk is closer to randomPosition than minDistance
-      const tooClose = Boolean(
-        positions.find(
-          (p) => Math.abs(p - randomPosition) < minObstacleDistance
-        )
-      );
-
-      if (!tooClose) {
-        this.curve.getPointAt(randomPosition, dummyVec3);
-
-        const obstacle = new Obstacle(dummyVec3.x, dummyVec3.y);
-
-        // No idea how this works but using the inverted y component of tangeant
-        // rotate the obstacle so that is stands nicely on the curve
-        this.curve.getTangentAt(randomPosition, dummyVec3);
-        obstacle.object3D.rotation.z = -dummyVec3.y;
-
-        this.obstacles.push(obstacle);
-        positions.push(randomPosition);
-      }
-    }
   }
 }
 

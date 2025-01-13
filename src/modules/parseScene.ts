@@ -44,6 +44,7 @@ const PILL4_NAME = "pillYellow";
 const PILL5_NAME = "pillPurples";
 const PILL6_NAME = "pillWhite";
 const PLAYER_NAME = "ski";
+const OBSTACLE_NAME = "obstacle";
 
 /**
  * Parse GLTF content, retrieve models and update their materials
@@ -111,6 +112,11 @@ function parseScene(assetsManager: AssetsManager) {
     MeshBasicMaterial
   >;
 
+  const obstacle = gltf.scene.getObjectByName(OBSTACLE_NAME) as Mesh<
+    BufferGeometry,
+    MeshBasicMaterial
+  >;
+
   // Retrieve the base texture from the landscape1 model but it could be from any model
   const baseTexture = (landscape1.material as unknown as MeshStandardMaterial)
     .map;
@@ -172,7 +178,7 @@ function parseScene(assetsManager: AssetsManager) {
   pill3.material = basicMaterial;
   pill4.material = basicMaterial;
   pill5.material = basicMaterial;
-  pill6.material = basicMaterial;
+  obstacle.material = basicMaterial;
   background.material = backgroundPlaneMaterial;
   landscape1.material = colorMaskMaterial;
   landscape2.material = colorMaskMaterial;
@@ -207,6 +213,7 @@ function parseScene(assetsManager: AssetsManager) {
       pill5,
       pill6,
       player,
+      obstacle,
     },
     materials: { colorMaskMaterial, basicMaterial, backgroundPlaneMaterial },
     animationMixer,

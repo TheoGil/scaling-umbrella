@@ -13,9 +13,9 @@ import { Bodies, Body, Engine, IEventCollision, Pair, Vector } from "matter-js";
 import { emitter } from "./emitter";
 import { LABEL_TERRAIN_CHUNK } from "./curve";
 import gsap from "gsap";
-import { LABEL_OBSTACLE } from "./Obstacle";
 import { LABEL_PILL } from "./Pill";
 import { PlayerAnimations } from "./parseScene";
+import { LABEL_OBSTACLE } from "./obstacleManager";
 
 const LABEL_TERRAIN_CHUNK_SENSOR = "ground-sensor";
 const LABEL_PLAYER = "player";

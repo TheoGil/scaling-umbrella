@@ -76,7 +76,7 @@ const DEBUG_PARAMS = {
     maxPosition: 0.9,
     size: {
       x: 40,
-      y: 25,
+      y: 80,
       z: 25,
     },
     collider: {

@@ -1,4 +1,5 @@
 import {
+  Bodies,
   Body,
   Common,
   Composite,
@@ -52,6 +53,10 @@ import gsap from "gsap";
 
 // @ts-expect-error
 import decomp from "poly-decomp";
+import {
+  distributeObstaclesOnTerrainChunk,
+  obstacleManager,
+} from "./modules/obstacleManager";
 
 class BackgroundFloatingDecoration {
   object3D = new Object3D();
@@ -94,6 +99,7 @@ class App {
     pill5: Mesh<BufferGeometry, MeshBasicMaterial>;
     pill6: Mesh<BufferGeometry, MeshBasicMaterial>;
     player: Mesh<BufferGeometry, MeshBasicMaterial>;
+    obstacle: Mesh<BufferGeometry, MeshBasicMaterial>;
   };
   materials!: {
     colorMaskMaterial: ShaderMaterial;
@@ -153,9 +159,9 @@ class App {
         wireframes: true,
       },
     });
-    // if (DEBUG_PARAMS.debugRenderer.enabled) {
-    //   Render.run(this.matterRenderer);
-    // }
+    if (DEBUG_PARAMS.debugRenderer.enabled) {
+      Render.run(this.matterRenderer);
+    }
 
     // this.runner = Runner.create();
 
@@ -211,6 +217,7 @@ class App {
     await this.loadAssets();
     this.initRendering();
     this.initPhysics();
+    this.initObstacleManager();
     this.initTerrain();
     this.initPlayer();
     this.initBackgroundPlane();
@@ -265,6 +272,12 @@ class App {
     this.animations = animations;
   }
 
+  initObstacleManager() {
+    obstacleManager.init(this.models.obstacle);
+    Composite.add(this.matterEngine.world, obstacleManager.physicsWorld);
+    this.scene.add(obstacleManager.object3D);
+  }
+
   initTerrain() {
     const initialChunksCount = 2;
     let chunkX = 0;
@@ -314,11 +327,6 @@ class App {
     Composite.add(this.matterEngine!.world, terrainChunk.bodies);
     this.scene.add(terrainChunk.object3D);
 
-    terrainChunk.obstacles.forEach((obstacle) => {
-      Composite.add(this.matterEngine!.world, obstacle.physicsBody);
-      this.scene.add(obstacle.object3D);
-    });
-
     this.terrainChunks.push(terrainChunk);
 
     const landscapes = [
@@ -359,6 +367,8 @@ class App {
     if (pillManager.canSpawnPill) {
       pillManager.spawnPill(terrainChunk);
     }
+
+    distributeObstaclesOnTerrainChunk(terrainChunk);
 
     return terrainChunk;
   }
@@ -407,10 +417,6 @@ class App {
         // Cleanup chunk mesh, physic bodies...
         Composite.remove(this.matterEngine!.world, chunk.bodies);
         this.scene.remove(chunk.object3D);
-        chunk.obstacles.forEach((obstacle) => {
-          Composite.add(this.matterEngine!.world, obstacle.physicsBody);
-          this.scene.add(obstacle.object3D);
-        });
 
         this.terrainChunks.splice(i, 1);
 
