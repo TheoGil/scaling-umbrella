@@ -25,6 +25,7 @@ import trailVertex from "../glsl/trail.vertex.glsl?raw";
 import trailFragment from "../glsl/trail.fragment.glsl?raw";
 import { DEBUG_PARAMS } from "../settings";
 import { getCameraFrustrumDimensionsAtDepth } from "../utils/getCameraFrustrumDimensionsAtDepth";
+import gsap from "gsap";
 
 const dummyVec3 = new Vector3();
 
@@ -99,6 +100,7 @@ class Trail {
   renderer: WebGLRenderer;
   camera: PerspectiveCamera;
   clock: Clock;
+  fadeTween?: gsap.core.Tween;
 
   constructor(
     renderer: WebGLRenderer,
@@ -186,6 +188,22 @@ class Trail {
         0
       );
     }
+  }
+
+  fadeIn() {
+    this.fadeTween?.kill();
+    this.fadeTween = gsap.to(this.floorSimMat.uniforms.uThickness, {
+      value: DEBUG_PARAMS.trailFX.thickness,
+      duration: DEBUG_PARAMS.trailFX.playerSpeedBackUpFadeInDuration,
+    });
+  }
+
+  fadeOut() {
+    this.fadeTween?.kill();
+    this.fadeTween = gsap.to(this.floorSimMat.uniforms.uThickness, {
+      value: 0,
+      duration: DEBUG_PARAMS.trailFX.playerFallFadeOutDuration,
+    });
   }
 }
 

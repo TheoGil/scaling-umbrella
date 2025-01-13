@@ -7,6 +7,7 @@ const emitter = mitt<{
   onPlayerCollisionWithObstacle: number;
   onPlayerCollisionWithPill?: null;
   onGameComplete?: null;
+  onPlayerSpeedBackUp?: null;
 }>();
 
 export { emitter };

@@ -145,6 +145,8 @@ const DEBUG_PARAMS = {
     traveling: 0.1,
     debug: false,
     banding: 0.03,
+    playerFallFadeOutDuration: 1,
+    playerSpeedBackUpFadeInDuration: 1,
   },
   pills: {
     scale: 100,

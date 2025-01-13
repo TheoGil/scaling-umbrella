@@ -123,6 +123,7 @@ class App {
     this.onPlayerCollideWithPill = this.onPlayerCollideWithPill.bind(this);
     this.onGameComplete = this.onGameComplete.bind(this);
     this.onFixedUpdate = this.onFixedUpdate.bind(this);
+    this.onPlayerSpeedBackUp = this.onPlayerSpeedBackUp.bind(this);
 
     this.init();
 
@@ -132,6 +133,7 @@ class App {
       "onPlayerCollisionWithObstacle",
       this.onPlayerCollideWithObstacle
     );
+    emitter.on("onPlayerSpeedBackUp", this.onPlayerSpeedBackUp);
     emitter.on("onPlayerCollisionWithPill", this.onPlayerCollideWithPill);
     emitter.on("onGameComplete", this.onGameComplete);
   }
@@ -468,6 +470,11 @@ class App {
 
   onPlayerCollideWithObstacle(id: number) {
     obstacleManager.animateOut(id);
+    this.trailFX.fadeOut();
+  }
+
+  onPlayerSpeedBackUp() {
+    this.trailFX.fadeIn();
   }
 
   onPlayerCollideWithPill() {

@@ -363,6 +363,8 @@ class Player {
     this.slowDownDelayedCall = gsap.delayedCall(
       DEBUG_PARAMS.player.slowdown.duration,
       () => {
+        emitter.emit("onPlayerSpeedBackUp");
+
         this.isSlowingDown = false;
         this.fadeToAction("sliding", 0);
         this.rampUpVelocityTween?.kill();
