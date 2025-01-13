@@ -410,6 +410,12 @@ function initDebug(app: App) {
     max: 0,
   });
 
+  backgroundFolder.addBinding(DEBUG_PARAMS.background.plane, "scrollSpeed", {
+    label: "scrollspeed",
+    min: 0,
+    step: 0.0005,
+  });
+
   debug
     .addButton({
       title: "Reset",

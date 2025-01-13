@@ -131,6 +131,7 @@ const DEBUG_PARAMS = {
   background: {
     plane: {
       z: -1000,
+      scrollSpeed: 0.0005,
     },
     islands: {
       scale: 250,

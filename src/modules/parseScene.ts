@@ -18,6 +18,7 @@ type RawPlayerMesh =
 
 import colorMaskVertex from "../glsl/color-masking.vertex.glsl?raw";
 import colorMaskFragment from "../glsl/color-masking.fragment.glsl?raw";
+
 import { AssetsManager } from "./AssetsManager";
 import { DEBUG_PARAMS } from "../settings";
 
@@ -127,8 +128,17 @@ function parseScene(assetsManager: AssetsManager) {
       ),
       uNightOverlayOpacity: new Uniform(1),
       uTrailMask: new Uniform(null),
+      uTime: new Uniform(0),
+      uScrollSpeed: new Uniform(0),
     },
   });
+
+  const backgroundPlaneTexture = (
+    background.material as unknown as MeshStandardMaterial
+  ).map;
+  const backgroundPlaneMaterial = colorMaskMaterial.clone();
+  backgroundPlaneMaterial.uniforms.uMap.value = backgroundPlaneTexture;
+  backgroundPlaneMaterial.uniforms.uScrollSpeed.value = 0.0005;
 
   // Setup the shared unlit basic material
   const basicMaterial = new MeshBasicMaterial({
@@ -153,8 +163,7 @@ function parseScene(assetsManager: AssetsManager) {
   pill4.material = basicMaterial;
   pill5.material = basicMaterial;
   pill6.material = basicMaterial;
-
-  background.material = colorMaskMaterial;
+  background.material = backgroundPlaneMaterial;
   landscape1.material = colorMaskMaterial;
   landscape2.material = colorMaskMaterial;
   landscape3.material = colorMaskMaterial;
@@ -175,7 +184,7 @@ function parseScene(assetsManager: AssetsManager) {
       pill6,
       player,
     },
-    materials: { colorMaskMaterial, basicMaterial },
+    materials: { colorMaskMaterial, basicMaterial, backgroundPlaneMaterial },
   };
 }
 

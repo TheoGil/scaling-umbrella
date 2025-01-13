@@ -14,6 +14,8 @@ uniform float uWhitesAmount;
 uniform float uYellowsAmount;
 uniform vec3 uNightOverlayColor;
 uniform float uNightOverlayOpacity;
+uniform float uTime;
+uniform float uScrollSpeed;
 
 // https://github.com/jamieowen/glsl-blend/blob/master/multiply.glsl
 vec3 blendMultiply(vec3 base, vec3 blend) {
@@ -25,12 +27,13 @@ vec3 blendMultiply(vec3 base, vec3 blend, float opacity) {
 }
 
 void main() {
-    vec4 baseColor = texture2D(uMap, vUv);
+    vec2 scrolledUV = vec2(vUv.x + (uTime * uScrollSpeed), vUv.y);
+    vec4 baseColor = texture2D(uMap, scrolledUV);
     float grayscale = (baseColor.r + baseColor.g + baseColor.b) / 3.0;
     vec4 grayscaleColor = vec4(grayscale, grayscale, grayscale, baseColor.a);
 
-    vec4 colorMaskRGB = texture2D(uColorMaskRGB, vUv);
-    vec4 colorMaskPWY = texture2D(uColorMaskPWY, vUv);
+    vec4 colorMaskRGB = texture2D(uColorMaskRGB, scrolledUV);
+    vec4 colorMaskPWY = texture2D(uColorMaskPWY, scrolledUV);
 
     vec4 colorMask = vec4(0, 0, 0, 1.);
 

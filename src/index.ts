@@ -42,7 +42,7 @@ import colorMaskRGBTextureURL from "/color-mask-red-blue-green.png?url";
 import colorMaskPWYTextureURL from "/color-mask-purple-white-yellow.png?url";
 import noiseTextureURL from "/noise_1.jpg?url";
 import sceneGLBUrl from "/lic.glb?url";
-import { Background } from "./modules/Background";
+import { BackgroundPlane } from "./modules/BackgroundPlane";
 import { Trail } from "./modules/Trail";
 import { parseScene } from "./modules/parseScene";
 import { pillManager } from "./modules/Pill";
@@ -96,6 +96,7 @@ class App {
   };
   materials!: {
     colorMaskMaterial: ShaderMaterial;
+    backgroundPlaneMaterial: ShaderMaterial;
     basicMaterial: MeshBasicMaterial;
   };
 
@@ -103,7 +104,7 @@ class App {
   player!: Player;
   terrainChunks: TerrainChunk[] = [];
   latestTerrainChunkIndex = 0;
-  background!: Background;
+  backgroundPlane!: BackgroundPlane;
   trailFX!: Trail;
 
   constructor() {
@@ -124,7 +125,6 @@ class App {
       "onPlayerCollisionWithObstacle",
       this.onPlayerCollideWithObstacle
     );
-
     emitter.on("onPlayerCollisionWithPill", this.onPlayerCollideWithPill);
     emitter.on("onGameComplete", this.onGameComplete);
   }
@@ -211,6 +211,7 @@ class App {
     this.initPhysics();
     this.initTerrain();
     this.initPlayer();
+    this.initBackgroundPlane();
 
     this.trailFX = new Trail(
       this.renderer,
@@ -218,11 +219,6 @@ class App {
       this.camera
     );
     this.scene.add(this.trailFX.object3D);
-
-    this.background = new Background(
-      this.models.background as Mesh<BufferGeometry, ShaderMaterial>
-    );
-    this.scene.add(this.background.background);
 
     initDebug(this);
 
@@ -285,6 +281,13 @@ class App {
     this.player = new Player(this.models.player, this.matterEngine);
     Composite.add(this.matterEngine.world, [this.player.physicsBody]);
     this.scene.add(this.player.object3D);
+  }
+
+  initBackgroundPlane() {
+    this.backgroundPlane = new BackgroundPlane(
+      this.models.background as Mesh<BufferGeometry, ShaderMaterial>
+    );
+    this.scene.add(this.backgroundPlane.object3D);
   }
 
   initTerrainChunk(x: number, y: number) {
@@ -466,7 +469,7 @@ class App {
     });
   }
 
-  onFixedUpdate(_time: number, deltaTime: number) {
+  onFixedUpdate(time: number, deltaTime: number) {
     Engine.update(this.matterEngine, 1000 / 60);
 
     Render.lookAt(
@@ -511,19 +514,33 @@ class App {
       });
     }
 
-    if (this.background) {
+    if (this.backgroundPlane) {
       // TODO: Properly handle scaling and positioning of mesh so that it covers the whole viewport without magic numbers.
       // To ease things a bit, mesh should be re-exported with origin at center
-      this.background.background.scale.setScalar(400);
-      this.background.background.position.set(
+
+      this.backgroundPlane.object3D.position.set(
         this.camera.position.x,
-        this.camera.position.y - 1000,
+        this.camera.position.y,
         DEBUG_PARAMS.background.plane.z
       );
 
-      // Update the trail mask texture value since there is ping pong at play
-      // other wise it will only display every 2 frames
+      const { width, height } = getCameraFrustrumDimensionsAtDepth(
+        this.camera,
+        DEBUG_PARAMS.background.plane.z
+      );
+
+      this.backgroundPlane.object3D.scale.set(
+        width / this.backgroundPlane.scaleX,
+        height / this.backgroundPlane.scaleY,
+        1
+      );
+
+      this.materials.colorMaskMaterial.uniforms.uTime.value = time;
       this.materials.colorMaskMaterial.uniforms.uTrailMask.value =
+        this.trailFX.bufferSim.output.texture;
+
+      this.materials.backgroundPlaneMaterial.uniforms.uTime.value = time;
+      this.materials.backgroundPlaneMaterial.uniforms.uTrailMask.value =
         this.trailFX.bufferSim.output.texture;
     }
 
