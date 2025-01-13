@@ -1,3 +1,5 @@
+import { velocity } from "three/tsl";
+
 const DEBUG_PARAMS = {
   segments: {
     definition: 50,
@@ -152,6 +154,32 @@ const DEBUG_PARAMS = {
     scale: 100,
     physicsBodyRadius: 15,
     terrainOffset: -100,
+  },
+  particles: {
+    sliding: {
+      velocity: {
+        x: {
+          min: 0,
+          max: 10,
+        },
+        y: {
+          min: 0,
+          max: 300,
+        },
+        z: {
+          min: 0,
+          max: 10,
+        },
+      },
+      scale: {
+        min: 1,
+        max: 15,
+      },
+      lifetime: {
+        min: 0.5,
+        max: 1.5,
+      },
+    },
   },
 };
 
