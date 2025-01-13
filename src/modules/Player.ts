@@ -314,13 +314,13 @@ class Player {
     this.coyoteTimer = 0;
     this.isJumping = false;
 
-    this.fadeToAction("sliding");
-
     if (
       this.physicsBody.velocity.y >=
       DEBUG_PARAMS.player.landingAnimationMinVelocity
     ) {
-      this.animations.landing.reset().play();
+      this.fadeToAction("landing");
+    } else {
+      this.fadeToAction("sliding");
     }
 
     if (this.isJumpBuffering && this.jumpBufferTimer < JUMP_BUFFER_TIMER_MAX) {

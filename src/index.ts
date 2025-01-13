@@ -151,7 +151,6 @@ class App {
         height: innerHeight,
         wireframeBackground: "transparent",
         wireframes: true,
-        showAngleIndicator: true,
       },
     });
     // if (DEBUG_PARAMS.debugRenderer.enabled) {
@@ -291,7 +290,14 @@ class App {
       this.animations
     );
     Composite.add(this.matterEngine.world, [this.player.physicsBody]);
+
     this.scene.add(this.player.object3D);
+
+    this.animationMixer.addEventListener("finished", (e) => {
+      if (e.action.getClip().name !== "sliding") {
+        this.player.fadeToAction("sliding");
+      }
+    });
   }
 
   initBackgroundPlane() {
