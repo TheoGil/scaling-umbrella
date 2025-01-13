@@ -61,7 +61,7 @@ const DEBUG_PARAMS = {
     enabled: true,
   },
   debugRenderer: {
-    enabled: true,
+    enabled: false,
   },
   physics: {
     enabled: true,
