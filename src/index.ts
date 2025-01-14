@@ -99,6 +99,7 @@ class App {
     pill6: Mesh<BufferGeometry, MeshBasicMaterial>;
     player: Mesh<BufferGeometry, MeshBasicMaterial>;
     obstacle: Mesh<BufferGeometry, MeshBasicMaterial>;
+    ground: Mesh<BufferGeometry, MeshBasicMaterial>;
   };
   materials!: {
     colorMaskMaterial: ShaderMaterial;
@@ -322,7 +323,12 @@ class App {
   }
 
   initTerrainChunk(x: number, y: number) {
-    const terrainChunk = new TerrainChunk(x, y, this.latestTerrainChunkIndex);
+    const terrainChunk = new TerrainChunk(
+      x,
+      y,
+      this.latestTerrainChunkIndex,
+      this.models.ground
+    );
     this.latestTerrainChunkIndex++;
 
     Composite.add(this.matterEngine!.world, terrainChunk.bodies);

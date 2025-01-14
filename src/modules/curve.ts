@@ -172,9 +172,18 @@ function generatePhysicBodiesFromCurve(
   return [body];
 }
 
+const dummyVec3 = new Vector3();
+// No idea how this works but using the inverted y component of tangeant
+// rotate the obstacle so that is stands nicely on the curve
+function getAngleAt(curve: CatmullRomCurve3, p: number) {
+  curve.getTangentAt(p, dummyVec3);
+  return -dummyVec3.y;
+}
+
 export {
   generateCurve,
   splitCurveIntoLinearSegments,
   generatePhysicBodiesFromCurve,
   LABEL_TERRAIN_CHUNK,
+  getAngleAt,
 };

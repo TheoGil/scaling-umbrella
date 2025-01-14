@@ -48,8 +48,8 @@ const DEBUG_PARAMS = {
     gaps: { min: 0, max: 0 },
     ties: {
       width: 10,
-      height: 5,
-      depth: 50,
+      height: -50,
+      depth: 100,
       color: 0x5b3b30,
     },
     profiles: {

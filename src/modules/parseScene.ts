@@ -1,6 +1,7 @@
 import {
   AnimationAction,
   AnimationMixer,
+  Box3,
   BufferGeometry,
   Color,
   DoubleSide,
@@ -45,6 +46,7 @@ const PILL5_NAME = "pillPurples";
 const PILL6_NAME = "pillWhite";
 const PLAYER_NAME = "ski";
 const OBSTACLE_NAME = "obstacle";
+const GROUND_NAME = "groundbloc";
 
 /**
  * Parse GLTF content, retrieve models and update their materials
@@ -117,6 +119,11 @@ function parseScene(assetsManager: AssetsManager) {
     MeshBasicMaterial
   >;
 
+  const ground = gltf.scene.getObjectByName(GROUND_NAME) as Mesh<
+    BufferGeometry,
+    MeshBasicMaterial
+  >;
+
   // Retrieve the base texture from the landscape1 model but it could be from any model
   const baseTexture = (landscape1.material as unknown as MeshStandardMaterial)
     .map;
@@ -179,6 +186,7 @@ function parseScene(assetsManager: AssetsManager) {
   pill4.material = basicMaterial;
   pill5.material = basicMaterial;
   obstacle.material = basicMaterial;
+  ground.material = basicMaterial;
   background.material = backgroundPlaneMaterial;
   landscape1.material = colorMaskMaterial;
   landscape2.material = colorMaskMaterial;
@@ -199,6 +207,10 @@ function parseScene(assetsManager: AssetsManager) {
   animations.landing.clampWhenFinished = true;
   animations.landing.loop = LoopOnce;
 
+  ground.position.set(0, 0, 0);
+  const box = new Box3().setFromObject(ground);
+  ground.scale.x = 1 / (box.max.x - box.min.x);
+
   return {
     models: {
       background,
@@ -214,6 +226,7 @@ function parseScene(assetsManager: AssetsManager) {
       pill6,
       player,
       obstacle,
+      ground,
     },
     materials: { colorMaskMaterial, basicMaterial, backgroundPlaneMaterial },
     animationMixer,

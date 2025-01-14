@@ -1,10 +1,11 @@
 import {
   Box3,
-  BoxGeometry,
+  BufferGeometry,
   CatmullRomCurve3,
   Color,
   Group,
   InstancedMesh,
+  Mesh,
   MeshBasicMaterial,
   Object3D,
   StaticDrawUsage,
@@ -13,7 +14,11 @@ import {
 import { Body } from "matter-js";
 
 import { DEBUG_PARAMS } from "../settings";
-import { generateCurve, generatePhysicBodiesFromCurve } from "./curve";
+import {
+  generateCurve,
+  generatePhysicBodiesFromCurve,
+  getAngleAt,
+} from "./curve";
 
 const dummyObject3D = new Object3D();
 
@@ -26,7 +31,12 @@ class TerrainChunk {
   boundingBox = new Box3();
   index: number;
 
-  constructor(x = 0, y = innerHeight / 2, index = 0) {
+  constructor(
+    x = 0,
+    y = innerHeight / 2,
+    index = 0,
+    mesh: Mesh<BufferGeometry, MeshBasicMaterial>
+  ) {
     this.index = index;
     this.object3D = new Group();
 
@@ -60,7 +70,7 @@ class TerrainChunk {
     );
 
     this.initRailProfiles();
-    this.initRailTies();
+    this.initRailTies(mesh);
 
     // Invert Y axis
     // The curve is "designed" in canvas 2D coordinates system (positive Y is down)
@@ -118,26 +128,26 @@ class TerrainChunk {
     this.object3D.add(mesh);
   }
 
-  initRailTies() {
-    const material = new MeshBasicMaterial({
-      color: DEBUG_PARAMS.terrain.ties.color,
-    });
-
-    const geometry = new BoxGeometry(
-      DEBUG_PARAMS.terrain.ties.width,
-      DEBUG_PARAMS.terrain.ties.height,
-      DEBUG_PARAMS.terrain.ties.depth
-    );
+  initRailTies(mesh: Mesh<BufferGeometry, MeshBasicMaterial>) {
+    const width = this.curve.getLength() / this.tubularSegments;
 
     const instancedRailroadTies = new InstancedMesh(
-      geometry,
-      material,
+      mesh.geometry,
+      mesh.material,
       this.tubularSegments
     );
     instancedRailroadTies.instanceMatrix.setUsage(StaticDrawUsage);
 
     this.curve.getSpacedPoints(this.tubularSegments).forEach((point, i) => {
       dummyObject3D.position.set(point.x, point.y + 5, point.z);
+      dummyObject3D.scale.set(
+        mesh.scale.x * width,
+        DEBUG_PARAMS.terrain.ties.height,
+        DEBUG_PARAMS.terrain.ties.depth
+      );
+      const rot = getAngleAt(this.curve, i / this.tubularSegments);
+
+      dummyObject3D.rotation.z = -rot;
       dummyObject3D.updateMatrix();
       instancedRailroadTies.setMatrixAt(i, dummyObject3D.matrix);
     });
