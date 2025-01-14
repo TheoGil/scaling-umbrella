@@ -143,8 +143,8 @@ class App {
   initControls() {
     window.addEventListener("keydown", this.onKeyDown);
     window.addEventListener("keyup", this.onKeyUp);
-    window.addEventListener("mousedown", this.onPointerDown);
-    window.addEventListener("mouseup", this.onPointerUp);
+    window.addEventListener("pointerdown", this.onPointerDown);
+    window.addEventListener("pointerup", this.onPointerUp);
   }
 
   onKeyUp({ code }: KeyboardEvent) {
