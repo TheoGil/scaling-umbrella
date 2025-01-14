@@ -8,6 +8,8 @@ const emitter = mitt<{
   onPlayerCollisionWithPill?: null;
   onGameComplete?: null;
   onPlayerSpeedBackUp?: null;
+  onJumpButtonPressed?: null;
+  onJumpButtonReleased?: null;
 }>();
 
 export { emitter };

@@ -124,6 +124,8 @@ class App {
     this.onGameComplete = this.onGameComplete.bind(this);
     this.onFixedUpdate = this.onFixedUpdate.bind(this);
     this.onPlayerSpeedBackUp = this.onPlayerSpeedBackUp.bind(this);
+    this.onKeyDown = this.onKeyDown.bind(this);
+    this.onKeyUp = this.onKeyUp.bind(this);
 
     this.init();
 
@@ -136,6 +138,33 @@ class App {
     emitter.on("onPlayerSpeedBackUp", this.onPlayerSpeedBackUp);
     emitter.on("onPlayerCollisionWithPill", this.onPlayerCollideWithPill);
     emitter.on("onGameComplete", this.onGameComplete);
+  }
+
+  initControls() {
+    window.addEventListener("keydown", this.onKeyDown);
+    window.addEventListener("keyup", this.onKeyUp);
+    window.addEventListener("mousedown", this.onPointerDown);
+    window.addEventListener("mouseup", this.onPointerUp);
+  }
+
+  onKeyUp({ code }: KeyboardEvent) {
+    if (code === "Space") {
+      emitter.emit("onJumpButtonReleased");
+    }
+  }
+
+  onKeyDown({ code }: KeyboardEvent) {
+    if (code === "Space") {
+      emitter.emit("onJumpButtonPressed");
+    }
+  }
+
+  onPointerDown(_e: MouseEvent) {
+    emitter.emit("onJumpButtonPressed");
+  }
+
+  onPointerUp(_e: MouseEvent) {
+    emitter.emit("onJumpButtonReleased");
   }
 
   initPhysics() {
@@ -222,6 +251,7 @@ class App {
     this.initTerrain();
     this.initPlayer();
     this.initBackgroundPlane();
+    this.initControls();
 
     this.trailFX = new Trail(
       this.renderer,

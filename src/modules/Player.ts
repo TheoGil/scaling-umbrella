@@ -67,8 +67,8 @@ class Player {
     physicsEngine: Engine,
     animations: PlayerAnimations
   ) {
-    this.onKeyDown = this.onKeyDown.bind(this);
-    this.onKeyUp = this.onKeyUp.bind(this);
+    this.onJumpButtonPressed = this.onJumpButtonPressed.bind(this);
+    this.onJumpButtonReleased = this.onJumpButtonReleased.bind(this);
     this.onCollisionStart = this.onCollisionStart.bind(this);
     this.onCollisionEnd = this.onCollisionEnd.bind(this);
 
@@ -81,8 +81,8 @@ class Player {
 
     emitter.on("onCollisionStart", this.onCollisionStart);
     emitter.on("onCollisionEnd", this.onCollisionEnd);
-    document.addEventListener("keydown", this.onKeyDown);
-    document.addEventListener("keyup", this.onKeyUp);
+    emitter.on("onJumpButtonPressed", this.onJumpButtonPressed);
+    emitter.on("onJumpButtonReleased", this.onJumpButtonReleased);
   }
 
   initObject3D(mesh: Mesh<BufferGeometry, MeshBasicMaterial>) {
@@ -199,8 +199,8 @@ class Player {
     });
   }
 
-  onKeyDown(e: KeyboardEvent) {
-    if (e.code === "Space" && !this.jumpButtonDown) {
+  onJumpButtonPressed() {
+    if (!this.jumpButtonDown) {
       this.jumpButtonDown = true;
 
       if (
@@ -215,10 +215,8 @@ class Player {
     }
   }
 
-  onKeyUp(e: KeyboardEvent) {
-    if (e.code === "Space") {
-      this.jumpButtonDown = false;
-    }
+  onJumpButtonReleased() {
+    this.jumpButtonDown = false;
   }
 
   onCollisionStart(e: IEventCollision<Engine>) {
