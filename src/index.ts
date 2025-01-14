@@ -252,13 +252,7 @@ class App {
     this.initPlayer();
     this.initBackgroundPlane();
     this.initControls();
-
-    this.trailFX = new Trail(
-      this.renderer,
-      this.assetsManager.get<Texture>("noise_1"),
-      this.camera
-    );
-    this.scene.add(this.trailFX.object3D);
+    this.initTrailFX();
 
     initDebug(this);
 
@@ -402,6 +396,16 @@ class App {
     distributeObstaclesOnTerrainChunk(terrainChunk);
 
     return terrainChunk;
+  }
+
+  initTrailFX() {
+    this.trailFX = new Trail(
+      this.renderer,
+      this.assetsManager.get<Texture>("noise_1"),
+      this.camera
+    );
+
+    this.scene.add(this.trailFX.object3D);
   }
 
   focusCameraOnPlayer() {

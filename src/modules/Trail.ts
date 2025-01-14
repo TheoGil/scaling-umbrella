@@ -10,9 +10,6 @@ import {
   Scene,
   WebGLRenderTarget,
   ClampToEdgeWrapping,
-  LinearFilter,
-  RGBAFormat,
-  FloatType,
   OrthographicCamera,
   RepeatWrapping,
   Clock,
@@ -52,10 +49,6 @@ class BufferSim {
     var fbo = new WebGLRenderTarget(width, height, {
       wrapS: ClampToEdgeWrapping,
       wrapT: ClampToEdgeWrapping,
-      minFilter: LinearFilter,
-      magFilter: LinearFilter,
-      format: RGBAFormat,
-      type: FloatType,
       stencilBuffer: false,
       depthBuffer: false,
     });
