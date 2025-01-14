@@ -6,6 +6,7 @@ import {
   Mesh,
   MeshBasicMaterial,
   Vector2,
+  Vector2Like,
 } from "three";
 import { DEBUG_PARAMS } from "../settings";
 import { Bodies, Body, Engine, IEventCollision, Pair, Vector } from "matter-js";
@@ -19,8 +20,6 @@ import { LABEL_OBSTACLE } from "./obstacleManager";
 
 const LABEL_TERRAIN_CHUNK_SENSOR = "ground-sensor";
 const LABEL_PLAYER = "player";
-const START_POS_X = 10;
-const START_POS_Y = 300;
 const JUMP_BUFFER_TIMER_MAX = 5;
 const COYOTE_TIMER_MAX = 10;
 const MAGIC_SCALE_NUMBER_FIXME = 25;
@@ -63,6 +62,7 @@ class Player {
   coyoteTimer = 0;
 
   constructor(
+    position: Vector2Like,
     mesh: Mesh<BufferGeometry, MeshBasicMaterial>,
     physicsEngine: Engine,
     animations: PlayerAnimations
@@ -72,9 +72,9 @@ class Player {
     this.onCollisionStart = this.onCollisionStart.bind(this);
     this.onCollisionEnd = this.onCollisionEnd.bind(this);
 
-    this.initGroundSensor();
-    this.initPhysicsBody();
-    this.initObject3D(mesh);
+    this.initGroundSensor(position);
+    this.initPhysicsBody(position);
+    this.initObject3D(position, mesh);
 
     this.physicsEngine = physicsEngine;
     this.animations = animations;
@@ -85,15 +85,19 @@ class Player {
     emitter.on("onJumpButtonReleased", this.onJumpButtonReleased);
   }
 
-  initObject3D(mesh: Mesh<BufferGeometry, MeshBasicMaterial>) {
+  initObject3D(
+    position: Vector2Like,
+    mesh: Mesh<BufferGeometry, MeshBasicMaterial>
+  ) {
     mesh.scale.setScalar(DEBUG_PARAMS.player.radius * 2);
     this.object3D.add(mesh);
+    this.object3D.position.set(position.x, -position.y, 0);
   }
 
-  initGroundSensor() {
+  initGroundSensor(position: Vector2Like) {
     this.groundSensor = Bodies.rectangle(
-      START_POS_X,
-      START_POS_Y + DEBUG_PARAMS.player.radius,
+      position.x,
+      position.y + DEBUG_PARAMS.player.radius,
       DEBUG_PARAMS.player.groundSensor.width,
       DEBUG_PARAMS.player.groundSensor.height,
       {
@@ -104,10 +108,10 @@ class Player {
   }
 
   // Physics body is composed of the actual physics body + the ground sensor
-  initPhysicsBody() {
+  initPhysicsBody(position: Vector2Like) {
     const body = Bodies.circle(
-      START_POS_X,
-      START_POS_Y,
+      position.x,
+      position.y,
       DEBUG_PARAMS.player.radius,
       {
         friction: DEBUG_PARAMS.player.friction,

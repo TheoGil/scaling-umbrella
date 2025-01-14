@@ -306,18 +306,19 @@ class App {
   }
 
   initTerrain() {
-    const initialChunksCount = 2;
+    // Initialy create 3 chunks. Spawn player at the start of 2nd.
+    // The very first one is a filler and just here so that there is "something" before player at the start.
+    const INITIAL_CHUNKS_COUNT = 3;
+
     let chunkX = 0;
-    let chunkY = innerHeight / 2;
-    for (let i = 0; i < initialChunksCount; i++) {
+    let chunkY = 0;
+
+    for (let i = 0; i < INITIAL_CHUNKS_COUNT; i++) {
       const terrainChunk = this.initTerrainChunk(chunkX, chunkY);
 
       chunkX =
-        terrainChunk.curve.points[terrainChunk.curve.points.length - 1].x +
-        MathUtils.randFloat(
-          DEBUG_PARAMS.terrain.gaps.min,
-          DEBUG_PARAMS.terrain.gaps.max
-        );
+        terrainChunk.curve.points[terrainChunk.curve.points.length - 1].x;
+
       chunkY =
         terrainChunk.curve.points[terrainChunk.curve.points.length - 1].y;
     }
@@ -325,6 +326,10 @@ class App {
 
   initPlayer() {
     this.player = new Player(
+      {
+        x: this.terrainChunks[1].curve.points[0].x,
+        y: this.terrainChunks[1].curve.points[0].y - DEBUG_PARAMS.player.radius,
+      },
       this.models.player,
       this.matterEngine,
       this.animations
@@ -338,6 +343,10 @@ class App {
         this.player.fadeToAction("sliding");
       }
     });
+
+    // Instantly set the camera position on player without lerping
+    // -> avoid akward camera movement on init
+    this.focusCameraOnPlayer(1);
   }
 
   initBackgroundPlane() {
@@ -410,7 +419,7 @@ class App {
     this.scene.add(this.trailFX.object3D);
   }
 
-  focusCameraOnPlayer() {
+  focusCameraOnPlayer(lerpAmount = DEBUG_PARAMS.camera.yLerp) {
     const isPortrait = innerWidth < innerHeight;
 
     const z = isPortrait
@@ -428,7 +437,7 @@ class App {
     const y = MathUtils.lerp(
       this.camera!.position.y,
       this.player.object3D.position.y + offsetY,
-      DEBUG_PARAMS.camera.yLerp
+      lerpAmount
     );
 
     this.camera?.position.set(this.player.object3D.position.x + offsetX, y, z);
@@ -461,14 +470,8 @@ class App {
         const lastChunk = this.terrainChunks[this.terrainChunks.length - 1];
         const curveLastPoint =
           lastChunk.curve.points[lastChunk.curve.points.length - 1];
-        this.initTerrainChunk(
-          curveLastPoint.x +
-            MathUtils.randFloat(
-              DEBUG_PARAMS.terrain.gaps.min,
-              DEBUG_PARAMS.terrain.gaps.max
-            ),
-          curveLastPoint.y
-        );
+
+        this.initTerrainChunk(curveLastPoint.x, curveLastPoint.y);
       }
     }
   }

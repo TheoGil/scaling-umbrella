@@ -45,7 +45,6 @@ const DEBUG_PARAMS = {
     friction: 0,
     frictionAir: 0,
     frictionStatic: 0,
-    gaps: { min: 0, max: 0 },
     ties: {
       width: 10,
       height: 5,
