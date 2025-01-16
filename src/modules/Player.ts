@@ -1,7 +1,6 @@
 import {
   AnimationAction,
   BufferGeometry,
-  Color,
   Group,
   MathUtils,
   Mesh,
