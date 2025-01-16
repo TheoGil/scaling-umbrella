@@ -88,12 +88,12 @@ const DEBUG_PARAMS = {
     // Properties are clamped for chunks lower or higher.
     difficulty: {
       min: {
-        chunkIndex: 1,
+        chunkIndex: 0,
         count: {
-          min: 0,
-          max: 1,
+          min: 10,
+          max: 10,
         },
-        minDistance: 0.25, // 0 = 0, 1 = 100% of the curve. 0.1 = 1/10th of the curve length
+        minDistance: 0.01, // 0 = 0, 1 = 100% of the curve. 0.1 = 1/10th of the curve length
       },
       max: {
         chunkIndex: 10,
@@ -210,6 +210,9 @@ const DEBUG_PARAMS = {
   },
   particles: {
     sliding: {
+      enabled: true,
+      count: 1,
+      speed: { min: 1, max: 14 },
       velocity: {
         x: {
           min: 0,
@@ -232,6 +235,85 @@ const DEBUG_PARAMS = {
         min: 0.5,
         max: 1.5,
       },
+      gravity: -500,
+      colors: [
+        new Color(0xff6f3a).convertLinearToSRGB(),
+        new Color(0xa92a22).convertLinearToSRGB(),
+        new Color(0xe13529).convertLinearToSRGB(),
+        new Color(0xffc939).convertLinearToSRGB(),
+        new Color(0xebbcb9).convertLinearToSRGB(),
+        new Color(0xffe294).convertLinearToSRGB(),
+      ],
+    },
+    landing: {
+      enabled: true,
+      minVelocityY: 14,
+      count: 50,
+      speed: { min: 1, max: 14 },
+      velocity: {
+        x: {
+          min: -500,
+          max: 500,
+        },
+        y: {
+          min: 0,
+          max: 350,
+        },
+        z: {
+          min: -250,
+          max: 250,
+        },
+      },
+      scale: {
+        min: 1,
+        max: 10,
+      },
+      lifetime: {
+        min: 0.5,
+        max: 1.5,
+      },
+      gravity: -1000,
+      colors: [
+        new Color(0xff6f3a).convertLinearToSRGB(),
+        new Color(0xa92a22).convertLinearToSRGB(),
+        new Color(0xe13529).convertLinearToSRGB(),
+        new Color(0xffc939).convertLinearToSRGB(),
+        new Color(0xebbcb9).convertLinearToSRGB(),
+        new Color(0xffe294).convertLinearToSRGB(),
+      ],
+    },
+    obstacle: {
+      enabled: true,
+      count: 50,
+      speed: { min: 1, max: 14 },
+      velocity: {
+        x: {
+          min: -500,
+          max: 500,
+        },
+        y: {
+          min: 0,
+          max: 350,
+        },
+        z: {
+          min: -250,
+          max: 250,
+        },
+      },
+      scale: {
+        min: 1,
+        max: 10,
+      },
+      lifetime: {
+        min: 0.5,
+        max: 1.5,
+      },
+      gravity: -1000,
+      colors: [
+        new Color(0x4a4d54).convertLinearToSRGB(),
+        new Color(0x6a6f80).convertLinearToSRGB(),
+        new Color(0xaaaeb8).convertLinearToSRGB(),
+      ],
     },
   },
 };

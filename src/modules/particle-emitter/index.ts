@@ -1,5 +1,4 @@
 import {
-  AdditiveBlending,
   BufferAttribute,
   BufferGeometry,
   Color,
@@ -7,6 +6,7 @@ import {
   InstancedBufferGeometry,
   Material,
   Mesh,
+  NormalBlending,
   Object3D,
   PlaneGeometry,
   Points,
@@ -120,8 +120,8 @@ export class ParticleEmitter extends Object3D {
   private initMaterial() {
     const uniforms = {
       uTime: new Uniform(0),
-      uFadeIn: new Uniform(0.5),
-      uFadeOut: new Uniform(0.5),
+      uFadeIn: new Uniform(0.15),
+      uFadeOut: new Uniform(0.0),
       uTexture: new Uniform(this.texture),
       uAlpha: new Uniform(1),
     };
@@ -133,7 +133,7 @@ export class ParticleEmitter extends Object3D {
       uniforms,
       transparent: true,
       depthWrite: false,
-      blending: AdditiveBlending,
+      blending: NormalBlending,
     });
 
     this.initMaterialDefines();

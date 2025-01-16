@@ -475,6 +475,14 @@ function initDebug(app: App) {
         }
       });
     });
+  const particlesFolder = debug.addFolder({
+    title: "Particles",
+    expanded: false,
+  });
+
+  initParticlesFolder(particlesFolder, "sliding");
+  initParticlesFolder(particlesFolder, "landing");
+  initParticlesFolder(particlesFolder, "obstacle");
 
   debug
     .addButton({
@@ -483,6 +491,73 @@ function initDebug(app: App) {
     .on("click", () => {
       app.reset();
     });
+}
+
+function initParticlesFolder(
+  root: FolderApi,
+  type: "sliding" | "landing" | "obstacle"
+) {
+  const folder = root.addFolder({
+    title: type,
+    expanded: false,
+  });
+
+  folder.addBinding(DEBUG_PARAMS.particles[type], "enabled");
+
+  folder.addBinding(DEBUG_PARAMS.particles[type], "count", {
+    min: 0,
+    step: 1,
+  });
+
+  folder.addBinding(DEBUG_PARAMS.particles[type], "speed", {
+    step: 1,
+    min: 0,
+    max: 20,
+  });
+
+  folder.addBinding(DEBUG_PARAMS.particles[type], "scale", {
+    step: 1,
+  });
+
+  folder.addBinding(DEBUG_PARAMS.particles[type], "lifetime");
+
+  folder.addBinding(DEBUG_PARAMS.particles[type], "gravity");
+
+  const velFolder = folder.addFolder({
+    title: "Velocity",
+    expanded: true,
+  });
+
+  velFolder.addBinding(DEBUG_PARAMS.particles[type].velocity, "x", {
+    step: 1,
+  });
+
+  velFolder.addBinding(DEBUG_PARAMS.particles[type].velocity, "y", {
+    step: 1,
+  });
+
+  velFolder.addBinding(DEBUG_PARAMS.particles[type].velocity, "z", {
+    step: 1,
+  });
+
+  const colors = DEBUG_PARAMS.particles[type].colors.map(
+    (c) => `#${c.clone().convertSRGBToLinear().getHexString()}`
+  );
+
+  const colorFolder = folder
+    .addFolder({
+      title: "Colors",
+      expanded: true,
+    })
+    .on("change", () => {
+      DEBUG_PARAMS.particles[type].colors.forEach((c, i) => {
+        c.set(colors[i]);
+      });
+    });
+
+  colors.forEach((_c, i) => {
+    colorFolder.addBinding(colors, i.toString());
+  });
 }
 
 export { initDebug };

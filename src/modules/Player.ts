@@ -188,48 +188,12 @@ class Player {
 
     this.object3D.position.set(newX, newY, 0);
 
-    if (this.isGrounded && this.physicsBody.speed > 1) {
-      const rnd = (min: number, max: number) =>
-        MathUtils.randFloat(min, max) *
-        MathUtils.mapLinear(
-          MathUtils.clamp(this.physicsBody.speed, 0, 11),
-          0,
-          11,
-          0,
-          1
-        );
-
-      emitter.emit("onSpawnParticle", {
-        position: this.object3D.position,
-        velocity: {
-          x: rnd(
-            DEBUG_PARAMS.particles.sliding.velocity.x.min,
-            DEBUG_PARAMS.particles.sliding.velocity.x.max
-          ),
-          y: rnd(
-            DEBUG_PARAMS.particles.sliding.velocity.y.min,
-            DEBUG_PARAMS.particles.sliding.velocity.y.max
-          ),
-          z: rnd(
-            DEBUG_PARAMS.particles.sliding.velocity.z.min,
-            DEBUG_PARAMS.particles.sliding.velocity.z.max
-          ),
-        },
-        acceleration: { x: 0, y: -500, z: 0 },
-        lifetime: rnd(
-          DEBUG_PARAMS.particles.sliding.lifetime.min,
-          DEBUG_PARAMS.particles.sliding.lifetime.max
-        ),
-        scaleStart: rnd(
-          DEBUG_PARAMS.particles.sliding.scale.min,
-          DEBUG_PARAMS.particles.sliding.scale.max
-        ),
-        scaleEnd: 0,
-        colorStart: new Color(0xffffff),
-        colorEnd: new Color(0xffffff),
-        rotation: { x: 0, y: 0, z: 0 },
-        rotationVelocity: { x: 0, y: 0, z: 0 },
-      });
+    if (
+      DEBUG_PARAMS.particles.sliding.enabled &&
+      this.isGrounded &&
+      this.physicsBody.speed > DEBUG_PARAMS.particles.sliding.speed.min
+    ) {
+      this.burstParticles("sliding");
     }
   }
 
@@ -314,6 +278,10 @@ class Player {
       } else {
         this.jump();
       }
+
+      if (DEBUG_PARAMS.particles.obstacle.enabled) {
+        this.burstParticles("obstacle");
+      }
     }
   }
 
@@ -380,6 +348,13 @@ class Player {
     }
 
     this.stopJumpBuffering();
+
+    if (
+      DEBUG_PARAMS.particles.landing.enabled &&
+      this.physicsBody.velocity.y >= DEBUG_PARAMS.particles.landing.minVelocityY
+    ) {
+      this.burstParticles("landing");
+    }
   }
 
   onUnground() {
@@ -450,6 +425,61 @@ class Player {
 
     // Fade in new action
     this.activeAnimationAction?.reset().fadeIn(duration).play();
+  }
+
+  burstParticles(type: "sliding" | "landing" | "obstacle") {
+    const rnd = (min: number, max: number) =>
+      MathUtils.randFloat(min, max) *
+      MathUtils.mapLinear(
+        MathUtils.clamp(
+          this.physicsBody.speed,
+          DEBUG_PARAMS.particles[type].speed.min,
+          DEBUG_PARAMS.particles[type].speed.max
+        ),
+        DEBUG_PARAMS.particles[type].speed.min,
+        DEBUG_PARAMS.particles[type].speed.max,
+        0,
+        1
+      );
+
+    for (let i = 0; i < DEBUG_PARAMS.particles[type].count; i++) {
+      const color =
+        DEBUG_PARAMS.particles[type].colors[
+          Math.floor(Math.random() * DEBUG_PARAMS.particles[type].colors.length)
+        ];
+
+      emitter.emit("onSpawnParticle", {
+        position: this.object3D.position,
+        velocity: {
+          x: rnd(
+            DEBUG_PARAMS.particles[type].velocity.x.min,
+            DEBUG_PARAMS.particles[type].velocity.x.max
+          ),
+          y: rnd(
+            DEBUG_PARAMS.particles[type].velocity.y.min,
+            DEBUG_PARAMS.particles[type].velocity.y.max
+          ),
+          z: rnd(
+            DEBUG_PARAMS.particles[type].velocity.z.min,
+            DEBUG_PARAMS.particles[type].velocity.z.max
+          ),
+        },
+        acceleration: { x: 0, y: DEBUG_PARAMS.particles[type].gravity, z: 0 },
+        lifetime: rnd(
+          DEBUG_PARAMS.particles[type].lifetime.min,
+          DEBUG_PARAMS.particles[type].lifetime.max
+        ),
+        scaleStart: rnd(
+          DEBUG_PARAMS.particles[type].scale.min,
+          DEBUG_PARAMS.particles[type].scale.max
+        ),
+        scaleEnd: 0,
+        colorStart: color,
+        colorEnd: color,
+        rotation: { x: 0, y: 0, z: 0 },
+        rotationVelocity: { x: 0, y: 0, z: 0 },
+      });
+    }
   }
 }
 
