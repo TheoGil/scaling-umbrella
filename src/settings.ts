@@ -88,12 +88,12 @@ const DEBUG_PARAMS = {
     // Properties are clamped for chunks lower or higher.
     difficulty: {
       min: {
-        chunkIndex: 0,
+        chunkIndex: 1,
         count: {
-          min: 10,
-          max: 10,
+          min: 0,
+          max: 4,
         },
-        minDistance: 0.01, // 0 = 0, 1 = 100% of the curve. 0.1 = 1/10th of the curve length
+        minDistance: 0.1, // 0 = 0, 1 = 100% of the curve. 0.1 = 1/10th of the curve length
       },
       max: {
         chunkIndex: 10,
