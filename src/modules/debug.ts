@@ -464,17 +464,6 @@ function initDebug(app: App) {
     });
   }
 
-  pillLensFlare
-    .addButton({
-      title: "animate",
-    })
-    .on("click", () => {
-      pillManager.pills.forEach((pill) => {
-        if (pill.pill.parent) {
-          console.log(pill);
-        }
-      });
-    });
   const particlesFolder = debug.addFolder({
     title: "Particles",
     expanded: false,
@@ -483,6 +472,69 @@ function initDebug(app: App) {
   initParticlesFolder(particlesFolder, "sliding");
   initParticlesFolder(particlesFolder, "landing");
   initParticlesFolder(particlesFolder, "obstacle");
+
+  const pillParticles = particlesFolder.addFolder({
+    title: "pill",
+    expanded: false,
+  });
+  pillParticles.addBinding(DEBUG_PARAMS.particles.pill, "count", {
+    min: 0,
+    step: 1,
+  });
+
+  pillParticles.addBinding(DEBUG_PARAMS.particles.pill, "scale", {
+    min: 0,
+    step: 1,
+  });
+
+  pillParticles.addBinding(DEBUG_PARAMS.particles.pill, "lifetime", {
+    min: 0,
+    step: 1,
+  });
+
+  const pillParticlesVelocity = pillParticles.addFolder({
+    title: "Velocity",
+  });
+  pillParticlesVelocity.addBinding(DEBUG_PARAMS.particles.pill.velocity, "x", {
+    min: 0,
+    step: 1,
+  });
+  pillParticlesVelocity.addBinding(DEBUG_PARAMS.particles.pill.velocity, "y", {
+    min: 0,
+    step: 1,
+  });
+  pillParticlesVelocity.addBinding(DEBUG_PARAMS.particles.pill.velocity, "z", {
+    min: 0,
+    step: 1,
+  });
+
+  const pillParticlesAcceleration = pillParticles.addFolder({
+    title: "Acceleration",
+  });
+  pillParticlesAcceleration.addBinding(
+    DEBUG_PARAMS.particles.pill.acceleration,
+    "x",
+    {
+      min: 0,
+      step: 1,
+    }
+  );
+  pillParticlesAcceleration.addBinding(
+    DEBUG_PARAMS.particles.pill.acceleration,
+    "y",
+    {
+      min: 0,
+      step: 1,
+    }
+  );
+  pillParticlesAcceleration.addBinding(
+    DEBUG_PARAMS.particles.pill.acceleration,
+    "z",
+    {
+      min: 0,
+      step: 1,
+    }
+  );
 
   debug
     .addButton({

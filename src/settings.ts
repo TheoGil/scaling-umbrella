@@ -315,6 +315,27 @@ const DEBUG_PARAMS = {
         new Color(0xaaaeb8).convertLinearToSRGB(),
       ],
     },
+    pill: {
+      count: 500,
+      velocity: {
+        x: 500,
+        y: 500,
+        z: 500,
+      },
+      acceleration: {
+        x: 500,
+        y: 500,
+        z: 500,
+      },
+      lifetime: {
+        min: 0,
+        max: 2,
+      },
+      scale: {
+        min: 1,
+        max: 5,
+      },
+    },
   },
 };
 

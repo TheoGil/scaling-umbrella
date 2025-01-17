@@ -270,7 +270,7 @@ class App {
   initParticleEmitter() {
     this.particleEmitter = new ParticleEmitter({
       renderMode: "billboard",
-      particlesCount: 100,
+      particlesCount: 1000,
     });
     this.scene.add(this.particleEmitter);
   }
@@ -546,6 +546,46 @@ class App {
         value: 1,
       }
     );
+
+    const colors = pillManager.pills[pillManager.currentPillIndex].planes.map(
+      (p) => p.material.uniforms.uColor.value.clone()
+    );
+    for (let i = 0; i < DEBUG_PARAMS.particles.pill.count; i++) {
+      const color = colors[Math.floor(Math.random() * colors.length)];
+
+      this.spawnParticle({
+        position: pillManager.pills[pillManager.currentPillIndex].pill.position,
+        velocity: {
+          x: MathUtils.randFloatSpread(DEBUG_PARAMS.particles.pill.velocity.x),
+          y: MathUtils.randFloatSpread(DEBUG_PARAMS.particles.pill.velocity.y),
+          z: MathUtils.randFloatSpread(DEBUG_PARAMS.particles.pill.velocity.z),
+        },
+        acceleration: {
+          x: MathUtils.randFloatSpread(
+            DEBUG_PARAMS.particles.pill.acceleration.x
+          ),
+          y: MathUtils.randFloatSpread(
+            DEBUG_PARAMS.particles.pill.acceleration.y
+          ),
+          z: MathUtils.randFloatSpread(
+            DEBUG_PARAMS.particles.pill.acceleration.z
+          ),
+        },
+        lifetime: MathUtils.randFloat(
+          DEBUG_PARAMS.particles.pill.lifetime.min,
+          DEBUG_PARAMS.particles.pill.lifetime.max
+        ),
+        scaleStart: MathUtils.randFloat(
+          DEBUG_PARAMS.particles.pill.scale.min,
+          DEBUG_PARAMS.particles.pill.scale.max
+        ),
+        scaleEnd: 0,
+        colorStart: color,
+        colorEnd: color,
+        rotation: { x: 0, y: 0, z: 0 },
+        rotationVelocity: { x: 0, y: 0, z: 0 },
+      });
+    }
 
     pillManager.pills[pillManager.currentPillIndex].removeFromWorld(
       this.scene,
