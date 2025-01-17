@@ -155,6 +155,10 @@ function parseScene(assetsManager: AssetsManager) {
   const backgroundPlaneMaterial = colorMaskMaterial.clone();
   backgroundPlaneMaterial.uniforms.uMap.value = backgroundPlaneTexture;
   backgroundPlaneMaterial.uniforms.uScrollSpeed.value = 0.0005;
+  backgroundPlaneMaterial.uniforms.uColorMaskRGB.value =
+    assetsManager.get<Texture>("color-mask-background");
+  backgroundPlaneMaterial.uniforms.uColorMaskPWY.value =
+    assetsManager.get<Texture>("color-mask-background");
 
   // Setup the shared unlit basic material
   const basicMaterial = new MeshBasicMaterial({

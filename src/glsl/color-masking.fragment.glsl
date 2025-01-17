@@ -45,6 +45,7 @@ void main() {
     mask += colorMaskPWY.r * uPurplesAmount;
     mask += colorMaskPWY.g * uWhitesAmount;
     mask += colorMaskPWY.b * uYellowsAmount;
+    mask = clamp(mask, 0., 1.);
 
     vec4 color = mix(grayscaleColor, baseColor, mask);
 

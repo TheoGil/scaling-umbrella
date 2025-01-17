@@ -40,6 +40,7 @@ import { AssetsManager } from "./modules/AssetsManager";
 const dummyVec3 = new Vector3();
 
 import colorMaskRGBTextureURL from "/color-mask-red-blue-green.png?url";
+import colorMaskBackgroundTextureURL from "/color-mask-background.png?url";
 import colorMaskPWYTextureURL from "/color-mask-purple-white-yellow.png?url";
 import noiseTextureURL from "/noise_1.jpg?url";
 import sceneGLBUrl from "/lic.glb?url";
@@ -300,6 +301,12 @@ class App {
       type: "texture",
     });
 
+    this.assetsManager.add({
+      id: "color-mask-background",
+      src: colorMaskBackgroundTextureURL,
+      type: "texture",
+    });
+
     await this.assetsManager.loadAll();
 
     const { models, materials, animationMixer, animations } = parseScene(
@@ -540,6 +547,15 @@ class App {
   onPlayerCollideWithPill() {
     gsap.to(
       this.materials.colorMaskMaterial.uniforms[
+        pillManager.pills[pillManager.currentPillIndex].uniformName
+      ],
+      {
+        value: 1,
+      }
+    );
+
+    gsap.to(
+      this.materials.backgroundPlaneMaterial.uniforms[
         pillManager.pills[pillManager.currentPillIndex].uniformName
       ],
       {
