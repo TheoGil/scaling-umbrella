@@ -178,6 +178,7 @@ function parseScene(assetsManager: AssetsManager) {
   pill3.material = basicMaterial;
   pill4.material = basicMaterial;
   pill5.material = basicMaterial;
+  pill6.material = basicMaterial;
   obstacle.material = basicMaterial;
   background.material = backgroundPlaneMaterial;
   landscape1.material = colorMaskMaterial;

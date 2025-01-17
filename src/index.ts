@@ -126,6 +126,7 @@ class App {
     this.onPlayerSpeedBackUp = this.onPlayerSpeedBackUp.bind(this);
     this.onKeyDown = this.onKeyDown.bind(this);
     this.onKeyUp = this.onKeyUp.bind(this);
+    this.onPillLeaveFrustum = this.onPillLeaveFrustum.bind(this);
 
     this.init();
 
@@ -138,6 +139,7 @@ class App {
     emitter.on("onPlayerSpeedBackUp", this.onPlayerSpeedBackUp);
     emitter.on("onPlayerCollisionWithPill", this.onPlayerCollideWithPill);
     emitter.on("onGameComplete", this.onGameComplete);
+    emitter.on("onPillLeaveFrustum", this.onPillLeaveFrustum);
   }
 
   initControls() {
@@ -196,8 +198,6 @@ class App {
     // this.runner = Runner.create();
 
     // Runner.run(this.runner, this.matterEngine);
-
-    Composite.add(this.matterEngine.world, pillManager.physicsBody);
   }
 
   initRendering() {
@@ -241,7 +241,6 @@ class App {
       this.models.pill5,
       this.models.pill6
     );
-    this.scene.add(pillManager.object3D);
     this.scene.add(frustumCuller.object3D);
   }
 
@@ -322,6 +321,19 @@ class App {
       chunkY =
         terrainChunk.curve.points[terrainChunk.curve.points.length - 1].y;
     }
+
+    // Spawn first pill on the third therrain chunk
+    this.spawnPill(this.terrainChunks[2]);
+  }
+
+  spawnPill(terrainChunk = this.terrainChunks[this.terrainChunks.length - 1]) {
+    pillManager.spawnPill({
+      terrainChunk,
+      pillIndex: pillManager.currentPillIndex,
+      composite: this.matterEngine.world,
+      scene: this.scene,
+      progress: 0.5,
+    });
   }
 
   initPlayer() {
@@ -398,10 +410,6 @@ class App {
           this.scene.remove(decoration.object3D);
         });
       }
-    }
-
-    if (pillManager.canSpawnPill) {
-      pillManager.spawnPill(terrainChunk);
     }
 
     distributeObstaclesOnTerrainChunk(terrainChunk);
@@ -526,7 +534,14 @@ class App {
       }
     );
 
+    pillManager.pills[pillManager.currentPillIndex].removeFromWorld(
+      this.scene,
+      this.matterEngine.world
+    );
+
     pillManager.goToNext();
+
+    this.spawnPill();
   }
 
   onGameComplete() {
@@ -556,6 +571,8 @@ class App {
     this.destroyOutOfViewChunks();
 
     this.player.update(deltaTime);
+
+    pillManager.update(time);
 
     if (DEBUG_PARAMS.webgl.enabled) {
       this.renderer.render(
@@ -614,6 +631,15 @@ class App {
     frustumCuller.update(this.camera);
 
     this.animationMixer.update(deltaTime / 1000);
+  }
+
+  onPillLeaveFrustum() {
+    pillManager.pills[pillManager.currentPillIndex].removeFromWorld(
+      this.scene,
+      this.matterEngine.world
+    );
+
+    this.spawnPill();
   }
 }
 

@@ -4,6 +4,7 @@ import * as EssentialsPlugin from "@tweakpane/plugin-essentials";
 import { DEBUG_PARAMS } from "../settings";
 import { App } from "..";
 import { Render } from "matter-js";
+import { pillManager } from "./Pill";
 
 function initDebug(app: App) {
   if (!window.location.search.includes("debug")) {
@@ -16,7 +17,7 @@ function initDebug(app: App) {
   // PLAYER
   const playerFolder = debug.addFolder({
     title: "Player",
-    expanded: true,
+    expanded: false,
   });
 
   playerFolder.addBinding(DEBUG_PARAMS.player.velocity, "x", {
@@ -110,13 +111,6 @@ function initDebug(app: App) {
         });
       });
     });
-
-  terrainFolder.addBinding(DEBUG_PARAMS.terrain, "gaps", {
-    min: 0,
-    max: 500,
-    step: 10,
-    label: "Gap",
-  });
 
   terrainFolder.addBinding(DEBUG_PARAMS.segments, "angle", {
     min: -Math.PI / 2,
@@ -415,6 +409,72 @@ function initDebug(app: App) {
     min: 0,
     step: 0.0005,
   });
+
+  const pillLensFlare = debug
+    .addFolder({
+      title: "Pill lens flare",
+      expanded: false,
+    })
+    .on("change", () => {
+      pillManager.pills.forEach((p) => {
+        for (let i = 0; i < 3; i++) {
+          p.planes[i].material.uniforms.uStep.value =
+            DEBUG_PARAMS.pills.flares.layers[i].step;
+
+          p.planes[i].material.uniforms.uEdge.value =
+            DEBUG_PARAMS.pills.flares.layers[i].edges;
+
+          p.planes[i].material.uniforms.uSpeed.value =
+            DEBUG_PARAMS.pills.flares.layers[i].speed;
+
+          p.planes[i].scale.set(
+            DEBUG_PARAMS.pills.flares.layers[i].scale,
+            DEBUG_PARAMS.pills.flares.layers[i].scale,
+            1
+          );
+        }
+      });
+    });
+
+  for (let index = 0; index < 3; index++) {
+    const f = pillLensFlare.addFolder({
+      title: `Layer ${index}`,
+      expanded: false,
+    });
+
+    f.addBinding(DEBUG_PARAMS.pills.flares.layers[0], "step", {
+      min: 0,
+      max: 1,
+    });
+
+    f.addBinding(DEBUG_PARAMS.pills.flares.layers[0], "edges", {
+      min: 0,
+      max: 0.25,
+    });
+
+    f.addBinding(DEBUG_PARAMS.pills.flares.layers[0], "speed", {
+      min: 0,
+      max: 0.001,
+      step: 0.00001,
+    });
+
+    f.addBinding(DEBUG_PARAMS.pills.flares.layers[0], "scale", {
+      min: 0,
+      max: 10,
+    });
+  }
+
+  pillLensFlare
+    .addButton({
+      title: "animate",
+    })
+    .on("click", () => {
+      pillManager.pills.forEach((pill) => {
+        if (pill.pill.parent) {
+          console.log(pill);
+        }
+      });
+    });
 
   debug
     .addButton({

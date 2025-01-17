@@ -1,3 +1,5 @@
+import { Color } from "three";
+
 const DEBUG_PARAMS = {
   segments: {
     definition: 50,
@@ -148,9 +150,63 @@ const DEBUG_PARAMS = {
     playerSpeedBackUpFadeInDuration: 1,
   },
   pills: {
-    scale: 100,
-    physicsBodyRadius: 15,
+    scale: 125,
+    physicsBodyRadius: 17,
     terrainOffset: -100,
+    flares: {
+      layers: [
+        {
+          step: 0.41,
+          edges: 0.13,
+          speed: 0.0001,
+          scale: 1.1,
+        },
+        {
+          step: 0.46,
+          edges: 0.07,
+          speed: 0.00009,
+          scale: 1.52,
+        },
+        {
+          step: 0.51,
+          edges: 0.07,
+          speed: 0.00022,
+          scale: 2.39,
+        },
+      ],
+      colors: [
+        [
+          new Color(0x2bc9a4).convertLinearToSRGB(),
+          new Color(0x006978).convertLinearToSRGB(),
+          new Color(0x003a3e).convertLinearToSRGB(),
+        ],
+        [
+          new Color(0xff6a28).convertLinearToSRGB(),
+          new Color(0xd9532b).convertLinearToSRGB(),
+          new Color(0xc0462d).convertLinearToSRGB(),
+        ],
+        [
+          new Color(0x1fa13e).convertLinearToSRGB(),
+          new Color(0x008636).convertLinearToSRGB(),
+          new Color(0x05d38).convertLinearToSRGB(),
+        ],
+        [
+          new Color(0xf6d24e).convertLinearToSRGB(),
+          new Color(0xcead30).convertLinearToSRGB(),
+          new Color(0x9e9a3a).convertLinearToSRGB(),
+        ],
+        [
+          new Color(0xafb3bc).convertLinearToSRGB(),
+          new Color(0x8f92a2).convertLinearToSRGB(),
+          new Color(0x565964).convertLinearToSRGB(),
+        ],
+        [
+          new Color(0xefcca8).convertLinearToSRGB(),
+          new Color(0xe4a889).convertLinearToSRGB(),
+          new Color(0x90704b).convertLinearToSRGB(),
+        ],
+      ],
+    },
   },
 };
 

@@ -1,8 +1,17 @@
-import { Object3D, Vector3 } from "three";
+import {
+  Group,
+  Mesh,
+  Object3D,
+  PlaneGeometry,
+  ShaderMaterial,
+  Uniform,
+  Vector3,
+  Vector3Like,
+} from "three";
 import type { TerrainChunk } from "./TerrainChunk";
 import { frustumCuller } from "./frustumCulling";
 import { DEBUG_PARAMS } from "../settings";
-import { Bodies, Body } from "matter-js";
+import { Bodies, Body, Composite } from "matter-js";
 import { emitter } from "./emitter";
 
 const dummyVec3 = new Vector3();
@@ -18,49 +27,117 @@ function getPillPosition(
   return new Vector3(dummyVec3.x + offset * 0, dummyVec3.y + offset * 1, 0);
 }
 
+import pillFlareVertex from "../glsl/radial-lens-flare.vertex.glsl?raw";
+import pillFlareFragment from "../glsl/radial-lens-flare.fragment.glsl?raw";
+
 const LABEL_PILL = "pill";
 
-const pillManager = {
-  canSpawnPill: true,
-  object3D: new Object3D(),
-  pills: [
-    {
-      name: "pill1",
-      uniformName: "uBluesAmount",
-      object3D: undefined,
-    },
-    {
-      name: "pill2",
-      uniformName: "uRedsAmount",
-      object3D: undefined,
-    },
-    {
-      name: "pill3",
-      uniformName: "uGreensAmount",
-      object3D: undefined,
-    },
-    {
-      name: "pill4",
-      uniformName: "uYellowsAmount",
-      object3D: undefined,
-    },
-    {
-      name: "pill5",
-      uniformName: "uPurplesAmount",
-      object3D: undefined,
-    },
-    {
-      name: "pill6",
-      uniformName: "uWhitesAmount",
-      object3D: undefined,
-    },
-  ] as { name: string; uniformName: string; object3D?: Object3D }[],
-  currentPillIndex: 0,
-  physicsBody: Bodies.circle(0, 0, DEBUG_PARAMS.pills.physicsBodyRadius, {
+class Pill {
+  flares = new Group();
+  pill = new Group();
+  planes: Mesh<PlaneGeometry, ShaderMaterial>[] = [];
+  physicsBody = Bodies.circle(0, 0, DEBUG_PARAMS.pills.physicsBodyRadius, {
     isSensor: true,
     isStatic: true,
     label: LABEL_PILL,
-  }),
+  });
+  index: number;
+  uniformName: string;
+
+  constructor(mesh: Object3D, index: number, uniformName: string) {
+    this.index = index;
+    this.uniformName = uniformName;
+
+    mesh.scale.setScalar(DEBUG_PARAMS.pills.scale);
+    mesh.position.set(0, 0, 0);
+    this.pill.add(mesh);
+
+    const planeGeometry = new PlaneGeometry(
+      DEBUG_PARAMS.pills.scale,
+      DEBUG_PARAMS.pills.scale
+    );
+
+    const planeMaterial = new ShaderMaterial({
+      transparent: true,
+      vertexShader: pillFlareVertex,
+      fragmentShader: pillFlareFragment,
+      uniforms: {
+        uTime: new Uniform(0),
+        uEdge: new Uniform(0),
+        uStep: new Uniform(0),
+        uSpeed: new Uniform(0),
+        uColor: new Uniform(null),
+        uOffset: new Uniform(Math.random() * 1000),
+      },
+    });
+
+    // Useful to visually debug the collider
+    // this.pill.add(
+    //   new Mesh(
+    //     new SphereGeometry(DEBUG_PARAMS.pills.physicsBodyRadius, 6, 6),
+    //     new MeshBasicMaterial({
+    //       color: 0xff0000,
+    //       wireframe: true,
+    //     })
+    //   )
+    // );
+
+    for (let i = 0; i < 3; i++) {
+      const plane = new Mesh(planeGeometry, planeMaterial.clone());
+
+      plane.position.z = -5;
+
+      plane.scale.set(
+        DEBUG_PARAMS.pills.flares.layers[i].scale,
+        DEBUG_PARAMS.pills.flares.layers[i].scale,
+        1
+      );
+
+      plane.material.uniforms.uEdge.value =
+        DEBUG_PARAMS.pills.flares.layers[i].edges;
+
+      plane.material.uniforms.uStep.value =
+        DEBUG_PARAMS.pills.flares.layers[i].step;
+
+      plane.material.uniforms.uSpeed.value =
+        DEBUG_PARAMS.pills.flares.layers[i].speed;
+
+      plane.material.uniforms.uColor.value =
+        DEBUG_PARAMS.pills.flares.colors[index][i];
+
+      this.planes.push(plane);
+
+      this.flares.add(plane);
+    }
+  }
+
+  update(time: number) {
+    this.planes.forEach((p) => {
+      p.material.uniforms.uTime.value = time;
+    });
+  }
+
+  addToWorld(position: Vector3Like, scene: Object3D, composite: Composite) {
+    this.pill.position.set(position.x, -position.y, 0);
+    scene.add(this.pill);
+
+    this.flares.position.copy(this.pill.position);
+    scene.add(this.flares);
+
+    Body.setPosition(this.physicsBody, { x: position.x, y: position.y });
+    Composite.add(composite, this.physicsBody);
+  }
+
+  removeFromWorld(scene: Object3D, composite: Composite) {
+    scene.remove(this.pill);
+    scene.remove(this.flares);
+    Composite.remove(composite, this.physicsBody);
+  }
+}
+
+const pillManager = {
+  pills: [] as Pill[],
+  currentPillIndex: 0,
   goToNext() {
     if (this.currentPillIndex < this.pills.length - 1) {
       this.currentPillIndex++;
@@ -70,36 +147,40 @@ const pillManager = {
       }
     }
   },
-  goToPrev() {
-    if (this.currentPillIndex > 0) {
-      this.currentPillIndex--;
-    }
-  },
-  spawnPill(terrainChunk: TerrainChunk) {
-    const object3D = this.pills[this.currentPillIndex].object3D;
+  spawnPill({
+    terrainChunk,
+    scene,
+    composite,
+    progress,
+    pillIndex,
+  }: {
+    terrainChunk: TerrainChunk;
+    scene: Object3D;
+    composite: Composite;
+    progress: number;
+    pillIndex: number;
+  }) {
+    const pill = this.pills[pillIndex];
 
-    if (object3D) {
-      this.canSpawnPill = false;
+    const pillPosition = getPillPosition(
+      terrainChunk,
+      progress,
+      DEBUG_PARAMS.pills.terrainOffset
+    );
 
-      const pillPosition = getPillPosition(
-        terrainChunk,
-        0.5,
-        DEBUG_PARAMS.pills.terrainOffset
-      );
-
-      object3D.visible = true;
-      this.object3D.position.set(pillPosition.x, -pillPosition.y, 0);
-
-      Body.setPosition(this.physicsBody, {
+    pill.addToWorld(
+      {
         x: pillPosition.x,
         y: pillPosition.y,
-      });
+        z: 0,
+      },
+      scene,
+      composite
+    );
 
-      frustumCuller.add(this.object3D, () => {
-        object3D.visible = false;
-        this.canSpawnPill = true;
-      });
-    }
+    frustumCuller.add(pill.pill, () => {
+      emitter.emit("onPillLeaveFrustum");
+    });
   },
   init(
     pill1: Object3D,
@@ -109,31 +190,17 @@ const pillManager = {
     pill5: Object3D,
     pill6: Object3D
   ) {
-    this.pills[0].object3D = pill1;
-    this.pills[1].object3D = pill2;
-    this.pills[2].object3D = pill3;
-    this.pills[3].object3D = pill4;
-    this.pills[4].object3D = pill5;
-    this.pills[5].object3D = pill6;
-
-    this.pills.forEach((pill) => {
-      if (pill.object3D) {
-        pill.object3D.visible = false;
-        pill.object3D.scale.setScalar(DEBUG_PARAMS.pills.scale);
-        this.object3D.add(pill.object3D);
-      }
+    this.pills.push(new Pill(pill1, 0, "uBluesAmount"));
+    this.pills.push(new Pill(pill2, 1, "uRedsAmount"));
+    this.pills.push(new Pill(pill3, 2, "uGreensAmount"));
+    this.pills.push(new Pill(pill4, 3, "uYellowsAmount"));
+    this.pills.push(new Pill(pill5, 4, "uPurplesAmount"));
+    this.pills.push(new Pill(pill6, 5, "uWhitesAmount"));
+  },
+  update(time: number) {
+    this.pills.forEach((p) => {
+      p.update(time);
     });
-
-    // Useful to visually debug the collider
-    // this.object3D.add(
-    //   new Mesh(
-    //     new SphereGeometry(DEBUG_PARAMS.pills.physicsBodyRadius, 6, 6),
-    //     new MeshBasicMaterial({
-    //       color: 0xff0000,
-    //       wireframe: true,
-    //     })
-    //   )
-    // );
   },
 };
 

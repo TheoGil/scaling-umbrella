@@ -10,6 +10,7 @@ const emitter = mitt<{
   onPlayerSpeedBackUp?: null;
   onJumpButtonPressed?: null;
   onJumpButtonReleased?: null;
+  onPillLeaveFrustum?: null;
 }>();
 
 export { emitter };
