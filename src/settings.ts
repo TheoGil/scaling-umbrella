@@ -3,7 +3,7 @@ import { Color } from "three";
 const DEBUG_PARAMS = {
   segments: {
     definition: 50,
-    count: 10,
+    count: 6,
     angle: {
       min: 0,
       max: 0.6,
@@ -98,8 +98,8 @@ const DEBUG_PARAMS = {
       max: {
         chunkIndex: 10,
         count: {
-          min: 1,
-          max: 10,
+          min: 2,
+          max: 5,
         },
         minDistance: 0.025, // 0 = 0, 1 = 100% of the curve. 0.1 = 1/10th of the curve length
       },

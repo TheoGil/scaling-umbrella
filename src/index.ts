@@ -53,6 +53,7 @@ import {
 } from "./modules/obstacleManager";
 import { Particle, ParticleEmitter } from "./modules/particle-emitter";
 import { cameraManager } from "./modules/cameraManager";
+import { gameIsPlaying, $gameState } from "./modules/store";
 
 class BackgroundFloatingDecoration {
   object3D = new Object3D();
@@ -136,6 +137,16 @@ class App {
     emitter.on("onGameComplete", this.onGameComplete);
     emitter.on("onPillLeaveFrustum", this.onPillLeaveFrustum);
     emitter.on("onSpawnParticle", this.spawnParticle);
+
+    const startScreenEl = document.querySelector(
+      ".js-start-screen"
+    ) as HTMLElement;
+    const startButtonEl = startScreenEl.querySelector(".js-start-button")!;
+    startButtonEl.addEventListener("click", () => {
+      startScreenEl.style.display = "none";
+      $gameState.set("playing");
+      this.spawnPill(this.terrainChunks[this.terrainChunks.length - 1]);
+    });
   }
 
   initControls() {
@@ -146,23 +157,27 @@ class App {
   }
 
   onKeyUp({ code }: KeyboardEvent) {
-    if (code === "Space") {
+    if (gameIsPlaying() && code === "Space") {
       emitter.emit("onJumpButtonReleased");
     }
   }
 
   onKeyDown({ code }: KeyboardEvent) {
-    if (code === "Space") {
+    if (gameIsPlaying() && code === "Space") {
       emitter.emit("onJumpButtonPressed");
     }
   }
 
   onPointerDown(_e: MouseEvent) {
-    emitter.emit("onJumpButtonPressed");
+    if (gameIsPlaying()) {
+      emitter.emit("onJumpButtonPressed");
+    }
   }
 
   onPointerUp(_e: MouseEvent) {
-    emitter.emit("onJumpButtonReleased");
+    if (gameIsPlaying()) {
+      emitter.emit("onJumpButtonReleased");
+    }
   }
 
   initPhysics() {
@@ -320,7 +335,7 @@ class App {
     }
 
     // Spawn first pill on the third therrain chunk
-    this.spawnPill(this.terrainChunks[2]);
+    // this.spawnPill(this.terrainChunks[2]);
   }
 
   spawnPill(terrainChunk = this.terrainChunks[this.terrainChunks.length - 1]) {
@@ -405,7 +420,9 @@ class App {
       }
     }
 
-    distributeObstaclesOnTerrainChunk(terrainChunk);
+    if (gameIsPlaying()) {
+      distributeObstaclesOnTerrainChunk(terrainChunk);
+    }
 
     return terrainChunk;
   }

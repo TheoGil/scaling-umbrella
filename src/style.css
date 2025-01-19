@@ -60,3 +60,10 @@ body {
 .tp-dfwv {
   position: fixed !important;
 }
+
+.start-screen {
+  position: fixed;
+  z-index: 10;
+  bottom: 20px;
+  left: 20px;
+}
