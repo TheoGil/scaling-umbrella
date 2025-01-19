@@ -13,7 +13,6 @@ import {
   OrthographicCamera,
   RepeatWrapping,
   Clock,
-  PerspectiveCamera,
   Vector2Like,
   Vector3,
 } from "three";
@@ -23,6 +22,7 @@ import trailFragment from "../glsl/trail.fragment.glsl?raw";
 import { DEBUG_PARAMS } from "../settings";
 import { getCameraFrustrumDimensionsAtDepth } from "../utils/getCameraFrustrumDimensionsAtDepth";
 import gsap from "gsap";
+import { cameraManager } from "./cameraManager";
 
 const dummyVec3 = new Vector3();
 
@@ -91,19 +91,13 @@ class Trail {
   floorSimMat: ShaderMaterial;
   bufferSim: BufferSim;
   renderer: WebGLRenderer;
-  camera: PerspectiveCamera;
   clock: Clock;
   fadeTween?: gsap.core.Tween;
 
-  constructor(
-    renderer: WebGLRenderer,
-    noiseTexture: Texture,
-    camera: PerspectiveCamera
-  ) {
+  constructor(renderer: WebGLRenderer, noiseTexture: Texture) {
     noiseTexture.wrapS = RepeatWrapping;
     noiseTexture.wrapT = RepeatWrapping;
 
-    this.camera = camera;
     this.renderer = renderer;
     this.clock = new Clock();
 
@@ -145,7 +139,7 @@ class Trail {
     if (DEBUG_PARAMS.camera.followPlayer) {
       // Convert origin (player world position) to screen space
       dummyVec3.set(origin.x, origin.y, 0);
-      dummyVec3.project(this.camera);
+      dummyVec3.project(cameraManager.perspectiveCamera);
       this.desiredTrailOrigin.set((dummyVec3.x + 1) / 2, (dummyVec3.y + 1) / 2);
     } else {
       // Set trail origin to center of screen, this is only useful for visual debuging
@@ -171,13 +165,13 @@ class Trail {
     // Only useful for visual debuging purposes.
     if (DEBUG_PARAMS.trailFX.debug) {
       const { width, height } = getCameraFrustrumDimensionsAtDepth(
-        this.camera,
+        cameraManager.perspectiveCamera,
         0
       );
       this.object3D.scale.set(width, height, 1);
       this.object3D.position.set(
-        this.camera.position.x,
-        this.camera.position.y,
+        cameraManager.perspectiveCamera.position.x,
+        cameraManager.perspectiveCamera.position.y,
         0
       );
     }

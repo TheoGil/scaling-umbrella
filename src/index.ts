@@ -7,22 +7,18 @@ import {
   IEventCollision,
   Render,
 } from "matter-js";
-import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import Tempus from "tempus";
 
 import "./style.css";
 import {
   MathUtils,
   Scene,
-  Vector3,
-  PerspectiveCamera,
   WebGLRenderer,
   Texture,
   Mesh,
   BufferGeometry,
   ShaderMaterial,
   MeshBasicMaterial,
-  CameraHelper,
   Box3,
   Box3Helper,
   Object3D,
@@ -36,8 +32,6 @@ import { emitter } from "./modules/emitter";
 import { initDebug } from "./modules/debug";
 import { DEBUG_PARAMS } from "./settings";
 import { AssetsManager } from "./modules/AssetsManager";
-
-const dummyVec3 = new Vector3();
 
 import colorMaskRGBTextureURL from "/color-mask-red-blue-green.png?url";
 import colorMaskBackgroundTextureURL from "/color-mask-background.png?url";
@@ -58,6 +52,7 @@ import {
   obstacleManager,
 } from "./modules/obstacleManager";
 import { Particle, ParticleEmitter } from "./modules/particle-emitter";
+import { cameraManager } from "./modules/cameraManager";
 
 class BackgroundFloatingDecoration {
   object3D = new Object3D();
@@ -80,9 +75,6 @@ class App {
   matterRenderer!: Render;
 
   scene!: Scene;
-  camera!: PerspectiveCamera;
-  debugCamera!: PerspectiveCamera;
-  cameraHelper!: CameraHelper;
 
   renderer!: WebGLRenderer;
   assetsManager = new AssetsManager();
@@ -207,24 +199,6 @@ class App {
   initRendering() {
     this.scene = new Scene();
 
-    this.camera = new PerspectiveCamera(
-      75,
-      window.innerWidth / window.innerHeight,
-      1,
-      5000
-    );
-
-    // Will be overriden in update loop but needs to be explicitly set initially
-    // otherwise camera controls won't work
-    this.camera.position.z = 500;
-
-    this.cameraHelper = new CameraHelper(this.camera);
-    this.cameraHelper.visible =
-      DEBUG_PARAMS.camera.cameraName === "debugCamera";
-    this.scene.add(this.cameraHelper);
-
-    this.debugCamera = this.camera.clone();
-
     this.renderer = new WebGLRenderer({
       canvas: document.getElementById("webgl-canvas") as HTMLCanvasElement,
       antialias: true,
@@ -232,10 +206,13 @@ class App {
     });
     this.renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
 
+    cameraManager.init({
+      orbitControlDOMElement: this.renderer.domElement,
+      scene: this.scene,
+    });
+
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     this.renderer.setClearColor(0x333333);
-
-    new OrbitControls(this.debugCamera, this.renderer.domElement);
 
     pillManager.init(
       this.models.pill1,
@@ -375,10 +352,6 @@ class App {
         this.player.fadeToAction("sliding");
       }
     });
-
-    // Instantly set the camera position on player without lerping
-    // -> avoid akward camera movement on init
-    this.focusCameraOnPlayer(1);
   }
 
   initBackgroundPlane() {
@@ -440,49 +413,22 @@ class App {
   initTrailFX() {
     this.trailFX = new Trail(
       this.renderer,
-      this.assetsManager.get<Texture>("noise_1"),
-      this.camera
+      this.assetsManager.get<Texture>("noise_1")
     );
 
     this.scene.add(this.trailFX.object3D);
-  }
-
-  focusCameraOnPlayer(lerpAmount = DEBUG_PARAMS.camera.yLerp) {
-    const isPortrait = innerWidth < innerHeight;
-
-    const z = isPortrait
-      ? DEBUG_PARAMS.camera.portrait.z
-      : DEBUG_PARAMS.camera.landscape.z;
-
-    const offsetX = isPortrait
-      ? DEBUG_PARAMS.camera.portrait.offset.x
-      : DEBUG_PARAMS.camera.landscape.offset.x;
-
-    const offsetY = isPortrait
-      ? DEBUG_PARAMS.camera.portrait.offset.y
-      : DEBUG_PARAMS.camera.landscape.offset.y;
-
-    const y = MathUtils.lerp(
-      this.camera!.position.y,
-      this.player.object3D.position.y + offsetY,
-      lerpAmount
-    );
-
-    this.camera?.position.set(this.player.object3D.position.x + offsetX, y, z);
-
-    dummyVec3.set(this.camera.position.x, this.camera.position.y, 0);
-    this.camera.lookAt(dummyVec3);
   }
 
   // Iterate over terrain chunks and destroy them once they leave the viewport
   // Leave the viewport === left edge of camera frustum > right edge of chunk BBox
   destroyOutOfViewChunks() {
     const { width: cameraFrustrumWidth } = getCameraFrustrumDimensionsAtDepth(
-      this.camera,
+      cameraManager.perspectiveCamera,
       0
     );
     const halfFrustumWidth = cameraFrustrumWidth / 2;
-    const frustumX = this.camera.position.x - halfFrustumWidth;
+    const frustumX =
+      cameraManager.perspectiveCamera.position.x - halfFrustumWidth;
 
     for (let i = this.terrainChunks.length - 1; i >= 0; i--) {
       const chunk = this.terrainChunks[i];
@@ -529,8 +475,10 @@ class App {
   }
 
   onResize() {
-    this.camera.aspect = window.innerWidth / window.innerHeight;
-    this.camera.updateProjectionMatrix();
+    cameraManager.perspectiveCamera.aspect =
+      window.innerWidth / window.innerHeight;
+
+    cameraManager.perspectiveCamera.updateProjectionMatrix();
 
     this.renderer.setSize(window.innerWidth, window.innerHeight);
   }
@@ -647,13 +595,15 @@ class App {
 
     if (DEBUG_PARAMS.webgl.enabled) {
       this.renderer.render(
-        this.scene!,
-        this[DEBUG_PARAMS.camera.cameraName as "camera" | "debugCamera"]
+        this.scene,
+        cameraManager[
+          DEBUG_PARAMS.camera.cameraName as "perspectiveCamera" | "debugCamera"
+        ]
       );
     }
 
     if (DEBUG_PARAMS.camera.followPlayer && this.player) {
-      this.focusCameraOnPlayer();
+      cameraManager.update(this.player, this.terrainChunks);
     }
 
     if (this.trailFX && this.player) {
@@ -674,13 +624,13 @@ class App {
       // To ease things a bit, mesh should be re-exported with origin at center
 
       this.backgroundPlane.object3D.position.set(
-        this.camera.position.x,
-        this.camera.position.y,
+        cameraManager.perspectiveCamera.position.x,
+        cameraManager.perspectiveCamera.position.y,
         DEBUG_PARAMS.background.plane.z
       );
 
       const { width, height } = getCameraFrustrumDimensionsAtDepth(
-        this.camera,
+        cameraManager.perspectiveCamera,
         DEBUG_PARAMS.background.plane.z
       );
 
@@ -699,7 +649,7 @@ class App {
         this.trailFX.bufferSim.output.texture;
     }
 
-    frustumCuller.update(this.camera);
+    frustumCuller.update(cameraManager.perspectiveCamera);
 
     this.animationMixer.update(deltaTime / 1000);
   }

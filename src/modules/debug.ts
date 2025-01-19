@@ -5,6 +5,7 @@ import { DEBUG_PARAMS } from "../settings";
 import { App } from "..";
 import { Render } from "matter-js";
 import { pillManager } from "./Pill";
+import { cameraManager } from "./cameraManager";
 
 function initDebug(app: App) {
   if (!window.location.search.includes("debug")) {
@@ -220,27 +221,27 @@ function initDebug(app: App) {
       view: "list",
       label: "camera",
       options: [
-        { text: "main", value: "camera" },
+        { text: "main", value: "perspectiveCamera" },
         { text: "debug", value: "debugCamera" },
       ],
     })
     .on("change", () => {
-      app.cameraHelper.visible =
+      cameraManager.cameraHelper.visible =
         DEBUG_PARAMS.camera.cameraName === "debugCamera";
     });
 
   cameraFolder.addBinding(DEBUG_PARAMS.camera, "followPlayer");
-  cameraFolder.addBinding(DEBUG_PARAMS.camera, "yLerp", {
+  cameraFolder.addBinding(DEBUG_PARAMS.camera, "lerp", {
     min: 0,
     max: 1,
-    label: "yLerp",
+    label: "lerp",
   });
 
   const cameraPortraitFolder = cameraFolder.addFolder({
     title: "Portrait",
     expanded: true,
   });
-  cameraPortraitFolder.addBinding(DEBUG_PARAMS.camera.portrait, "z", {
+  cameraPortraitFolder.addBinding(DEBUG_PARAMS.camera.portrait.offset, "z", {
     step: 1,
     max: 1000,
     min: 100,
@@ -260,7 +261,7 @@ function initDebug(app: App) {
     title: "Landscape",
     expanded: true,
   });
-  cameraLandscapeFolder.addBinding(DEBUG_PARAMS.camera.landscape, "z", {
+  cameraLandscapeFolder.addBinding(DEBUG_PARAMS.camera.landscape.offset, "z", {
     step: 1,
     max: 1000,
     min: 100,

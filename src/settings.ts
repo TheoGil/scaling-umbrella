@@ -106,23 +106,26 @@ const DEBUG_PARAMS = {
     },
   },
   camera: {
-    cameraName: "camera",
+    cameraName: "perspectiveCamera",
     followPlayer: true,
     portrait: {
-      z: 800,
       offset: {
         x: 109,
         y: 126,
+        z: 800,
       },
     },
     landscape: {
-      z: 300,
       offset: {
         x: 65,
         y: 54,
+        z: 300,
       },
     },
-    yLerp: 0.1,
+    lerp: 0.1,
+    focusAreaPadding: {
+      y: 250,
+    },
   },
   colorMaskFX: {
     desaturation: 0.75,
@@ -337,6 +340,7 @@ const DEBUG_PARAMS = {
       },
     },
   },
+  offset: 0,
 };
 
 export { DEBUG_PARAMS };
