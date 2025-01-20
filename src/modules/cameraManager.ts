@@ -16,7 +16,7 @@ import { Player } from "./Player";
 import { TerrainChunk } from "./TerrainChunk";
 import { raycast } from "../utils/raycast";
 import { Vector } from "matter-js";
-import { $gameState, gameIsPlaying } from "./store";
+import { $gameState } from "./store";
 
 const perspectiveCamera = new PerspectiveCamera(
   75,

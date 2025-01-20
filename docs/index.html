@@ -5,13 +5,37 @@
     <link rel="icon" type="image/svg+xml" href="/scaling-umbrella/favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>🛷💨</title>
-    <script type="module" crossorigin src="/scaling-umbrella/assets/index-DAprWBBm.js"></script>
-    <link rel="stylesheet" crossorigin href="/scaling-umbrella/assets/index-NZOJAjt4.css">
+    <script type="module" crossorigin src="/scaling-umbrella/assets/index-bxPeasG3.js"></script>
+    <link rel="stylesheet" crossorigin href="/scaling-umbrella/assets/index-Dmnm_974.css">
   </head>
   <body>
     <canvas id="webgl-canvas" class="debug-canvas"></canvas>
     <canvas id="debug-canvas" class="debug-canvas"></canvas>
     <canvas id="matter-canvas" class="debug-canvas"></canvas>
+
+    <div class="hud js-hud" style="display: none">
+      <div class="hud__time js-time">00"00</div>
+      <ol class="hud__pills">
+        <li class="hud__pill--blue js-pill-blue">
+          <div class="hud__pill__label">Blue</div>
+        </li>
+        <li class="hud__pill--red js-pill-red">
+          <div class="hud__pill__label">Red</div>
+        </li>
+        <li class="hud__pill--green js-pill-green">
+          <div class="hud__pill__label">Green</div>
+        </li>
+        <li class="hud__pill--yellow js-pill-yellow">
+          <div class="hud__pill__label">Yellow</div>
+        </li>
+        <li class="hud__pill--purple js-pill-purple">
+          <div class="hud__pill__label">Purple</div>
+        </li>
+        <li class="hud__pill--white js-pill-white">
+          <div class="hud__pill__label">White</div>
+        </li>
+      </ol>
+    </div>
 
     <div class="ui-screen js-start-screen" style="display: none">
       <button class="js-start-button">Play the game</button>
@@ -19,7 +43,7 @@
 
     <div class="ui-screen js-end-screen" style="display: none">
       <p>Well done coloring the world!</p>
-      <div></div>
+      <div class="js-end-screen-timer"></div>
       <button class="js-restart-button">Play again</button>
     </div>
 
