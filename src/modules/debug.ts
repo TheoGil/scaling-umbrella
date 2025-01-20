@@ -463,6 +463,9 @@ function initDebug(app: App) {
     title: "Trail FX",
     expanded: false,
   });
+  trailFXFolder.addBinding(app.trailFX.object3D, "visible", {
+    label: "debug",
+  });
   trailFXFolder.addBinding(
     app.trailFX.floorSimMat.uniforms.uThickness,
     "value",

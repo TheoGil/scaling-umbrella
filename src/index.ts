@@ -631,6 +631,8 @@ class App {
     }
 
     if (this.trailFX && this.player) {
+      const verticalMovementMultiplier = cameraManager.isPortrait ? 0.2 : 0.5;
+
       this.trailFX.update({
         origin: {
           x: this.player.object3D.position.x,
@@ -638,7 +640,8 @@ class App {
         },
         movement: {
           x: this.player.movement.x / innerWidth,
-          y: (this.player.movement.y / innerHeight) * 0.5,
+          y:
+            (this.player.movement.y / innerHeight) * verticalMovementMultiplier,
         },
       });
     }
