@@ -15,6 +15,8 @@ import {
   Clock,
   Vector2Like,
   Vector3,
+  FloatType,
+  UnsignedByteType,
 } from "three";
 
 import trailVertex from "../glsl/trail.vertex.glsl?raw";
@@ -51,6 +53,11 @@ class BufferSim {
       wrapT: ClampToEdgeWrapping,
       stencilBuffer: false,
       depthBuffer: false,
+      // Many mobile devices do not support float type textures.
+      // Output is way prettier when enabled, fallback to default value if unsupported
+      type: this.renderer.capabilities.textureTypeReadable(FloatType)
+        ? FloatType
+        : UnsignedByteType,
     });
 
     fbo.texture.generateMipmaps = false;
