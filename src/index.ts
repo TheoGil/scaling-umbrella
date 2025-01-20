@@ -569,6 +569,11 @@ class App {
       this.matterEngine.world
     );
 
+    UI.hud.setPillState(
+      pillManager.pills[pillManager.currentPillIndex].UIElementName,
+      true
+    );
+
     pillManager.goToNext();
 
     this.spawnPill();
@@ -728,6 +733,13 @@ class App {
     pillManager.currentPillIndex = 0;
     $timer.set(0);
     $gameState.set("playing");
+
+    UI.hud.setPillState("blue", false);
+    UI.hud.setPillState("red", false);
+    UI.hud.setPillState("green", false);
+    UI.hud.setPillState("yellow", false);
+    UI.hud.setPillState("purple", false);
+    UI.hud.setPillState("white", false);
 
     // Animate out colors and trailFX thickness
     const tweenTarget = { value: 1 };

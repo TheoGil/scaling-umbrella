@@ -30,6 +30,7 @@ function getPillPosition(
 import pillFlareVertex from "../glsl/radial-lens-flare.vertex.glsl?raw";
 import pillFlareFragment from "../glsl/radial-lens-flare.fragment.glsl?raw";
 import { $allPillsCollected } from "./store";
+import { UIPillElName } from "./UI";
 
 const LABEL_PILL = "pill";
 
@@ -45,10 +46,17 @@ class Pill {
   index: number;
   uniformName: string;
   collected = false;
+  UIElementName: UIPillElName;
 
-  constructor(mesh: Object3D, index: number, uniformName: string) {
+  constructor(
+    mesh: Object3D,
+    index: number,
+    uniformName: string,
+    UIElementName: UIPillElName
+  ) {
     this.index = index;
     this.uniformName = uniformName;
+    this.UIElementName = UIElementName;
 
     mesh.scale.setScalar(DEBUG_PARAMS.pills.scale);
     mesh.position.set(0, 0, 0);
@@ -195,12 +203,12 @@ const pillManager = {
     pill5: Object3D,
     pill6: Object3D
   ) {
-    this.pills.push(new Pill(pill1, 0, "uBluesAmount"));
-    this.pills.push(new Pill(pill2, 1, "uRedsAmount"));
-    this.pills.push(new Pill(pill3, 2, "uGreensAmount"));
-    this.pills.push(new Pill(pill4, 3, "uYellowsAmount"));
-    this.pills.push(new Pill(pill5, 4, "uPurplesAmount"));
-    this.pills.push(new Pill(pill6, 5, "uWhitesAmount"));
+    this.pills.push(new Pill(pill1, 0, "uBluesAmount", "blue"));
+    this.pills.push(new Pill(pill2, 1, "uRedsAmount", "red"));
+    this.pills.push(new Pill(pill3, 2, "uGreensAmount", "green"));
+    this.pills.push(new Pill(pill4, 3, "uYellowsAmount", "yellow"));
+    this.pills.push(new Pill(pill5, 4, "uPurplesAmount", "purple"));
+    this.pills.push(new Pill(pill6, 5, "uWhitesAmount", "white"));
   },
   update(time: number) {
     this.pills.forEach((p) => {
