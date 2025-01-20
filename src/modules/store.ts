@@ -10,4 +10,13 @@ const $terrainChunkIndex = atom<number>(0);
 
 const $allPillsCollected = atom<boolean>(false);
 
-export { $gameState, gameIsPlaying, $terrainChunkIndex, $allPillsCollected };
+// There's no real need for reactivity here 🤔
+const $timer = atom<number>(0);
+
+export {
+  $gameState,
+  gameIsPlaying,
+  $terrainChunkIndex,
+  $allPillsCollected,
+  $timer,
+};

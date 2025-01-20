@@ -67,3 +67,75 @@ body {
   bottom: 20px;
   left: 20px;
 }
+
+.hud {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  color: white;
+}
+
+.hud__time {
+  font-family: monospace;
+}
+
+.hud__pills {
+  list-style-type: none;
+  display: flex;
+  gap: 16px;
+}
+
+[class*="hud__pill--"] {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  font-size: 10px;
+  position: relative;
+  opacity: 0.5;
+  filter: grayscale(1);
+  scale: 0.75;
+
+  &.active {
+    opacity: 1;
+    filter: grayscale(0);
+    scale: 1;
+  }
+
+  &[class*="--blue"] {
+    background-color: #389bb2;
+
+    &::after {
+      content: attr(data-color);
+    }
+  }
+
+  &[class*="--red"] {
+    background-color: #ff7e42;
+  }
+
+  &[class*="--green"] {
+    background-color: #38c055;
+  }
+
+  &[class*="--yellow"] {
+    background-color: #fff932;
+  }
+
+  &[class*="--purple"] {
+    background-color: #adb0cc;
+  }
+
+  &[class*="--white"] {
+    background-color: #c9a26c;
+  }
+}
+
+.hud__pill__label {
+  position: absolute;
+  top: 110%;
+  left: 50%;
+  translate: -50% 0%;
+}

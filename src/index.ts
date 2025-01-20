@@ -57,6 +57,7 @@ import {
   $gameState,
   $terrainChunkIndex,
   $allPillsCollected,
+  $timer,
 } from "./modules/store";
 import { UI } from "./modules/UI";
 
@@ -581,6 +582,8 @@ class App {
 
     $gameState.set("completed");
 
+    UI.hud.animateOut();
+    UI.endScreen.updateTimer($timer.get());
     UI.endScreen.animateIn();
   }
 
@@ -668,6 +671,11 @@ class App {
     frustumCuller.update(cameraManager.perspectiveCamera);
 
     this.animationMixer.update(deltaTime / 1000);
+
+    if (gameIsPlaying()) {
+      $timer.set($timer.get() + deltaTime);
+      UI.hud.updateTimer($timer.get());
+    }
   }
 
   onPillLeaveFrustum() {
@@ -707,6 +715,7 @@ class App {
 
   startGame() {
     UI.startScreen.animateOut();
+    UI.hud.animateIn();
 
     $gameState.set("playing");
     this.spawnPill();
@@ -717,6 +726,7 @@ class App {
     $terrainChunkIndex.set(0);
     $allPillsCollected.set(false);
     pillManager.currentPillIndex = 0;
+    $timer.set(0);
     $gameState.set("playing");
 
     // Animate out colors and trailFX thickness
@@ -758,6 +768,7 @@ class App {
     this.spawnPill();
 
     UI.endScreen.animateOut();
+    UI.hud.animateIn();
   }
 }
 
