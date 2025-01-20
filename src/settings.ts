@@ -129,7 +129,7 @@ const DEBUG_PARAMS = {
       startscreen: {
         x: 0,
         y: 0,
-        z: 100,
+        z: 300,
       },
     },
     lerp: 0.1,
@@ -351,6 +351,53 @@ const DEBUG_PARAMS = {
     },
   },
   offset: 0,
+  floatingElements: {
+    backgroundIslands: {
+      scale: {
+        min: 230,
+        max: 270,
+      },
+      rotation: {
+        min: 0,
+        max: 0,
+      },
+      offset: {
+        x: 0,
+        y: 300,
+        z: -700,
+      },
+    },
+    foregroundCloudsBig: {
+      scale: {
+        min: 200,
+        max: 200,
+      },
+      rotation: {
+        min: 0,
+        max: 0,
+      },
+      offset: {
+        x: 0,
+        y: -400,
+        z: 100,
+      },
+    },
+    foregroundCloudsSmall: {
+      scale: {
+        min: 25,
+        max: 80,
+      },
+      rotation: {
+        min: 0,
+        max: 0,
+      },
+      offset: {
+        x: 0,
+        y: -100,
+        z: 200,
+      },
+    },
+  },
 };
 
 export { DEBUG_PARAMS };

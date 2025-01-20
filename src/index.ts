@@ -60,22 +60,7 @@ import {
   $timer,
 } from "./modules/store";
 import { UI } from "./modules/UI";
-
-class BackgroundFloatingDecoration {
-  object3D = new Object3D();
-  box = new Box3();
-  helper: Box3Helper;
-
-  constructor(mesh: Mesh) {
-    this.object3D.add(mesh);
-
-    this.box = new Box3();
-    this.box.setFromObject(mesh);
-
-    this.helper = new Box3Helper(this.box, 0xffff00);
-    // this.object3D.add(this.helper);
-  }
-}
+import { ParallaxElements } from "./modules/ParallaxElements";
 
 class App {
   matterEngine!: Engine;
@@ -92,6 +77,9 @@ class App {
     landscape2: Mesh<BufferGeometry, ShaderMaterial>;
     landscape3: Mesh<BufferGeometry, ShaderMaterial>;
     landscape4: Mesh<BufferGeometry, ShaderMaterial>;
+    cloud1: Mesh<BufferGeometry, ShaderMaterial>;
+    cloud2: Mesh<BufferGeometry, ShaderMaterial>;
+    cloud3: Mesh<BufferGeometry, ShaderMaterial>;
     pill1: Mesh<BufferGeometry, MeshBasicMaterial>;
     pill2: Mesh<BufferGeometry, MeshBasicMaterial>;
     pill3: Mesh<BufferGeometry, MeshBasicMaterial>;
@@ -108,12 +96,14 @@ class App {
   };
   animationMixer!: AnimationMixer;
   animations!: PlayerAnimations;
-  decorations: BackgroundFloatingDecoration[] = [];
   player!: Player;
   terrainChunks: TerrainChunk[] = [];
   latestTerrainChunkIndex = 0;
   backgroundPlane!: BackgroundPlane;
   trailFX!: Trail;
+  backgroundIslands?: ParallaxElements;
+  foregroundCloudsBig?: ParallaxElements;
+  foregroundCloudsSmall?: ParallaxElements;
 
   constructor() {
     this.onCollisionStart = this.onCollisionStart.bind(this);
@@ -248,6 +238,7 @@ class App {
     this.initParticleEmitter();
     this.initPhysics();
     this.initObstacleManager();
+    this.initParallaxElements();
     this.initTerrain();
     this.initPlayer();
     this.initBackgroundPlane();
@@ -259,6 +250,41 @@ class App {
     Tempus.add(this.onFixedUpdate, {
       fps: 60,
     });
+  }
+
+  initParallaxElements() {
+    this.backgroundIslands = new ParallaxElements({
+      pool: [
+        this.models.landscape1,
+        this.models.landscape2,
+        this.models.landscape3,
+        this.models.landscape4,
+      ],
+      elementsOffset: DEBUG_PARAMS.floatingElements.backgroundIslands.offset,
+      elementsScale: DEBUG_PARAMS.floatingElements.backgroundIslands.scale,
+      elementsRotation:
+        DEBUG_PARAMS.floatingElements.backgroundIslands.rotation,
+    });
+    this.scene.add(this.backgroundIslands.object3D);
+
+    this.foregroundCloudsBig = new ParallaxElements({
+      pool: [this.models.cloud1, this.models.cloud2, this.models.cloud3],
+      elementsOffset: DEBUG_PARAMS.floatingElements.foregroundCloudsBig.offset,
+      elementsScale: DEBUG_PARAMS.floatingElements.foregroundCloudsBig.scale,
+      elementsRotation:
+        DEBUG_PARAMS.floatingElements.foregroundCloudsBig.rotation,
+    });
+    this.scene.add(this.foregroundCloudsBig.object3D);
+
+    this.foregroundCloudsSmall = new ParallaxElements({
+      pool: [this.models.cloud1, this.models.cloud2, this.models.cloud3],
+      elementsOffset:
+        DEBUG_PARAMS.floatingElements.foregroundCloudsSmall.offset,
+      elementsScale: DEBUG_PARAMS.floatingElements.foregroundCloudsSmall.scale,
+      elementsRotation:
+        DEBUG_PARAMS.floatingElements.foregroundCloudsSmall.rotation,
+    });
+    this.scene.add(this.foregroundCloudsSmall.object3D);
   }
 
   particleEmitter!: ParticleEmitter;
@@ -335,9 +361,6 @@ class App {
       chunkY =
         terrainChunk.curve.points[terrainChunk.curve.points.length - 1].y;
     }
-
-    // Spawn first pill on the third therrain chunk
-    // this.spawnPill(this.terrainChunks[2]);
   }
 
   spawnPill(terrainChunk = this.terrainChunks[this.terrainChunks.length - 1]) {
@@ -393,40 +416,9 @@ class App {
 
     this.terrainChunks.push(terrainChunk);
 
-    const landscapes = [
-      this.models.landscape1,
-      this.models.landscape2,
-      this.models.landscape3,
-      this.models.landscape4,
-    ];
-
-    for (let p = 0; p < 1; p += 0.1) {
-      const position = terrainChunk.curve.getPointAt(p);
-      const x = position.x;
-      const y = -position.y + DEBUG_PARAMS.background.islands.yOffset;
-      const z = DEBUG_PARAMS.background.islands.z;
-
-      const random = Math.floor(Math.random() * landscapes.length);
-      const mesh = landscapes[random].clone();
-      mesh.scale.setScalar(DEBUG_PARAMS.background.islands.scale);
-      mesh.position.set(x, y, z);
-
-      const decoration = new BackgroundFloatingDecoration(mesh);
-
-      const prevDecoration = this.decorations[this.decorations.length - 1];
-
-      if (
-        !prevDecoration ||
-        !decoration.box.intersectsBox(prevDecoration.box)
-      ) {
-        this.decorations.push(decoration);
-        this.scene.add(decoration.object3D);
-
-        frustumCuller.add(decoration.object3D, () => {
-          this.scene.remove(decoration.object3D);
-        });
-      }
-    }
+    this.backgroundIslands?.spawn(terrainChunk.curve);
+    this.foregroundCloudsBig?.spawn(terrainChunk.curve);
+    this.foregroundCloudsSmall?.spawn(terrainChunk.curve);
 
     if (gameIsPlaying()) {
       distributeObstaclesOnTerrainChunk(terrainChunk);

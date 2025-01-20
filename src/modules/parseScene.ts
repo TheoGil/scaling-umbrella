@@ -1,6 +1,7 @@
 import {
   AnimationAction,
   AnimationMixer,
+  BoxGeometry,
   BufferGeometry,
   Color,
   DoubleSide,
@@ -45,6 +46,9 @@ const PILL5_NAME = "pillPurples";
 const PILL6_NAME = "pillWhite";
 const PLAYER_NAME = "ski";
 const OBSTACLE_NAME = "obstacle";
+const CLOUD_1_NAME = "cloud";
+const CLOUD_2_NAME = "cloud2";
+const CLOUD_3_NAME = "cloud3";
 
 /**
  * Parse GLTF content, retrieve models and update their materials
@@ -68,6 +72,21 @@ function parseScene(assetsManager: AssetsManager) {
   >;
 
   const landscape4 = gltf.scene.getObjectByName(LANDSCAPE_4_NAME) as Mesh<
+    BufferGeometry,
+    ShaderMaterial
+  >;
+
+  const cloud1 = gltf.scene.getObjectByName(CLOUD_1_NAME) as Mesh<
+    BufferGeometry,
+    ShaderMaterial
+  >;
+
+  const cloud2 = gltf.scene.getObjectByName(CLOUD_2_NAME) as Mesh<
+    BufferGeometry,
+    ShaderMaterial
+  >;
+
+  const cloud3 = gltf.scene.getObjectByName(CLOUD_3_NAME) as Mesh<
     BufferGeometry,
     ShaderMaterial
   >;
@@ -189,6 +208,25 @@ function parseScene(assetsManager: AssetsManager) {
   landscape2.material = colorMaskMaterial;
   landscape3.material = colorMaskMaterial;
   landscape4.material = colorMaskMaterial;
+  cloud1.material = colorMaskMaterial;
+  cloud2.material = colorMaskMaterial;
+  cloud3.material = colorMaskMaterial;
+
+  const cloudBoxZHelperMesh = new Mesh(
+    new BoxGeometry(),
+    new MeshBasicMaterial({
+      wireframe: true,
+      visible: false,
+    })
+  );
+  cloud1.position.set(0, 0, 0);
+  cloud1.add(cloudBoxZHelperMesh.clone());
+
+  cloud2.position.set(0, 0, 0);
+  cloud2.add(cloudBoxZHelperMesh.clone());
+
+  cloud3.position.set(0, 0, 0);
+  cloud3.add(cloudBoxZHelperMesh.clone());
 
   const animationMixer = new AnimationMixer(gltf.scene);
   const animations: PlayerAnimations = {
@@ -219,6 +257,9 @@ function parseScene(assetsManager: AssetsManager) {
       pill6,
       player,
       obstacle,
+      cloud1,
+      cloud2,
+      cloud3,
     },
     materials: { colorMaskMaterial, basicMaterial, backgroundPlaneMaterial },
     animationMixer,
