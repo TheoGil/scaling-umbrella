@@ -103,7 +103,6 @@ function initDebug(app: App) {
       expanded: false,
     })
     .on("change", () => {
-      app.reset();
       app.terrainChunks.forEach((chunk) => {
         chunk.bodies.forEach((body) => {
           body.restitution = DEBUG_PARAMS.terrain.restitution;
@@ -536,14 +535,6 @@ function initDebug(app: App) {
       step: 1,
     }
   );
-
-  debug
-    .addButton({
-      title: "Reset",
-    })
-    .on("click", () => {
-      app.reset();
-    });
 }
 
 function initParticlesFolder(
