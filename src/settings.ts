@@ -114,12 +114,22 @@ const DEBUG_PARAMS = {
         y: 126,
         z: 800,
       },
+      startscreen: {
+        x: 0,
+        y: -30,
+        z: 100,
+      },
     },
     landscape: {
       offset: {
         x: 65,
         y: 54,
         z: 300,
+      },
+      startscreen: {
+        x: 0,
+        y: 0,
+        z: 100,
       },
     },
     lerp: 0.1,

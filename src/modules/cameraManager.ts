@@ -16,6 +16,7 @@ import { Player } from "./Player";
 import { TerrainChunk } from "./TerrainChunk";
 import { raycast } from "../utils/raycast";
 import { Vector } from "matter-js";
+import { $gameState, gameIsPlaying } from "./store";
 
 const perspectiveCamera = new PerspectiveCamera(
   75,
@@ -47,6 +48,7 @@ const cameraManager = {
   cameraHelper,
   debugCamera,
   orbitControls: null as OrbitControls | null,
+  isPortrait: false,
   init({
     orbitControlDOMElement,
     scene,
@@ -73,27 +75,17 @@ const cameraManager = {
     }
   },
   focusOnPoint(position: Vector2Like, lerpAmount = DEBUG_PARAMS.camera.lerp) {
-    // Set the camera position so that if follows the player object3D (using an offset defined in settings)
-    const isPortrait = innerWidth < innerHeight;
-
-    const portraitOffset = DEBUG_PARAMS.camera.portrait.offset;
-    const landscapeOffset = DEBUG_PARAMS.camera.landscape.offset;
-
-    const offsetX = isPortrait ? portraitOffset.x : landscapeOffset.x;
-
-    const offsetY = isPortrait ? portraitOffset.y : landscapeOffset.y;
-
-    const x = position.x + offsetX;
+    const x = position.x + this.getCameraPosition("x");
 
     const y = MathUtils.lerp(
       cameraManager.perspectiveCamera.position.y,
-      position.y + offsetY,
+      position.y + this.getCameraPosition("y"),
       lerpAmount
     );
 
     let z = MathUtils.lerp(
       cameraManager.perspectiveCamera.position.z,
-      isPortrait ? portraitOffset.z : landscapeOffset.z,
+      this.getCameraPosition("z"),
       lerpAmount
     );
 
@@ -124,6 +116,8 @@ const cameraManager = {
     return raycols[0]?.point;
   },
   update(player: Player, terrainChunks: TerrainChunk[]) {
+    this.isPortrait = innerWidth < innerHeight;
+
     const point = this.raycastPlayerTerrain(player, terrainChunks);
 
     this.focusOnPoint({
@@ -187,6 +181,30 @@ const cameraManager = {
       // No lerp, it feels snappier that way
       cameraManager.perspectiveCamera.position.z = newZ;
     }
+  },
+  getZPosition() {
+    if ($gameState.get() === "startscreen") {
+      return this.isPortrait
+        ? DEBUG_PARAMS.camera.portrait.startscreen.z
+        : DEBUG_PARAMS.camera.landscape.startscreen.z;
+    }
+
+    return this.isPortrait
+      ? DEBUG_PARAMS.camera.portrait.offset.z
+      : DEBUG_PARAMS.camera.landscape.offset.z;
+  },
+  getCameraPosition(axis: "x" | "y" | "z") {
+    const isPortrait = innerWidth < innerHeight;
+
+    if ($gameState.get() === "startscreen") {
+      return isPortrait
+        ? DEBUG_PARAMS.camera.portrait.startscreen[axis]
+        : DEBUG_PARAMS.camera.landscape.startscreen[axis];
+    }
+
+    return isPortrait
+      ? DEBUG_PARAMS.camera.portrait.offset[axis]
+      : DEBUG_PARAMS.camera.landscape.offset[axis];
   },
 };
 
