@@ -61,7 +61,7 @@ body {
   position: fixed !important;
 }
 
-.start-screen {
+.ui-screen {
   position: fixed;
   z-index: 10;
   bottom: 20px;

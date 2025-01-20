@@ -13,6 +13,8 @@ const emitter = mitt<{
   onJumpButtonReleased?: null;
   onPillLeaveFrustum?: null;
   onSpawnParticle: Particle;
+  ui_startGame?: null;
+  ui_restartGame?: null;
 }>();
 
 export { emitter };

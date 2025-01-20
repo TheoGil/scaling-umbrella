@@ -29,6 +29,7 @@ function getPillPosition(
 
 import pillFlareVertex from "../glsl/radial-lens-flare.vertex.glsl?raw";
 import pillFlareFragment from "../glsl/radial-lens-flare.fragment.glsl?raw";
+import { $allPillsCollected } from "./store";
 
 const LABEL_PILL = "pill";
 
@@ -43,6 +44,7 @@ class Pill {
   });
   index: number;
   uniformName: string;
+  collected = false;
 
   constructor(mesh: Object3D, index: number, uniformName: string) {
     this.index = index;
@@ -141,10 +143,9 @@ const pillManager = {
   goToNext() {
     if (this.currentPillIndex < this.pills.length - 1) {
       this.currentPillIndex++;
-
-      if (this.currentPillIndex === this.pills.length - 1) {
-        emitter.emit("onGameComplete");
-      }
+    } else {
+      $allPillsCollected.set(true);
+      emitter.emit("onGameComplete");
     }
   },
   spawnPill({
@@ -160,6 +161,10 @@ const pillManager = {
     progress: number;
     pillIndex: number;
   }) {
+    if ($allPillsCollected.get()) {
+      return;
+    }
+
     const pill = this.pills[pillIndex];
 
     const pillPosition = getPillPosition(

@@ -53,7 +53,13 @@ import {
 } from "./modules/obstacleManager";
 import { Particle, ParticleEmitter } from "./modules/particle-emitter";
 import { cameraManager } from "./modules/cameraManager";
-import { gameIsPlaying, $gameState } from "./modules/store";
+import {
+  gameIsPlaying,
+  $gameState,
+  $terrainChunkIndex,
+  $allPillsCollected,
+} from "./modules/store";
+import { UI } from "./modules/UI";
 
 class BackgroundFloatingDecoration {
   object3D = new Object3D();
@@ -123,6 +129,8 @@ class App {
     this.onKeyUp = this.onKeyUp.bind(this);
     this.onPillLeaveFrustum = this.onPillLeaveFrustum.bind(this);
     this.spawnParticle = this.spawnParticle.bind(this);
+    this.startGame = this.startGame.bind(this);
+    this.restartGame = this.restartGame.bind(this);
 
     this.init();
 
@@ -137,16 +145,10 @@ class App {
     emitter.on("onGameComplete", this.onGameComplete);
     emitter.on("onPillLeaveFrustum", this.onPillLeaveFrustum);
     emitter.on("onSpawnParticle", this.spawnParticle);
+    emitter.on("ui_startGame", this.startGame);
+    emitter.on("ui_restartGame", this.restartGame);
 
-    const startScreenEl = document.querySelector(
-      ".js-start-screen"
-    ) as HTMLElement;
-    const startButtonEl = startScreenEl.querySelector(".js-start-button")!;
-    startButtonEl.addEventListener("click", () => {
-      startScreenEl.style.display = "none";
-      $gameState.set("playing");
-      this.spawnPill(this.terrainChunks[this.terrainChunks.length - 1]);
-    });
+    UI.init();
   }
 
   initControls() {
@@ -377,8 +379,14 @@ class App {
   }
 
   initTerrainChunk(x: number, y: number) {
-    const terrainChunk = new TerrainChunk(x, y, this.latestTerrainChunkIndex);
-    this.latestTerrainChunkIndex++;
+    const terrainChunkIndex = $terrainChunkIndex.get();
+    const terrainChunk = new TerrainChunk(x, y, terrainChunkIndex);
+
+    // Only increment chuunk index when game is actually playing.
+    // Do not increase difficulty while player is idle during start and end screen.
+    if (gameIsPlaying()) {
+      $terrainChunkIndex.set(terrainChunkIndex + 1);
+    }
 
     Composite.add(this.matterEngine!.world, terrainChunk.bodies);
     this.scene.add(terrainChunk.object3D);
@@ -475,22 +483,6 @@ class App {
     emitter.emit("onCollisionEnd", e);
   }
 
-  reset() {
-    for (let i = this.terrainChunks.length - 1; i >= 0; i--) {
-      Composite.remove(this.matterEngine!.world, this.terrainChunks[i].bodies);
-      this.scene.remove(this.terrainChunks[i].object3D);
-    }
-    this.terrainChunks = [];
-
-    this.initTerrain();
-
-    this.player.reset();
-    Body.setPosition(this.player.physicsBody, {
-      x: this.terrainChunks[0].curve.points[0].x + 10,
-      y: this.terrainChunks[0].curve.points[0].y - 200,
-    });
-  }
-
   onResize() {
     cameraManager.perspectiveCamera.aspect =
       window.innerWidth / window.innerHeight;
@@ -502,11 +494,15 @@ class App {
 
   onPlayerCollideWithObstacle(id: number) {
     obstacleManager.animateOut(id);
-    this.trailFX.fadeOut();
+    if (!$allPillsCollected.get()) {
+      this.trailFX.fadeOut();
+    }
   }
 
   onPlayerSpeedBackUp() {
-    this.trailFX.fadeIn();
+    if (!$allPillsCollected.get()) {
+      this.trailFX.fadeIn();
+    }
   }
 
   onPlayerCollideWithPill() {
@@ -583,6 +579,10 @@ class App {
       value: 1,
       duration: 5,
     });
+
+    $gameState.set("completed");
+
+    UI.endScreen.animateIn();
   }
 
   onFixedUpdate(time: number, deltaTime: number) {
@@ -704,6 +704,61 @@ class App {
       rotation,
       rotationVelocity,
     });
+  }
+
+  startGame() {
+    UI.startScreen.animateOut();
+
+    $gameState.set("playing");
+    this.spawnPill();
+  }
+
+  restartGame() {
+    // Reset game state
+    $terrainChunkIndex.set(0);
+    $allPillsCollected.set(false);
+    pillManager.currentPillIndex = 0;
+    $gameState.set("playing");
+
+    // Animate out colors and trailFX thickness
+    const tweenTarget = { value: 1 };
+    const animateOutTrailDuration = 2;
+    const animateOutTrailEase = "power3.out";
+    gsap.to(tweenTarget, {
+      value: 0,
+      onUpdate: () => {
+        const { value } = tweenTarget;
+
+        const colorMaskMat = this.materials.colorMaskMaterial;
+        colorMaskMat.uniforms.uBluesAmount.value = value;
+        colorMaskMat.uniforms.uRedsAmount.value = value;
+        colorMaskMat.uniforms.uGreensAmount.value = value;
+        colorMaskMat.uniforms.uYellowsAmount.value = value;
+        colorMaskMat.uniforms.uPurplesAmount.value = value;
+        colorMaskMat.uniforms.uWhitesAmount.value = value;
+
+        const backgroundPlaneMat = this.materials.backgroundPlaneMaterial;
+        backgroundPlaneMat.uniforms.uBluesAmount.value = value;
+        backgroundPlaneMat.uniforms.uRedsAmount.value = value;
+        backgroundPlaneMat.uniforms.uGreensAmount.value = value;
+        backgroundPlaneMat.uniforms.uYellowsAmount.value = value;
+        backgroundPlaneMat.uniforms.uPurplesAmount.value = value;
+        backgroundPlaneMat.uniforms.uWhitesAmount.value = value;
+      },
+      duration: animateOutTrailDuration,
+      ease: animateOutTrailEase,
+    });
+    gsap.to(this.trailFX.floorSimMat.uniforms.uThickness, {
+      value: DEBUG_PARAMS.trailFX.thickness,
+      duration: animateOutTrailDuration,
+      ease: animateOutTrailEase,
+    });
+
+    // Re-start spawning pills.
+    // Will spwawn first pill on last terrain chunk
+    this.spawnPill();
+
+    UI.endScreen.animateOut();
   }
 }
 

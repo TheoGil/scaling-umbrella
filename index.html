@@ -11,8 +11,14 @@
     <canvas id="debug-canvas" class="debug-canvas"></canvas>
     <canvas id="matter-canvas" class="debug-canvas"></canvas>
 
-    <div class="start-screen js-start-screen">
-      <button class="js-start-button">Start</button>
+    <div class="ui-screen js-start-screen" style="display: none">
+      <button class="js-start-button">Play the game</button>
+    </div>
+
+    <div class="ui-screen js-end-screen" style="display: none">
+      <p>Well done coloring the world!</p>
+      <div></div>
+      <button class="js-restart-button">Play again</button>
     </div>
 
     <script type="module" src="/src/index.ts"></script>

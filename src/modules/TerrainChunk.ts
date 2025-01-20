@@ -26,7 +26,7 @@ class TerrainChunk {
   boundingBox = new Box3();
   index: number;
 
-  constructor(x = 0, y = innerHeight / 2, index = 0) {
+  constructor(x = 0, y = innerHeight / 2, index: number) {
     this.index = index;
     this.object3D = new Group();
 
