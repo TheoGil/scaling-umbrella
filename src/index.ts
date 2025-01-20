@@ -18,9 +18,6 @@ import {
   BufferGeometry,
   ShaderMaterial,
   MeshBasicMaterial,
-  Box3,
-  Box3Helper,
-  Object3D,
   AnimationMixer,
 } from "three";
 
