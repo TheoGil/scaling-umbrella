@@ -362,8 +362,8 @@ const DEBUG_PARAMS = {
   floatingElements: {
     backgroundIslands: {
       scale: {
-        min: 230,
-        max: 300,
+        min: 150,
+        max: 200,
       },
       rotation: {
         min: 0,
@@ -372,8 +372,8 @@ const DEBUG_PARAMS = {
       offset: {
         x: 0,
         y: {
-          min: 200,
-          max: 200,
+          min: -50,
+          max: 50,
         },
         z: {
           min: -700,
