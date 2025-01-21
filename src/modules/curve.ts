@@ -163,7 +163,6 @@ function generatePhysicBodiesFromCurve(
   const bounds = Bounds.create(vertices);
   const offset = Vector.sub(body.position, body.bounds.min);
 
-  Body.setCentre(body, vertices[0]);
   Body.setPosition(body, {
     x: offset.x + vertices[0].x,
     y: offset.y - (vertices[0].y - bounds.min.y) + vertices[0].y,
