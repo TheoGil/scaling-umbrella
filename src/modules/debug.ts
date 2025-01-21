@@ -240,12 +240,12 @@ function initDebug(app: App) {
 
   const cameraPortraitFolder = cameraFolder.addFolder({
     title: "Portrait",
-    expanded: true,
+    expanded: false,
   });
 
   const cameraPortraitStartFolder = cameraPortraitFolder.addFolder({
     title: "Startscreen",
-    expanded: true,
+    expanded: false,
   });
   cameraPortraitStartFolder.addBinding(
     DEBUG_PARAMS.camera.portrait.startscreen,
@@ -277,10 +277,10 @@ function initDebug(app: App) {
 
   const cameraPortraitGameFolder = cameraPortraitFolder.addFolder({
     title: "Playing",
-    expanded: true,
+    expanded: false,
   });
   cameraPortraitGameFolder.addBinding(
-    DEBUG_PARAMS.camera.portrait.offset,
+    DEBUG_PARAMS.camera.portrait.playing,
     "z",
     {
       step: 1,
@@ -289,7 +289,7 @@ function initDebug(app: App) {
     }
   );
   cameraPortraitGameFolder.addBinding(
-    DEBUG_PARAMS.camera.portrait.offset,
+    DEBUG_PARAMS.camera.portrait.playing,
     "x",
     {
       step: 1,
@@ -298,7 +298,39 @@ function initDebug(app: App) {
     }
   );
   cameraPortraitGameFolder.addBinding(
-    DEBUG_PARAMS.camera.portrait.offset,
+    DEBUG_PARAMS.camera.portrait.playing,
+    "y",
+    {
+      step: 1,
+      min: -500,
+      max: 500,
+    }
+  );
+
+  const cameraPortraitCompleteFolder = cameraPortraitFolder.addFolder({
+    title: "Complete",
+    expanded: false,
+  });
+  cameraPortraitCompleteFolder.addBinding(
+    DEBUG_PARAMS.camera.portrait.completed,
+    "z",
+    {
+      step: 1,
+      max: 1000,
+      min: 100,
+    }
+  );
+  cameraPortraitCompleteFolder.addBinding(
+    DEBUG_PARAMS.camera.portrait.completed,
+    "x",
+    {
+      step: 1,
+      min: -500,
+      max: 500,
+    }
+  );
+  cameraPortraitCompleteFolder.addBinding(
+    DEBUG_PARAMS.camera.portrait.completed,
     "y",
     {
       step: 1,
@@ -309,12 +341,12 @@ function initDebug(app: App) {
 
   const cameraLandscapeFolder = cameraFolder.addFolder({
     title: "Landscape",
-    expanded: true,
+    expanded: false,
   });
 
   const cameraLandscapeStartFolder = cameraLandscapeFolder.addFolder({
     title: "Startscreen",
-    expanded: true,
+    expanded: false,
   });
   cameraLandscapeStartFolder.addBinding(
     DEBUG_PARAMS.camera.landscape.startscreen,
@@ -346,10 +378,10 @@ function initDebug(app: App) {
 
   const cameraLandscapePlayingFolder = cameraLandscapeFolder.addFolder({
     title: "Playing",
-    expanded: true,
+    expanded: false,
   });
   cameraLandscapePlayingFolder.addBinding(
-    DEBUG_PARAMS.camera.landscape.offset,
+    DEBUG_PARAMS.camera.landscape.playing,
     "z",
     {
       step: 1,
@@ -358,7 +390,7 @@ function initDebug(app: App) {
     }
   );
   cameraLandscapePlayingFolder.addBinding(
-    DEBUG_PARAMS.camera.landscape.offset,
+    DEBUG_PARAMS.camera.landscape.playing,
     "x",
     {
       step: 1,
@@ -367,7 +399,39 @@ function initDebug(app: App) {
     }
   );
   cameraLandscapePlayingFolder.addBinding(
-    DEBUG_PARAMS.camera.landscape.offset,
+    DEBUG_PARAMS.camera.landscape.playing,
+    "y",
+    {
+      step: 1,
+      min: -500,
+      max: 500,
+    }
+  );
+
+  const cameraLandscapeCompleteFolder = cameraLandscapeFolder.addFolder({
+    title: "Complete",
+    expanded: false,
+  });
+  cameraLandscapeCompleteFolder.addBinding(
+    DEBUG_PARAMS.camera.landscape.completed,
+    "z",
+    {
+      step: 1,
+      max: 1000,
+      min: 100,
+    }
+  );
+  cameraLandscapeCompleteFolder.addBinding(
+    DEBUG_PARAMS.camera.landscape.completed,
+    "x",
+    {
+      step: 1,
+      min: -500,
+      max: 500,
+    }
+  );
+  cameraLandscapeCompleteFolder.addBinding(
+    DEBUG_PARAMS.camera.landscape.completed,
     "y",
     {
       step: 1,

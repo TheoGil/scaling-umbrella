@@ -182,29 +182,14 @@ const cameraManager = {
       cameraManager.perspectiveCamera.position.z = newZ;
     }
   },
-  getZPosition() {
-    if ($gameState.get() === "startscreen") {
-      return this.isPortrait
-        ? DEBUG_PARAMS.camera.portrait.startscreen.z
-        : DEBUG_PARAMS.camera.landscape.startscreen.z;
-    }
-
-    return this.isPortrait
-      ? DEBUG_PARAMS.camera.portrait.offset.z
-      : DEBUG_PARAMS.camera.landscape.offset.z;
-  },
   getCameraPosition(axis: "x" | "y" | "z") {
     const isPortrait = innerWidth < innerHeight;
 
-    if ($gameState.get() === "startscreen") {
-      return isPortrait
-        ? DEBUG_PARAMS.camera.portrait.startscreen[axis]
-        : DEBUG_PARAMS.camera.landscape.startscreen[axis];
-    }
+    const gameState = $gameState.get();
 
     return isPortrait
-      ? DEBUG_PARAMS.camera.portrait.offset[axis]
-      : DEBUG_PARAMS.camera.landscape.offset[axis];
+      ? DEBUG_PARAMS.camera.portrait[gameState][axis]
+      : DEBUG_PARAMS.camera.landscape[gameState][axis];
   },
 };
 
