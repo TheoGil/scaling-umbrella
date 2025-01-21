@@ -88,17 +88,17 @@ const DEBUG_PARAMS = {
         chunkIndex: 1,
         count: {
           min: 0,
-          max: 4,
+          max: 1,
         },
         minDistance: 0.1, // 0 = 0, 1 = 100% of the curve. 0.1 = 1/10th of the curve length
       },
       max: {
         chunkIndex: 10,
         count: {
-          min: 2,
-          max: 5,
+          min: 0,
+          max: 3,
         },
-        minDistance: 0.025, // 0 = 0, 1 = 100% of the curve. 0.1 = 1/10th of the curve length
+        minDistance: 0.1, // 0 = 0, 1 = 100% of the curve. 0.1 = 1/10th of the curve length
       },
     },
   },
