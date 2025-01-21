@@ -81,20 +81,22 @@ function initDebug(app: App) {
     }
   );
 
-  const playerPhysicsFolder = playerFolder.addFolder({
-    title: "Physics",
-    expanded: false,
-  });
+  if (app.player) {
+    const playerPhysicsFolder = playerFolder.addFolder({
+      title: "Physics",
+      expanded: false,
+    });
 
-  playerPhysicsFolder.addBinding(
-    app.player.physicsBody.parts[1],
-    "restitution"
-  );
-  playerPhysicsFolder.addBinding(app.player.physicsBody.parts[1], "friction");
-  playerPhysicsFolder.addBinding(
-    app.player.physicsBody.parts[1],
-    "frictionStatic"
-  );
+    playerPhysicsFolder.addBinding(
+      app.player.physicsBody.parts[1],
+      "restitution"
+    );
+    playerPhysicsFolder.addBinding(app.player.physicsBody.parts[1], "friction");
+    playerPhysicsFolder.addBinding(
+      app.player.physicsBody.parts[1],
+      "frictionStatic"
+    );
+  }
 
   // TERRAIN
   const terrainFolder = debug
@@ -459,40 +461,43 @@ function initDebug(app: App) {
     }
   );
 
-  const trailFXFolder = debug.addFolder({
-    title: "Trail FX",
-    expanded: false,
-  });
-  trailFXFolder.addBinding(app.trailFX.object3D, "visible", {
-    label: "debug",
-  });
-  trailFXFolder.addBinding(
-    app.trailFX.floorSimMat.uniforms.uThickness,
-    "value",
-    {
-      label: "thickness",
-      min: 0,
-      max: 0.1,
-    }
-  );
-  trailFXFolder.addBinding(
-    app.trailFX.floorSimMat.uniforms.uTraveling,
-    "value",
-    {
-      label: "travelling",
-      min: 0,
-      max: 1,
-    }
-  );
-  trailFXFolder.addBinding(app.trailFX.floorSimMat.uniforms.uBanding, "value", {
-    label: "banding",
-    min: 0,
-    max: 0.1,
-    step: 0.0001,
-  });
-  // trailFXFolder.addBinding(app.trailFX.object3D.material, "visible", {
-  //   label: "debug",
-  // });
+  if (app.trailFX) {
+    const trailFXFolder = debug.addFolder({
+      title: "Trail FX",
+      expanded: false,
+    });
+    trailFXFolder.addBinding(app.trailFX.object3D, "visible", {
+      label: "debug",
+    });
+    trailFXFolder.addBinding(
+      app.trailFX.floorSimMat.uniforms.uThickness,
+      "value",
+      {
+        label: "thickness",
+        min: 0,
+        max: 0.1,
+      }
+    );
+    trailFXFolder.addBinding(
+      app.trailFX.floorSimMat.uniforms.uTraveling,
+      "value",
+      {
+        label: "travelling",
+        min: 0,
+        max: 1,
+      }
+    );
+    trailFXFolder.addBinding(
+      app.trailFX.floorSimMat.uniforms.uBanding,
+      "value",
+      {
+        label: "banding",
+        min: 0,
+        max: 0.1,
+        step: 0.0001,
+      }
+    );
+  }
 
   const backgroundFolder = debug.addFolder({
     title: "Background",

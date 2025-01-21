@@ -590,25 +590,27 @@ class App {
   onFixedUpdate(time: number, deltaTime: number) {
     Engine.update(this.matterEngine, 1000 / 60);
 
-    Render.lookAt(
-      this.matterRenderer,
-      {
-        position: {
-          x: this.player.physicsBody.position.x,
-          y: this.player.physicsBody.position.y,
+    if (this.player) {
+      Render.lookAt(
+        this.matterRenderer,
+        {
+          position: {
+            x: this.player.physicsBody.position.x,
+            y: this.player.physicsBody.position.y,
+          },
         },
-      },
-      {
-        x: window.innerWidth / 2,
-        y: window.innerHeight / 2,
-      }
-    );
+        {
+          x: window.innerWidth / 2,
+          y: window.innerHeight / 2,
+        }
+      );
+
+      this.player.update(deltaTime);
+    }
 
     this.particleEmitter.update(time / 1000);
 
     this.destroyOutOfViewChunks();
-
-    this.player.update(deltaTime);
 
     pillManager.update(time);
 
