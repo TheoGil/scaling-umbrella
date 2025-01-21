@@ -171,7 +171,7 @@ const DEBUG_PARAMS = {
   },
   pills: {
     scale: 125,
-    physicsBodyRadius: 17,
+    physicsBodyRadius: 20,
     terrainOffset: -100,
     flares: {
       layers: [
