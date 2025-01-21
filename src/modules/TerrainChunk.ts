@@ -109,7 +109,11 @@ class TerrainChunk {
     const points = this.curve.getSpacedPoints(this.tubularSegments);
 
     points.forEach((point, i) => {
-      dummyObject3D.position.set(point.x, point.y, point.z);
+      dummyObject3D.position.set(
+        point.x,
+        point.y + DEBUG_PARAMS.terrain.model.positionYOffset,
+        point.z
+      );
 
       dummyObject3D.scale.set(
         1,
