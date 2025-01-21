@@ -2,7 +2,7 @@ import { Color } from "three";
 
 const DEBUG_PARAMS = {
   segments: {
-    definition: 50,
+    definition: 30,
     count: 6,
     angle: {
       min: 0,
@@ -47,15 +47,12 @@ const DEBUG_PARAMS = {
     friction: 0,
     frictionAir: 0,
     frictionStatic: 0,
-    ties: {
-      width: 10,
-      height: 5,
-      depth: 50,
-      color: 0x5b3b30,
-    },
-    profiles: {
-      depth: 40,
-      color: 0x62656d,
+    model: {
+      xScaleMultiplier: 2.46,
+      scale: {
+        y: -60,
+        z: 100,
+      },
     },
   },
   webgl: {

@@ -85,6 +85,7 @@ class App {
     pill6: Mesh<BufferGeometry, MeshBasicMaterial>;
     player: Mesh<BufferGeometry, MeshBasicMaterial>;
     obstacle: Mesh<BufferGeometry, MeshBasicMaterial>;
+    ground: Mesh<BufferGeometry, MeshBasicMaterial>;
   };
   materials!: {
     colorMaskMaterial: ShaderMaterial;
@@ -400,7 +401,12 @@ class App {
 
   initTerrainChunk(x: number, y: number) {
     const terrainChunkIndex = $terrainChunkIndex.get();
-    const terrainChunk = new TerrainChunk(x, y, terrainChunkIndex);
+    const terrainChunk = new TerrainChunk(
+      x,
+      y,
+      terrainChunkIndex,
+      this.models.ground
+    );
 
     // Only increment chuunk index when game is actually playing.
     // Do not increase difficulty while player is idle during start and end screen.

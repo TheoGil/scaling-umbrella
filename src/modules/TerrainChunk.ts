@@ -1,10 +1,11 @@
 import {
   Box3,
-  BoxGeometry,
+  BufferGeometry,
   CatmullRomCurve3,
-  Color,
   Group,
   InstancedMesh,
+  Material,
+  Mesh,
   MeshBasicMaterial,
   Object3D,
   StaticDrawUsage,
@@ -25,8 +26,14 @@ class TerrainChunk {
   tubularSegments: number;
   boundingBox = new Box3();
   index: number;
+  instancedMesh?: InstancedMesh<BufferGeometry, Material>;
 
-  constructor(x = 0, y = innerHeight / 2, index: number) {
+  constructor(
+    x = 0,
+    y = innerHeight / 2,
+    index: number,
+    groundMesh: Mesh<BufferGeometry, MeshBasicMaterial>
+  ) {
     this.index = index;
     this.object3D = new Group();
 
@@ -59,8 +66,8 @@ class TerrainChunk {
       this.tubularSegments
     );
 
-    this.initRailProfiles();
-    this.initRailTies();
+    this.initBoundingBox();
+    this.initMesh(groundMesh);
 
     // Invert Y axis
     // The curve is "designed" in canvas 2D coordinates system (positive Y is down)
@@ -76,7 +83,7 @@ class TerrainChunk {
     );
   }
 
-  initRailProfiles() {
+  initBoundingBox() {
     const geometry = new TubeGeometry(
       this.curve,
       this.tubularSegments,
@@ -86,63 +93,53 @@ class TerrainChunk {
     );
 
     geometry.computeBoundingBox();
+
     this.boundingBox.copy(geometry.boundingBox!);
-
-    const material = new MeshBasicMaterial({
-      color: new Color(DEBUG_PARAMS.terrain.profiles.color),
-    });
-
-    /*
-    new Color().setRGB(
-        Math.random() * 0.5,
-        Math.random() * 0.5,
-        Math.random() * 0.5
-  )
-      */
-
-    const count = 2;
-    const mesh = new InstancedMesh(geometry, material, count);
-    mesh.instanceMatrix.setUsage(StaticDrawUsage);
-
-    for (let i = 0; i < count; i++) {
-      dummyObject3D.position.set(
-        0,
-        0,
-        DEBUG_PARAMS.terrain.profiles.depth * i -
-          DEBUG_PARAMS.terrain.profiles.depth / 2
-      );
-      dummyObject3D.updateMatrix();
-      mesh.setMatrixAt(i, dummyObject3D.matrix);
-    }
-
-    this.object3D.add(mesh);
   }
 
-  initRailTies() {
-    const material = new MeshBasicMaterial({
-      color: DEBUG_PARAMS.terrain.ties.color,
-    });
-
-    const geometry = new BoxGeometry(
-      DEBUG_PARAMS.terrain.ties.width,
-      DEBUG_PARAMS.terrain.ties.height,
-      DEBUG_PARAMS.terrain.ties.depth
-    );
-
-    const instancedRailroadTies = new InstancedMesh(
-      geometry,
-      material,
+  initMesh(groundMesh: Mesh<BufferGeometry, MeshBasicMaterial>) {
+    this.instancedMesh = new InstancedMesh(
+      groundMesh.geometry,
+      groundMesh.material,
       this.tubularSegments
     );
-    instancedRailroadTies.instanceMatrix.setUsage(StaticDrawUsage);
 
-    this.curve.getSpacedPoints(this.tubularSegments).forEach((point, i) => {
-      dummyObject3D.position.set(point.x, point.y + 5, point.z);
+    this.instancedMesh.instanceMatrix.setUsage(StaticDrawUsage);
+
+    const points = this.curve.getSpacedPoints(this.tubularSegments);
+
+    points.forEach((point, i) => {
+      dummyObject3D.position.set(point.x, point.y, point.z);
+
+      dummyObject3D.scale.set(
+        1,
+        DEBUG_PARAMS.terrain.model.scale.y,
+        DEBUG_PARAMS.terrain.model.scale.z
+      );
+
+      if (i < points.length - 1) {
+        const nextPoint = points[i + 1];
+
+        // Compute the angle difference between point and nextpoint,
+        // use this for the z rotation
+        const angle = Math.atan2(nextPoint.y - point.y, nextPoint.x - point.x);
+        dummyObject3D.rotation.set(0, 0, angle);
+
+        // Compute the distance between point and nextpoint,
+        // use this for the X scale.
+        const a = point.x - nextPoint.x;
+        const b = point.y - nextPoint.y;
+        dummyObject3D.scale.x =
+          Math.sqrt(a * a + b * b) *
+          DEBUG_PARAMS.terrain.model.xScaleMultiplier;
+      }
+
       dummyObject3D.updateMatrix();
-      instancedRailroadTies.setMatrixAt(i, dummyObject3D.matrix);
+
+      this.instancedMesh?.setMatrixAt(i, dummyObject3D.matrix);
     });
 
-    this.object3D.add(instancedRailroadTies);
+    this.object3D.add(this.instancedMesh);
   }
 
   destroy() {

@@ -49,6 +49,7 @@ const OBSTACLE_NAME = "obstacle";
 const CLOUD_1_NAME = "cloud";
 const CLOUD_2_NAME = "cloud2";
 const CLOUD_3_NAME = "cloud3";
+const GROUND_NAME = "groundbloc";
 
 /**
  * Parse GLTF content, retrieve models and update their materials
@@ -136,6 +137,11 @@ function parseScene(assetsManager: AssetsManager) {
     MeshBasicMaterial
   >;
 
+  const ground = gltf.scene.getObjectByName(GROUND_NAME) as Mesh<
+    BufferGeometry,
+    MeshBasicMaterial
+  >;
+
   // Retrieve the base texture from the landscape1 model but it could be from any model
   const baseTexture = (landscape1.material as unknown as MeshStandardMaterial)
     .map;
@@ -203,6 +209,7 @@ function parseScene(assetsManager: AssetsManager) {
   pill5.material = basicMaterial;
   pill6.material = basicMaterial;
   obstacle.material = basicMaterial;
+  ground.material = basicMaterial;
   background.material = backgroundPlaneMaterial;
   landscape1.material = colorMaskMaterial;
   landscape2.material = colorMaskMaterial;
@@ -260,6 +267,7 @@ function parseScene(assetsManager: AssetsManager) {
       cloud1,
       cloud2,
       cloud3,
+      ground,
     },
     materials: { colorMaskMaterial, basicMaterial, backgroundPlaneMaterial },
     animationMixer,
