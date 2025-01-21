@@ -35,8 +35,8 @@ class ParallaxElements {
   elements: ParallaxElement[] = [];
   object3D = new Group();
   elementsOffset = {
-    y: 0,
-    z: 0,
+    y: { min: 0, max: 0 },
+    z: { min: 0, max: 0 },
   };
   elementsScale: MinMax;
   elementsRotation: MinMax;
@@ -48,7 +48,11 @@ class ParallaxElements {
     elementsRotation,
   }: {
     pool: Mesh<BufferGeometry, Material>[];
-    elementsOffset: Vector3Like;
+    elementsOffset: {
+      x: number;
+      y: MinMax;
+      z: MinMax;
+    };
     elementsScale: MinMax;
     elementsRotation: MinMax;
   }) {
@@ -64,8 +68,16 @@ class ParallaxElements {
     for (let p = 0; p < 1; p += 0.1) {
       const position = curve.getPointAt(p);
       const x = position.x;
-      const y = -position.y + this.elementsOffset.y;
-      const z = this.elementsOffset.z;
+      const y =
+        -position.y +
+        MathUtils.randFloat(
+          this.elementsOffset.y.min,
+          this.elementsOffset.y.max
+        );
+      const z = MathUtils.randFloat(
+        this.elementsOffset.z.min,
+        this.elementsOffset.z.max
+      );
 
       const random = Math.floor(Math.random() * this.pool.length);
 

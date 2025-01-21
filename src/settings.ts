@@ -363,7 +363,7 @@ const DEBUG_PARAMS = {
     backgroundIslands: {
       scale: {
         min: 230,
-        max: 270,
+        max: 300,
       },
       rotation: {
         min: 0,
@@ -371,8 +371,14 @@ const DEBUG_PARAMS = {
       },
       offset: {
         x: 0,
-        y: 300,
-        z: -700,
+        y: {
+          min: 200,
+          max: 200,
+        },
+        z: {
+          min: -700,
+          max: -700,
+        },
       },
     },
     foregroundCloudsBig: {
@@ -386,8 +392,14 @@ const DEBUG_PARAMS = {
       },
       offset: {
         x: 0,
-        y: -400,
-        z: 100,
+        y: {
+          min: -300,
+          max: -300,
+        },
+        z: {
+          min: -200,
+          max: -200,
+        },
       },
     },
     foregroundCloudsSmall: {
@@ -401,8 +413,14 @@ const DEBUG_PARAMS = {
       },
       offset: {
         x: 0,
-        y: -100,
-        z: 200,
+        y: {
+          min: -150,
+          max: -150,
+        },
+        z: {
+          min: -100,
+          max: -100,
+        },
       },
     },
   },
