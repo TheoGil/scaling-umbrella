@@ -580,6 +580,11 @@ class App {
       duration: 5,
     });
 
+    // Disable all obstacles
+    obstacleManager.activeObstacles.forEach((o) => {
+      obstacleManager.animateOut(o.id);
+    });
+
     $gameState.set("completed");
 
     UI.hud.animateOut();
