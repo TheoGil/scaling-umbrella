@@ -1,0 +1,27 @@
+.success-screen {
+  left: 25px;
+  right: 25px;
+  bottom: 25px;
+
+  @media (min-width: 500px) {
+    left: 55px;
+    right: 55px;
+    bottom: 55px;
+  }
+
+  @media (min-width: $bp-mobile) {
+    left: 83px;
+    bottom: 128px;
+    right: unset;
+    max-width: 467px;
+    box-sizing: border-box;
+  }
+}
+
+.success-screen__time {
+  @include fluid("font-size", 40px, 102px);
+
+  font-family: $ff-alt;
+  color: #ff2001;
+  line-height: 1;
+}

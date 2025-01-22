@@ -91,91 +91,14 @@ const UI = {
     exitAnimation: null as gsap.core.Timeline | null,
     animateIn: () => {
       UI.startScreen.el.style.display = "flex";
-      UI.startScreen.entranceAnimation?.resume(0);
+      UI.startScreen.entranceAnimation?.play(0);
     },
     animateOut: () => {
       UI.startScreen.entranceAnimation?.kill();
 
-      UI.startScreen.exitAnimation?.resume(0).then(() => {
+      UI.startScreen.exitAnimation?.play(0).then(() => {
         UI.startScreen.el.style.display = "none";
       });
-    },
-    initEntranceAnimation: () => {
-      const TL = gsap.timeline({
-        paused: true,
-      });
-
-      TL.fromTo(
-        UI.startScreen.el,
-        {
-          clipPath: "inset(50% 50% 50% 50%)",
-        },
-        {
-          clipPath: "inset(0% 0% 0% 0%)",
-          ease: "power4.inOut",
-          clearProps: true,
-        }
-      );
-
-      const animateInTargets =
-        UI.startScreen.el.querySelectorAll("[data-animate-in]");
-
-      TL.fromTo(
-        animateInTargets,
-        {
-          opacity: 0,
-          y: 40,
-        },
-        {
-          opacity: 1,
-          y: 0,
-          stagger: 0.1,
-          duration: 1.25,
-          ease: "elastic.out(1,0.3)",
-          clearProps: true,
-        },
-        "-=0.25"
-      );
-
-      return TL;
-    },
-    initExitAnimation: () => {
-      const TL = gsap.timeline({
-        paused: true,
-      });
-
-      const animateInTargets = [
-        ...UI.startScreen.el.querySelectorAll("[data-animate-in]"),
-      ].reverse();
-
-      TL.fromTo(
-        animateInTargets,
-        {
-          opacity: 1,
-          y: 0,
-        },
-        {
-          opacity: 0,
-          y: 40,
-          stagger: 0.05,
-          duration: 0.5,
-          ease: "power4.out",
-        }
-      );
-
-      TL.fromTo(
-        UI.startScreen.el,
-        {
-          clipPath: "inset(0% 0% 0% 0%)",
-        },
-        {
-          clipPath: "inset(50% 50% 50% 50%)",
-          ease: "power4.out",
-        },
-        0.15
-      );
-
-      return TL;
     },
   },
   controls: {
@@ -189,14 +112,14 @@ const UI = {
       UI.controls.active = true;
       UI.controls.timestamp = Date.now();
       UI.controls.el.style.display = "flex";
-      UI.controls.entranceAnimation?.resume(0);
+      UI.controls.entranceAnimation?.play(0);
     },
     animateOut: () => {
       UI.controls.active = false;
 
       UI.controls.entranceAnimation?.kill();
 
-      UI.controls.exitAnimation?.resume(0).then(() => {
+      UI.controls.exitAnimation?.play(0).then(() => {
         UI.controls.el.style.display = "none";
       });
     },
@@ -205,11 +128,18 @@ const UI = {
   endScreen: {
     el: document.querySelector(".js-end-screen") as HTMLElement,
     timerEl: document.querySelector(".js-end-screen-timer") as HTMLElement,
+    entranceAnimation: null as gsap.core.Timeline | null,
+    exitAnimation: null as gsap.core.Timeline | null,
     animateIn: () => {
-      UI.endScreen.el.style.display = "block";
+      UI.endScreen.exitAnimation?.kill();
+      UI.endScreen.el.style.display = "flex";
+      UI.endScreen.entranceAnimation?.play(0);
     },
     animateOut: () => {
-      UI.endScreen.el.style.display = "none";
+      UI.endScreen.entranceAnimation?.kill();
+      UI.endScreen.exitAnimation?.play(0).then(() => {
+        UI.endScreen.el.style.display = "none";
+      });
     },
     updateTimer(time: number) {
       UI.endScreen.timerEl.innerText = formatTime(time);
@@ -230,10 +160,10 @@ const UI = {
     exitAnimation: null as gsap.core.Timeline | null,
     animateIn: () => {
       UI.hud.el.style.display = "flex";
-      UI.hud.entranceAnimation?.resume(0);
+      UI.hud.entranceAnimation?.play(0);
     },
     animateOut: () => {
-      UI.hud.exitAnimation?.resume(0).then(() => {
+      UI.hud.exitAnimation?.play(0).then(() => {
         UI.hud.el.style.display = "none";
       });
     },
@@ -297,6 +227,11 @@ const UI = {
     );
     this.hud.entranceAnimation = hudEntranceAnimation;
     this.hud.exitAnimation = hudExitAnimation;
+
+    const [successEntranceAnimation, successExitAnimation] =
+      initPanelAnimations(UI.endScreen.el, true);
+    this.endScreen.entranceAnimation = successEntranceAnimation;
+    this.endScreen.exitAnimation = successExitAnimation;
 
     this.startScreen.animateIn();
   },

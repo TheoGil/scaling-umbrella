@@ -70,10 +70,29 @@
     </div>
 
     <!-- Success screen -->
-    <div class="ui-screen js-end-screen" style="display: none">
-      <p>Well done coloring the world!</p>
-      <div class="js-end-screen-timer"></div>
-      <button class="js-restart-button">Play again</button>
+    <div
+      class="ui-panel success-screen js-end-screen flex-column"
+      style="display: none"
+    >
+      <div class="ui-panel__content" data-animate-in>
+        <p>Well done coloring the world!</p>
+      </div>
+      <div class="success-screen__time js-end-screen-timer" data-animate-in>
+        00"00
+      </div>
+      <div class="ui-panel__content" data-animate-in>
+        <p>
+          EPIC is supporting Live in Colors, a non-profit organisation that
+          promotes the integration and education of children, young people and
+          families who are refugees or simply in difficulty.<br />
+          <a href="https://www.liveincolorassociation.com/" target="_blank"
+            >Learn more about them.</a
+          >
+        </p>
+      </div>
+      <button class="button js-restart-button" data-animate-in>
+        Play again
+      </button>
     </div>
 
     <script type="module" src="/src/index.ts"></script>

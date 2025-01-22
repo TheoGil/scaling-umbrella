@@ -691,6 +691,7 @@ class App {
     const CSSTime = (time * 0.005).toString();
     UI.startScreen.el.style.setProperty("--time", CSSTime);
     UI.controls.el.style.setProperty("--time", CSSTime);
+    UI.endScreen.el.style.setProperty("--time", CSSTime);
   }
 
   onPillLeaveFrustum() {
@@ -748,6 +749,7 @@ class App {
     $timer.set(0);
     $gameState.set("playing");
 
+    UI.controls.timestamp = 0;
     UI.hud.setPillState("blue", false);
     UI.hud.setPillState("red", false);
     UI.hud.setPillState("green", false);
@@ -794,7 +796,11 @@ class App {
     this.spawnPill();
 
     UI.endScreen.animateOut();
-    UI.hud.animateIn();
+
+    gsap.delayedCall(IN_GAME_UI_ANIMATE_IN_DELAY, () => {
+      UI.hud.animateIn();
+      UI.controls.animateIn();
+    });
   }
 }
 

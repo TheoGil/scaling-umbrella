@@ -114,12 +114,12 @@ const DEBUG_PARAMS = {
       },
       startscreen: {
         x: 0,
-        y: -30,
+        y: -75,
         z: 100,
       },
       completed: {
         x: 0,
-        y: -30,
+        y: -75,
         z: 100,
       },
     },
@@ -130,12 +130,12 @@ const DEBUG_PARAMS = {
         z: 300,
       },
       startscreen: {
-        x: 0,
+        x: -75,
         y: 0,
         z: 100,
       },
       completed: {
-        x: 0,
+        x: -75,
         y: 0,
         z: 100,
       },
