@@ -8,7 +8,6 @@ import {
   MathUtils,
   Mesh,
   Object3D,
-  Vector3Like,
 } from "three";
 import { frustumCuller } from "./frustumCulling";
 
