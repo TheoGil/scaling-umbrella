@@ -8,7 +8,7 @@ const PILL_EL_ACTIVE_CLASS = "active";
 const IN_GAME_UI_ANIMATE_IN_DELAY = 0.5; //s
 const CONTROLS_MIN_TIME = 1; //s
 
-const initPanelAnimations = (root: HTMLElement) => {
+const initPanelAnimations = (root: HTMLElement, clipRoot: boolean) => {
   const animateInTargets = root.querySelectorAll("[data-animate-in]");
 
   // EXIT
@@ -31,34 +31,38 @@ const initPanelAnimations = (root: HTMLElement) => {
     }
   );
 
-  exitTL.fromTo(
-    root,
-    {
-      clipPath: "inset(0% 0% 0% 0%)",
-    },
-    {
-      clipPath: "inset(50% 50% 50% 50%)",
-      ease: "power4.out",
-    },
-    0.15
-  );
+  if (clipRoot) {
+    exitTL.fromTo(
+      root,
+      {
+        clipPath: "inset(0% 0% 0% 0%)",
+      },
+      {
+        clipPath: "inset(50% 50% 50% 50%)",
+        ease: "power4.out",
+      },
+      0.15
+    );
+  }
 
   // ENTRANCE
   const entranceTL = gsap.timeline({
     paused: true,
   });
 
-  entranceTL.fromTo(
-    root,
-    {
-      clipPath: "inset(50% 50% 50% 50%)",
-    },
-    {
-      clipPath: "inset(0% 0% 0% 0%)",
-      ease: "power4.inOut",
-      clearProps: true,
-    }
-  );
+  if (clipRoot) {
+    entranceTL.fromTo(
+      root,
+      {
+        clipPath: "inset(50% 50% 50% 50%)",
+      },
+      {
+        clipPath: "inset(0% 0% 0% 0%)",
+        ease: "power4.inOut",
+        clearProps: true,
+      }
+    );
+  }
 
   entranceTL.fromTo(
     animateInTargets,
@@ -74,7 +78,7 @@ const initPanelAnimations = (root: HTMLElement) => {
       ease: "elastic.out(1,0.3)",
       clearProps: true,
     },
-    "-=0.25"
+    clipRoot ? "-=0.25" : 0
   );
 
   return [entranceTL, exitTL];
@@ -222,11 +226,16 @@ const UI = {
       purple: document.querySelector(".js-pill-purple") as HTMLElement,
       white: document.querySelector(".js-pill-white") as HTMLElement,
     },
+    entranceAnimation: null as gsap.core.Timeline | null,
+    exitAnimation: null as gsap.core.Timeline | null,
     animateIn: () => {
       UI.hud.el.style.display = "flex";
+      UI.hud.entranceAnimation?.resume(0);
     },
     animateOut: () => {
-      UI.hud.el.style.display = "none";
+      UI.hud.exitAnimation?.resume(0).then(() => {
+        UI.hud.el.style.display = "none";
+      });
     },
     updateTimer(time: number) {
       UI.hud.timerEl.innerText = formatTime(time);
@@ -271,18 +280,25 @@ const UI = {
     });
 
     const [startScreenEntranceTL, startScreenExitTL] = initPanelAnimations(
-      UI.startScreen.el
+      UI.startScreen.el,
+      true
     );
     this.startScreen.entranceAnimation = startScreenEntranceTL;
     this.startScreen.exitAnimation = startScreenExitTL;
 
     const [controlsEntranceAnimation, controlExitAnimation] =
-      initPanelAnimations(UI.controls.el);
+      initPanelAnimations(UI.controls.el, true);
     this.controls.entranceAnimation = controlsEntranceAnimation;
     this.controls.exitAnimation = controlExitAnimation;
 
+    const [hudEntranceAnimation, hudExitAnimation] = initPanelAnimations(
+      UI.hud.el,
+      false
+    );
+    this.hud.entranceAnimation = hudEntranceAnimation;
+    this.hud.exitAnimation = hudExitAnimation;
+
     this.startScreen.animateIn();
-    // this.startScreen.animateIn();
   },
 };
 
