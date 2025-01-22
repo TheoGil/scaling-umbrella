@@ -5,46 +5,96 @@
     <link rel="icon" type="image/svg+xml" href="/scaling-umbrella/favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>🛷💨</title>
-    <script type="module" crossorigin src="/scaling-umbrella/assets/index-Q_GAU5u_.js"></script>
-    <link rel="stylesheet" crossorigin href="/scaling-umbrella/assets/index-Dmnm_974.css">
+    <script type="module" crossorigin src="/scaling-umbrella/assets/index-DSaGCner.js"></script>
+    <link rel="stylesheet" crossorigin href="/scaling-umbrella/assets/index-12ghaG2L.css">
   </head>
   <body>
     <canvas id="webgl-canvas" class="debug-canvas"></canvas>
     <canvas id="debug-canvas" class="debug-canvas"></canvas>
     <canvas id="matter-canvas" class="debug-canvas"></canvas>
 
+    <!-- HUD -->
     <div class="hud js-hud" style="display: none">
-      <div class="hud__time js-time">00"00</div>
+      <div class="hud__time js-time" data-animate-in>00"00</div>
       <ol class="hud__pills">
-        <li class="hud__pill--blue js-pill-blue">
-          <div class="hud__pill__label">Blue</div>
+        <li data-animate-in>
+          <div class="hud__pill--blue js-pill-blue"></div>
         </li>
-        <li class="hud__pill--red js-pill-red">
-          <div class="hud__pill__label">Red</div>
+        <li data-animate-in>
+          <div class="hud__pill--red js-pill-red"></div>
         </li>
-        <li class="hud__pill--green js-pill-green">
-          <div class="hud__pill__label">Green</div>
+        <li data-animate-in>
+          <div class="hud__pill--green js-pill-green"></div>
         </li>
-        <li class="hud__pill--yellow js-pill-yellow">
-          <div class="hud__pill__label">Yellow</div>
+        <li data-animate-in>
+          <div class="hud__pill--yellow js-pill-yellow"></div>
         </li>
-        <li class="hud__pill--purple js-pill-purple">
-          <div class="hud__pill__label">Purple</div>
+        <li data-animate-in>
+          <div class="hud__pill--purple js-pill-purple"></div>
         </li>
-        <li class="hud__pill--white js-pill-white">
-          <div class="hud__pill__label">White</div>
+        <li data-animate-in>
+          <div class="hud__pill--white js-pill-white"></div>
         </li>
       </ol>
     </div>
 
-    <div class="ui-screen js-start-screen" style="display: none">
-      <button class="js-start-button">Play the game</button>
+    <!-- Start screen -->
+    <div
+      class="ui-panel start-screen js-start-screen flex-column"
+      style="display: none"
+    >
+      <h1 class="start-screen-title flex-column" data-animate-in>
+        <span class="start-screen-title__part-1 flex-column">
+          <span>The</span>
+          <span>Twerking</span>
+        </span>
+        <span class="start-screen-title__part-2">Goose</span>
+      </h1>
+      <div class="ui-panel__content" data-animate-in>
+        <p>Collect the pills and color the world.</p>
+        <p>
+          A game by
+          <a href="https://www.epic.net/" target="_blank">EPIC Agency</a> in
+          support to
+          <a href="https://www.liveincolorassociation.com/" target="_blank"
+            >Live in Color</a
+          >.
+        </p>
+      </div>
+      <div data-animate-in>
+        <button class="js-start-button button">Play the game</button>
+      </div>
     </div>
 
-    <div class="ui-screen js-end-screen" style="display: none">
-      <p>Well done coloring the world!</p>
-      <div class="js-end-screen-timer"></div>
-      <button class="js-restart-button">Play again</button>
+    <!-- Controls -->
+    <div class="ui-panel controls js-ui-controls" style="display: none">
+      <div data-animate-in><strong>TAP SCREEN</strong> to jump</div>
+    </div>
+
+    <!-- Success screen -->
+    <div
+      class="ui-panel success-screen js-end-screen flex-column"
+      style="display: none"
+    >
+      <div class="ui-panel__content" data-animate-in>
+        <p>Well done coloring the world!</p>
+      </div>
+      <div class="success-screen__time js-end-screen-timer" data-animate-in>
+        00"00
+      </div>
+      <div class="ui-panel__content" data-animate-in>
+        <p>
+          EPIC is supporting Live in Colors, a non-profit organisation that
+          promotes the integration and education of children, young people and
+          families who are refugees or simply in difficulty.<br />
+          <a href="https://www.liveincolorassociation.com/" target="_blank"
+            >Learn more about them.</a
+          >
+        </p>
+      </div>
+      <button class="button js-restart-button" data-animate-in>
+        Play again
+      </button>
     </div>
 
   </body>
