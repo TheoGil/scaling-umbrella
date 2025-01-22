@@ -57,7 +57,7 @@ import {
   $allPillsCollected,
   $timer,
 } from "./modules/store";
-import { UI } from "./modules/UI";
+import { IN_GAME_UI_ANIMATE_IN_DELAY, UI } from "./modules/UI";
 import { ParallaxElements } from "./modules/ParallaxElements";
 
 class App {
@@ -688,7 +688,9 @@ class App {
       UI.hud.updateTimer($timer.get());
     }
 
-    UI.startScreen.el.style.setProperty("--time", (time * 0.005).toString());
+    const CSSTime = (time * 0.005).toString();
+    UI.startScreen.el.style.setProperty("--time", CSSTime);
+    UI.controls.el.style.setProperty("--time", CSSTime);
   }
 
   onPillLeaveFrustum() {
@@ -728,7 +730,11 @@ class App {
 
   startGame() {
     UI.startScreen.animateOut();
-    UI.hud.animateIn();
+
+    gsap.delayedCall(IN_GAME_UI_ANIMATE_IN_DELAY, () => {
+      UI.hud.animateIn();
+      UI.controls.animateIn();
+    });
 
     $gameState.set("playing");
     this.spawnPill();
