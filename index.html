@@ -39,14 +39,14 @@
       class="ui-panel start-screen js-start-screen flex-column"
       style="display: none"
     >
-      <h1 class="start-screen-title flex-column">
+      <h1 class="start-screen-title flex-column" data-animate-in>
         <span class="start-screen-title__part-1 flex-column">
           <span>The</span>
           <span>Twerking</span>
         </span>
         <span class="start-screen-title__part-2">Goose</span>
       </h1>
-      <div class="ui-panel__content">
+      <div class="ui-panel__content" data-animate-in>
         <p>Collect the pills and color the world.</p>
         <p>
           A game by
@@ -57,7 +57,9 @@
           >.
         </p>
       </div>
-      <button class="js-start-button button">Play the game</button>
+      <div data-animate-in>
+        <button class="js-start-button button">Play the game</button>
+      </div>
     </div>
 
     <div class="ui-screen js-end-screen" style="display: none">

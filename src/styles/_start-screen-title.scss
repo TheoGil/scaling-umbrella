@@ -49,7 +49,7 @@
   margin-block: var(--offset);
 
   .start-screen-title__part-1 {
-    span:nth-child(2) {
+    > span:nth-child(2) {
       margin-top: calc(var(--offset) * 2);
     }
   }
