@@ -1,0 +1,7 @@
+a,
+button {
+  &:focus-visible {
+    outline: 2px $c-text dashed;
+    outline-offset: 5px;
+  }
+}

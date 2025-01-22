@@ -1,0 +1,9 @@
+@mixin fluid($property, $min, $max) {
+  @include poly-fluid-sizing(
+    $property,
+    (
+      $bp-small: $min,
+      $bp-large: $max,
+    )
+  );
+}

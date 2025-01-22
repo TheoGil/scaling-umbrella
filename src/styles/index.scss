@@ -1,0 +1,26 @@
+@import "poly-fluid-sizing";
+@import "./variables";
+@import "./mixins";
+@import "./utils";
+@import "./focusable";
+@import "./fonts";
+@import "./ui-panel";
+@import "./start-screen-title";
+@import "./button";
+@import "./canvas";
+@import "./hud";
+
+:root {
+  font-family: $ff-main;
+  line-height: 1.5;
+  font-weight: 400;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+}

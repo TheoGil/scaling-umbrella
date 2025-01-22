@@ -8,7 +8,8 @@ import {
 } from "matter-js";
 import Tempus from "tempus";
 
-import "./style.css";
+import "./styles/index.scss";
+
 import {
   MathUtils,
   Scene,
@@ -686,6 +687,8 @@ class App {
       $timer.set($timer.get() + deltaTime);
       UI.hud.updateTimer($timer.get());
     }
+
+    UI.startScreen.el.style.setProperty("--time", (time * 0.005).toString());
   }
 
   onPillLeaveFrustum() {

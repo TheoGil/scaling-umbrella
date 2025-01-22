@@ -8,7 +8,7 @@ const UI = {
   startScreen: {
     el: document.querySelector(".js-start-screen") as HTMLElement,
     animateIn: () => {
-      UI.startScreen.el.style.display = "block";
+      UI.startScreen.el.style.display = "flex";
     },
     animateOut: () => {
       UI.startScreen.el.style.display = "none";

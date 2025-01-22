@@ -1,0 +1,20 @@
+.button {
+  @include fluid("font-size", 25px, 50px);
+
+  padding: 10px 16px;
+  color: $c-white;
+  font-family: $ff-alt;
+  line-height: 1;
+  border: 1px #ffa927 solid;
+  background: linear-gradient(to right, #ff7300, #ff1e00);
+  cursor: pointer;
+  transition: transform $ease-spring $transition-duration-snappy;
+
+  &:hover {
+    transform: scale(1.05) rotate(-1deg);
+  }
+
+  &:active {
+    transform: scale(0.95) rotate(-1deg);
+  }
+}

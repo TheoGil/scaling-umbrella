@@ -1,0 +1,41 @@
+.ui-panel {
+  --time: 0;
+
+  @include fluid("--shadow-offset-x", 10px, 20px);
+  @include fluid("--shadow-offset-y", 10px, 20px);
+
+  --sinoff: 1;
+  --shadow-offset-y-1: calc(sin(var(--time)) * var(--shadow-offset-y));
+  // prettier-ignore
+  --shadow-offset-y-2: calc(sin(var(--time) + var(--sinoff)) * var(--shadow-offset-y));
+  // prettier-ignore
+  --shadow-offset-y-3: calc(sin(var(--time) + var(--sinoff) * 2) * var(--shadow-offset-y));
+
+  @include fluid("padding", 25px, 50px);
+
+  position: fixed;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  background-color: $c-background-solid;
+  color: $c-text;
+
+  // prettier-ignore
+  box-shadow: 
+    calc(var(--shadow-offset-x) * -1 * 3) calc(var(--shadow-offset-y-3)) 0px 0px #6ee0ff4d,
+    calc(var(--shadow-offset-x) * -1 * 2) calc(var(--shadow-offset-y-2)) 0px 0px #00c8ff80,
+    calc(var(--shadow-offset-x) * -1) var(--shadow-offset-y-1) 0px 0px #00a1cdcc;
+}
+
+.ui-panel__content {
+  font-size: 18px;
+  gap: 5px;
+
+  p {
+    margin: 0;
+  }
+
+  a {
+    color: currentColor;
+  }
+}

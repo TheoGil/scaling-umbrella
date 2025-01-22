@@ -1,0 +1,60 @@
+.start-screen {
+  left: 25px;
+  right: 25px;
+  bottom: 25px;
+
+  @media (min-width: 500px) {
+    left: 55px;
+    right: 55px;
+    bottom: 55px;
+  }
+
+  @media (min-width: $bp-mobile) {
+    left: 83px;
+    bottom: 128px;
+    right: unset;
+  }
+}
+
+.start-screen-title {
+  @include fluid("font-size", 40px, 92px);
+
+  margin: 0;
+  font-family: $ff-alt;
+  font-weight: 400;
+}
+
+.start-screen-title__part-1 {
+  background: linear-gradient(to right, #009f65, #00a1ff);
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.start-screen-title__part-2 {
+  background: linear-gradient(to right, #ff2323, #ff8258);
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+// Hack to fix text gradient and line-height small than 1
+// Both this things don't work well simultaneously.
+// The background gradient will be clipped by line-height.
+// Instead we do not use line height but a carefully tuned
+// sets of negative margins.
+.start-screen-title {
+  @include fluid(--offset, -12px, -30px);
+
+  // --offset: -30px;
+
+  margin-block: var(--offset);
+
+  .start-screen-title__part-1 {
+    span:nth-child(2) {
+      margin-top: calc(var(--offset) * 2);
+    }
+  }
+
+  .start-screen-title__part-2 {
+    margin-top: calc(var(--offset) * 2);
+  }
+}

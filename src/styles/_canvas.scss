@@ -1,0 +1,18 @@
+.debug-canvas {
+  position: fixed;
+  inset: 0;
+}
+
+.debug-canvas:not(#webgl-canvas) {
+  pointer-events: none;
+}
+
+.gui {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+}
+
+.tp-dfwv {
+  position: fixed !important;
+}
