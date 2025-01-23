@@ -1,4 +1,5 @@
 import {
+  AdditiveBlending,
   BufferAttribute,
   BufferGeometry,
   Color,
@@ -133,7 +134,7 @@ export class ParticleEmitter extends Object3D {
       uniforms,
       transparent: true,
       depthWrite: false,
-      blending: NormalBlending,
+      blending: AdditiveBlending,
     });
 
     this.initMaterialDefines();

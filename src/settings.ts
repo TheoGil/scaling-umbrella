@@ -1,5 +1,10 @@
 import { Color } from "three";
 
+const PARTICLE_SCALE_MIN = 15;
+const PARTICLE_SCALE_MAX = 60;
+const PARTICLE_LIFETIME_MIN = 0.5;
+const PARTICLE_LIFETIME_MAX = 5;
+
 const DEBUG_PARAMS = {
   segments: {
     definition: 30,
@@ -114,8 +119,8 @@ const DEBUG_PARAMS = {
       },
       startscreen: {
         x: 0,
-        y: -75,
-        z: 100,
+        y: 0,
+        z: 300,
       },
       completed: {
         x: 0,
@@ -130,9 +135,9 @@ const DEBUG_PARAMS = {
         z: 300,
       },
       startscreen: {
-        x: -75,
+        x: 0,
         y: 0,
-        z: 100,
+        z: 300,
       },
       completed: {
         x: -75,
@@ -236,8 +241,8 @@ const DEBUG_PARAMS = {
       speed: { min: 1, max: 14 },
       velocity: {
         x: {
-          min: 0,
-          max: 10,
+          min: 500,
+          max: 250,
         },
         y: {
           min: 0,
@@ -249,12 +254,12 @@ const DEBUG_PARAMS = {
         },
       },
       scale: {
-        min: 1,
-        max: 15,
+        min: PARTICLE_SCALE_MIN,
+        max: PARTICLE_SCALE_MAX,
       },
       lifetime: {
-        min: 0.5,
-        max: 1.5,
+        min: PARTICLE_LIFETIME_MIN,
+        max: PARTICLE_LIFETIME_MAX,
       },
       gravity: -500,
       colors: [
@@ -286,12 +291,12 @@ const DEBUG_PARAMS = {
         },
       },
       scale: {
-        min: 1,
-        max: 10,
+        min: PARTICLE_SCALE_MIN,
+        max: PARTICLE_SCALE_MAX,
       },
       lifetime: {
-        min: 0.5,
-        max: 1.5,
+        min: PARTICLE_LIFETIME_MIN,
+        max: PARTICLE_LIFETIME_MAX,
       },
       gravity: -1000,
       colors: [
@@ -322,12 +327,12 @@ const DEBUG_PARAMS = {
         },
       },
       scale: {
-        min: 1,
-        max: 10,
+        min: PARTICLE_SCALE_MIN,
+        max: PARTICLE_SCALE_MAX,
       },
       lifetime: {
-        min: 0.5,
-        max: 1.5,
+        min: PARTICLE_LIFETIME_MIN,
+        max: PARTICLE_LIFETIME_MAX,
       },
       gravity: -1000,
       colors: [
@@ -349,12 +354,12 @@ const DEBUG_PARAMS = {
         z: 500,
       },
       lifetime: {
-        min: 0,
-        max: 2,
+        min: PARTICLE_LIFETIME_MIN,
+        max: PARTICLE_LIFETIME_MAX,
       },
       scale: {
-        min: 1,
-        max: 5,
+        min: PARTICLE_SCALE_MIN,
+        max: PARTICLE_SCALE_MAX,
       },
     },
   },

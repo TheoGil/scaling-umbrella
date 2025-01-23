@@ -33,6 +33,7 @@ import { AssetsManager } from "./modules/AssetsManager";
 import colorMaskRGBTextureURL from "/color-mask-red-blue-green.png?url";
 import colorMaskBackgroundTextureURL from "/color-mask-background.png?url";
 import colorMaskPWYTextureURL from "/color-mask-purple-white-yellow.png?url";
+import particleTextureURL from "/particle.jpg?url";
 import noiseTextureURL from "/noise_1.jpg?url";
 import sceneGLBUrl from "/lic.glb?url";
 import { BackgroundPlane } from "./modules/BackgroundPlane";
@@ -293,6 +294,7 @@ class App {
     this.particleEmitter = new ParticleEmitter({
       renderMode: "billboard",
       particlesCount: 1000,
+      texture: this.assetsManager.get("particle"),
     });
     this.scene.add(this.particleEmitter);
   }
@@ -325,6 +327,12 @@ class App {
     this.assetsManager.add({
       id: "color-mask-background",
       src: colorMaskBackgroundTextureURL,
+      type: "texture",
+    });
+
+    this.assetsManager.add({
+      id: "particle",
+      src: particleTextureURL,
       type: "texture",
     });
 
