@@ -5,6 +5,7 @@ import { DEBUG_PARAMS } from "../settings";
 import { App } from "..";
 import { Render } from "matter-js";
 import { cameraManager } from "./cameraManager";
+import { $gameState } from "./store";
 
 function initDebug(app: App) {
   if (!window.location.search.includes("debug")) {
@@ -216,10 +217,72 @@ function initDebug(app: App) {
   });
 
   // WEBGL RENDERER
-  const cameraFolder = debug.addFolder({
-    title: "Camera",
-    expanded: false,
-  });
+  const cameraFolder = debug
+    .addFolder({
+      title: "Camera",
+      expanded: false,
+    })
+    .on("change", () => {
+      if ($gameState.get() === "startscreen") {
+        cameraManager.positionOffset.portrait.x =
+          DEBUG_PARAMS.camera.portrait.startscreen.x;
+
+        cameraManager.positionOffset.portrait.y =
+          DEBUG_PARAMS.camera.portrait.startscreen.y;
+
+        cameraManager.positionOffset.portrait.z =
+          DEBUG_PARAMS.camera.portrait.startscreen.z;
+
+        cameraManager.positionOffset.landscape.x =
+          DEBUG_PARAMS.camera.landscape.startscreen.x;
+
+        cameraManager.positionOffset.landscape.y =
+          DEBUG_PARAMS.camera.landscape.startscreen.y;
+
+        cameraManager.positionOffset.landscape.z =
+          DEBUG_PARAMS.camera.landscape.startscreen.z;
+      }
+
+      if ($gameState.get() === "playing") {
+        cameraManager.positionOffset.portrait.x =
+          DEBUG_PARAMS.camera.portrait.playing.x;
+
+        cameraManager.positionOffset.portrait.y =
+          DEBUG_PARAMS.camera.portrait.playing.y;
+
+        cameraManager.positionOffset.portrait.z =
+          DEBUG_PARAMS.camera.portrait.playing.z;
+
+        cameraManager.positionOffset.landscape.x =
+          DEBUG_PARAMS.camera.landscape.playing.x;
+
+        cameraManager.positionOffset.landscape.y =
+          DEBUG_PARAMS.camera.landscape.playing.y;
+
+        cameraManager.positionOffset.landscape.z =
+          DEBUG_PARAMS.camera.landscape.playing.z;
+      }
+
+      if ($gameState.get() === "completed") {
+        cameraManager.positionOffset.portrait.x =
+          DEBUG_PARAMS.camera.portrait.completed.x;
+
+        cameraManager.positionOffset.portrait.y =
+          DEBUG_PARAMS.camera.portrait.completed.y;
+
+        cameraManager.positionOffset.portrait.z =
+          DEBUG_PARAMS.camera.portrait.completed.z;
+
+        cameraManager.positionOffset.landscape.x =
+          DEBUG_PARAMS.camera.landscape.completed.x;
+
+        cameraManager.positionOffset.landscape.y =
+          DEBUG_PARAMS.camera.landscape.completed.y;
+
+        cameraManager.positionOffset.landscape.z =
+          DEBUG_PARAMS.camera.landscape.completed.z;
+      }
+    });
 
   cameraFolder
     .addBinding(DEBUG_PARAMS.camera, "cameraName", {

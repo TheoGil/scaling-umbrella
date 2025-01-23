@@ -16,7 +16,8 @@ import { Player } from "./Player";
 import { TerrainChunk } from "./TerrainChunk";
 import { raycast } from "../utils/raycast";
 import { Vector } from "matter-js";
-import { $gameState } from "./store";
+import { gameIsPlaying } from "./store";
+import gsap from "gsap";
 
 const perspectiveCamera = new PerspectiveCamera(
   75,
@@ -49,6 +50,21 @@ const cameraManager = {
   debugCamera,
   orbitControls: null as OrbitControls | null,
   isPortrait: false,
+  tween: null as gsap.core.Timeline | null,
+  isTweening: false,
+  positionOffset: {
+    portrait: {
+      x: DEBUG_PARAMS.camera.portrait.startscreen.x,
+      y: DEBUG_PARAMS.camera.portrait.startscreen.y,
+      z: DEBUG_PARAMS.camera.portrait.startscreen.z,
+    },
+    landscape: {
+      x: DEBUG_PARAMS.camera.landscape.startscreen.x,
+      y: DEBUG_PARAMS.camera.landscape.startscreen.y,
+      z: DEBUG_PARAMS.camera.landscape.startscreen.z,
+    },
+    lerp: 1,
+  },
   init({
     orbitControlDOMElement,
     scene,
@@ -68,25 +84,26 @@ const cameraManager = {
 
     this.cameraHelper.visible =
       DEBUG_PARAMS.camera.cameraName === "debugCamera";
+
     scene.add(this.cameraHelper);
 
     if (DEBUG) {
       scene.add(DEBUG_FOCUS_AREA_MESH);
     }
   },
-  focusOnPoint(position: Vector2Like, lerpAmount = DEBUG_PARAMS.camera.lerp) {
+  focusOnPoint(position: Vector2Like) {
     const x = position.x + this.getCameraPosition("x");
 
     const y = MathUtils.lerp(
       cameraManager.perspectiveCamera.position.y,
       position.y + this.getCameraPosition("y"),
-      lerpAmount
+      this.positionOffset.lerp
     );
 
     let z = MathUtils.lerp(
       cameraManager.perspectiveCamera.position.z,
       this.getCameraPosition("z"),
-      lerpAmount
+      this.positionOffset.lerp
     );
 
     cameraManager.perspectiveCamera.position.set(x, y, z);
@@ -117,6 +134,9 @@ const cameraManager = {
   },
   update(player: Player, terrainChunks: TerrainChunk[]) {
     this.isPortrait = innerWidth < innerHeight;
+    this.isTweening =
+      !this.tween ||
+      (this.tween && (this.tween.isActive() || this.tween.progress() === 0));
 
     const point = this.raycastPlayerTerrain(player, terrainChunks);
 
@@ -125,7 +145,7 @@ const cameraManager = {
       y: point ? -point.y : player.object3D.position.y,
     });
 
-    if (point) {
+    if (gameIsPlaying() && !this.isTweening && point) {
       this.fitPlayerAndTerrain(player, point);
     }
 
@@ -183,13 +203,93 @@ const cameraManager = {
     }
   },
   getCameraPosition(axis: "x" | "y" | "z") {
-    const isPortrait = innerWidth < innerHeight;
+    const mode = this.isPortrait ? "portrait" : "landscape";
 
-    const gameState = $gameState.get();
+    return this.positionOffset[mode][axis];
+  },
+  tweenCameraIntoPlay() {
+    cameraManager.tween?.kill();
+    const duration = 2;
+    const ease = "power2.inOut";
+    cameraManager.tween = gsap
+      .timeline({
+        onComplete: () => {
+          this.positionOffset.lerp = DEBUG_PARAMS.camera.lerp;
+        },
+      })
+      .to(
+        this.positionOffset.portrait,
+        {
+          x: DEBUG_PARAMS.camera.portrait.playing.x,
+          y: DEBUG_PARAMS.camera.portrait.playing.y,
+          z: DEBUG_PARAMS.camera.portrait.playing.z,
+          duration,
+          ease,
+        },
+        0
+      )
+      .to(
+        this.positionOffset.landscape,
+        {
+          x: DEBUG_PARAMS.camera.landscape.playing.x,
+          y: DEBUG_PARAMS.camera.landscape.playing.y,
+          z: DEBUG_PARAMS.camera.landscape.playing.z,
+          duration,
+          ease,
+        },
+        0
+      )
+      .to(
+        this.positionOffset,
+        {
+          lerp: 1,
+          ease: "linear",
+        },
+        0
+      );
+  },
+  tweenCameraOutOfPlay() {
+    cameraManager.tween?.kill();
 
-    return isPortrait
-      ? DEBUG_PARAMS.camera.portrait[gameState][axis]
-      : DEBUG_PARAMS.camera.landscape[gameState][axis];
+    const duration = 6;
+    const ease = "power2.inOut";
+
+    cameraManager.tween = gsap
+      .timeline({
+        onComplete: () => {
+          this.positionOffset.lerp = DEBUG_PARAMS.camera.lerp;
+        },
+      })
+      .to(
+        this.positionOffset.portrait,
+        {
+          x: DEBUG_PARAMS.camera.portrait.completed.x,
+          y: DEBUG_PARAMS.camera.portrait.completed.y,
+          z: DEBUG_PARAMS.camera.portrait.completed.z,
+          duration,
+          ease,
+        },
+        0
+      )
+      .to(
+        this.positionOffset.landscape,
+        {
+          x: DEBUG_PARAMS.camera.landscape.completed.x,
+          y: DEBUG_PARAMS.camera.landscape.completed.y,
+          z: DEBUG_PARAMS.camera.landscape.completed.z,
+          duration,
+          ease,
+        },
+        0
+      )
+      .to(
+        this.positionOffset,
+        {
+          lerp: 1,
+          ease: "linear",
+        },
+        0
+      );
   },
 };
 

@@ -598,6 +598,8 @@ class App {
 
     $gameState.set("completed");
 
+    cameraManager.tweenCameraOutOfPlay();
+
     UI.hud.animateOut();
     UI.endScreen.updateTimer($timer.get());
     UI.endScreen.animateIn();
@@ -744,6 +746,8 @@ class App {
 
     $gameState.set("playing");
     this.spawnPill();
+
+    cameraManager.tweenCameraIntoPlay();
   }
 
   restartGame() {
@@ -801,6 +805,8 @@ class App {
     this.spawnPill();
 
     UI.endScreen.animateOut();
+
+    cameraManager.tweenCameraIntoPlay();
 
     gsap.delayedCall(IN_GAME_UI_ANIMATE_IN_DELAY, () => {
       UI.hud.animateIn();
