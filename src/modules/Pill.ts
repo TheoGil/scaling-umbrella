@@ -1,4 +1,5 @@
 import {
+  AdditiveBlending,
   Group,
   Mesh,
   Object3D,
@@ -79,6 +80,7 @@ class Pill {
         uColor: new Uniform(null),
         uOffset: new Uniform(Math.random() * 1000),
       },
+      blending: AdditiveBlending,
     });
 
     // Useful to visually debug the collider
@@ -92,33 +94,31 @@ class Pill {
     //   )
     // );
 
-    for (let i = 0; i < 3; i++) {
-      const plane = new Mesh(planeGeometry, planeMaterial.clone());
+    const plane = new Mesh(planeGeometry, planeMaterial.clone());
 
-      plane.position.z = -5;
+    plane.position.z = -5;
 
-      plane.scale.set(
-        DEBUG_PARAMS.pills.flares.layers[i].scale,
-        DEBUG_PARAMS.pills.flares.layers[i].scale,
-        1
-      );
+    plane.scale.set(
+      DEBUG_PARAMS.pills.flares.layers[0].scale,
+      DEBUG_PARAMS.pills.flares.layers[0].scale,
+      1
+    );
 
-      plane.material.uniforms.uEdge.value =
-        DEBUG_PARAMS.pills.flares.layers[i].edges;
+    plane.material.uniforms.uEdge.value =
+      DEBUG_PARAMS.pills.flares.layers[0].edges;
 
-      plane.material.uniforms.uStep.value =
-        DEBUG_PARAMS.pills.flares.layers[i].step;
+    plane.material.uniforms.uStep.value =
+      DEBUG_PARAMS.pills.flares.layers[0].step;
 
-      plane.material.uniforms.uSpeed.value =
-        DEBUG_PARAMS.pills.flares.layers[i].speed;
+    plane.material.uniforms.uSpeed.value =
+      DEBUG_PARAMS.pills.flares.layers[0].speed;
 
-      plane.material.uniforms.uColor.value =
-        DEBUG_PARAMS.pills.flares.colors[index][i];
+    plane.material.uniforms.uColor.value =
+      DEBUG_PARAMS.pills.flares.colors[index][0];
 
-      this.planes.push(plane);
+    this.planes.push(plane);
 
-      this.flares.add(plane);
-    }
+    this.flares.add(plane);
   }
 
   update(time: number) {

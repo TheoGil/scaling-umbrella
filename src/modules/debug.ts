@@ -15,6 +15,11 @@ function initDebug(app: App) {
   const debug = new Pane() as FolderApi;
   debug.registerPlugin(EssentialsPlugin);
 
+  debug.addBinding(app.matterEngine.timing, "timeScale", {
+    min: 0,
+    max: 1,
+  });
+
   // PLAYER
   const playerFolder = debug.addFolder({
     title: "Player",
@@ -440,10 +445,36 @@ function initDebug(app: App) {
     }
   );
 
-  const colorMaskFolder = debug.addFolder({
-    title: "Color Mask",
-    expanded: false,
-  });
+  const colorMaskFolder = debug
+    .addFolder({
+      title: "Color Mask",
+      expanded: true,
+    })
+    .on("change", () => {
+      app.materials.backgroundPlaneMaterial.uniforms.uDesaturation.value =
+        app.materials.colorMaskMaterial.uniforms.uDesaturation.value;
+
+      app.materials.backgroundPlaneMaterial.uniforms.uRedsAmount.value =
+        app.materials.colorMaskMaterial.uniforms.uRedsAmount.value;
+
+      app.materials.backgroundPlaneMaterial.uniforms.uBluesAmount.value =
+        app.materials.colorMaskMaterial.uniforms.uBluesAmount.value;
+
+      app.materials.backgroundPlaneMaterial.uniforms.uGreensAmount.value =
+        app.materials.colorMaskMaterial.uniforms.uGreensAmount.value;
+
+      app.materials.backgroundPlaneMaterial.uniforms.uPurplesAmount.value =
+        app.materials.colorMaskMaterial.uniforms.uPurplesAmount.value;
+
+      app.materials.backgroundPlaneMaterial.uniforms.uWhitesAmount.value =
+        app.materials.colorMaskMaterial.uniforms.uWhitesAmount.value;
+
+      app.materials.backgroundPlaneMaterial.uniforms.uYellowsAmount.value =
+        app.materials.colorMaskMaterial.uniforms.uYellowsAmount.value;
+
+      app.materials.backgroundPlaneMaterial.uniforms.uNightOverlayOpacity.value =
+        app.materials.colorMaskMaterial.uniforms.uNightOverlayOpacity.value;
+    });
 
   colorMaskFolder.addBinding(
     app.materials.colorMaskMaterial.uniforms.uDesaturation,
@@ -579,60 +610,6 @@ function initDebug(app: App) {
     min: 0,
     step: 0.0005,
   });
-
-  const pillLensFlare = debug
-    .addFolder({
-      title: "Pill lens flare",
-      expanded: false,
-    })
-    .on("change", () => {
-      pillManager.pills.forEach((p) => {
-        for (let i = 0; i < 3; i++) {
-          p.planes[i].material.uniforms.uStep.value =
-            DEBUG_PARAMS.pills.flares.layers[i].step;
-
-          p.planes[i].material.uniforms.uEdge.value =
-            DEBUG_PARAMS.pills.flares.layers[i].edges;
-
-          p.planes[i].material.uniforms.uSpeed.value =
-            DEBUG_PARAMS.pills.flares.layers[i].speed;
-
-          p.planes[i].scale.set(
-            DEBUG_PARAMS.pills.flares.layers[i].scale,
-            DEBUG_PARAMS.pills.flares.layers[i].scale,
-            1
-          );
-        }
-      });
-    });
-
-  for (let index = 0; index < 3; index++) {
-    const f = pillLensFlare.addFolder({
-      title: `Layer ${index}`,
-      expanded: false,
-    });
-
-    f.addBinding(DEBUG_PARAMS.pills.flares.layers[0], "step", {
-      min: 0,
-      max: 1,
-    });
-
-    f.addBinding(DEBUG_PARAMS.pills.flares.layers[0], "edges", {
-      min: 0,
-      max: 0.25,
-    });
-
-    f.addBinding(DEBUG_PARAMS.pills.flares.layers[0], "speed", {
-      min: 0,
-      max: 0.001,
-      step: 0.00001,
-    });
-
-    f.addBinding(DEBUG_PARAMS.pills.flares.layers[0], "scale", {
-      min: 0,
-      max: 10,
-    });
-  }
 
   const particlesFolder = debug.addFolder({
     title: "Particles",
