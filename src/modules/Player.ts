@@ -269,7 +269,7 @@ class Player {
         this.fadeToAction("falling");
 
         emitter.emit(
-          "onPlayerCollisionWithObstacle",
+          "game_playerObstacleCollision",
           pairs[0].bodyA.label === LABEL_OBSTACLE
             ? pairs[0].bodyA.id
             : pairs[0].bodyB.id
@@ -287,7 +287,7 @@ class Player {
   onPillCollisionStart(p: Pair[]) {
     const pairs = findPairs(p, LABEL_PLAYER, LABEL_PILL);
     if (pairs.length) {
-      emitter.emit("onPlayerCollisionWithPill");
+      emitter.emit("game_playerPillCollision");
     }
   }
 
@@ -330,6 +330,8 @@ class Player {
   }
 
   onGroundBack() {
+    emitter.emit("game_playerGroundBack");
+
     this.coyoteTimer = 0;
     this.isJumping = false;
 
@@ -358,6 +360,7 @@ class Player {
 
   onUnground() {
     this.coyoteTimer = 0;
+    emitter.emit("game_playerLeaveGround");
   }
 
   startJumpBuffering() {

@@ -126,11 +126,11 @@ class App {
     window.addEventListener("resize", this.onResize);
 
     emitter.on(
-      "onPlayerCollisionWithObstacle",
+      "game_playerObstacleCollision",
       this.onPlayerCollideWithObstacle
     );
     emitter.on("onPlayerSpeedBackUp", this.onPlayerSpeedBackUp);
-    emitter.on("onPlayerCollisionWithPill", this.onPlayerCollideWithPill);
+    emitter.on("game_playerPillCollision", this.onPlayerCollideWithPill);
     emitter.on("onGameComplete", this.onGameComplete);
     emitter.on("onPillLeaveFrustum", this.onPillLeaveFrustum);
     emitter.on("onSpawnParticle", this.spawnParticle);

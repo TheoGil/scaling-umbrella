@@ -184,6 +184,7 @@ const UI = {
     ) as HTMLElement;
     startBtnEl.addEventListener("click", () => {
       emitter.emit("ui_startGame");
+      emitter.emit("ui_click");
     });
 
     const restartBtnEl = UI.endScreen.el.querySelector(
@@ -191,6 +192,14 @@ const UI = {
     ) as HTMLElement;
     restartBtnEl.addEventListener("click", () => {
       emitter.emit("ui_restartGame");
+      emitter.emit("ui_click");
+    });
+
+    const toggleAudioEl = document.querySelector(
+      ".js-toggle-audio"
+    ) as HTMLElement;
+    toggleAudioEl.addEventListener("click", () => {
+      emitter.emit("ui_toggleAudio");
     });
 
     emitter.on("onJumpButtonPressed", () => {
