@@ -58,8 +58,8 @@ void main() {
     float trailMask = 0.;
     trailMask += smoothstep(0.24, 0.25, texture2D(uTrailMask, screenUv).r) * 0.25;
     trailMask += smoothstep(0.49, 0.50, texture2D(uTrailMask, screenUv).r) * 0.25;
-    trailMask += smoothstep(0.74, 0.75, texture2D(uTrailMask, screenUv).r) * 0.25;
-    trailMask += smoothstep(0.99, 1.00, texture2D(uTrailMask, screenUv).r) * 0.25;
+    trailMask += smoothstep(0.60, 0.65, texture2D(uTrailMask, screenUv).r) * 0.25;
+    trailMask += smoothstep(0.70, 0.85, texture2D(uTrailMask, screenUv).r) * 0.25;
 
     vec3 night = blendMultiply(color.rgb, uNightOverlayColor, uNightOverlayOpacity);
     vec3 day = color.rgb;
