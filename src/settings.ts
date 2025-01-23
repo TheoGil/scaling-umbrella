@@ -53,7 +53,7 @@ const DEBUG_PARAMS = {
     frictionAir: 0,
     frictionStatic: 0,
     model: {
-      xScaleMultiplier: 2.46,
+      xScaleMultiplier: 2.5,
       positionYOffset: 5,
       scale: {
         y: -60,
