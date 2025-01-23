@@ -1,20 +1,51 @@
 .button {
+  --hover-rotate: 0deg;
+
   @include fluid("font-size", 25px, 50px);
 
+  position: relative;
   padding: 10px 16px;
-  color: $c-white;
-  font-family: $ff-alt;
-  line-height: 1;
-  border: 1px #ffa927 solid;
-  background: linear-gradient(to right, #ff7300, #ff1e00);
   cursor: pointer;
-  transition: transform $ease-spring $transition-duration-snappy;
+  border-width: 0;
+  background-color: transparent;
+
+  &:before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    inset: 0;
+    // border: 1px #ffa927 solid;
+    background: linear-gradient(to right, #ff7300, #ff1e00);
+    transition: transform $ease-spring $transition-duration-snappy;
+    border-radius: 8px;
+  }
 
   &:hover {
-    transform: scale(1.05) rotate(-1deg);
+    .button__label {
+      transform: scale(0.95) rotate(var(--hover-rotate));
+    }
+
+    &::before {
+      transform: scale(1.1) rotate(var(--hover-rotate));
+    }
   }
 
   &:active {
-    transform: scale(0.95) rotate(-1deg);
+    .button__label {
+      transform: rotate(var(--hover-rotate));
+    }
+
+    &::before {
+      transform: scale(0.95) rotate(var(--hover-rotate));
+    }
   }
+}
+
+.button__label {
+  display: block;
+  color: $c-white;
+  font-family: $ff-alt;
+  line-height: 1;
+  text-transform: uppercase;
+  transition: transform ease-out 100ms;
 }

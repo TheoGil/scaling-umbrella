@@ -1,6 +1,7 @@
 .controls {
   @include fluid("bottom", 78px, 130px);
   @include fluid("font-size", 16px, 30px);
+  @include fluid("padding", 25px, 30px);
 
   left: 50%;
   transform: translateX(-50%);
