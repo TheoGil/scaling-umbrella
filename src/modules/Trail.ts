@@ -83,7 +83,6 @@ class BufferSim {
 
 class Trail {
   object3D: Mesh<PlaneGeometry, MeshBasicMaterial>;
-  desiredTrailOrigin = new Vector2();
   previousTrailOrigin = new Vector2();
   trailOrigin = new Vector2();
   thickness = DEBUG_PARAMS.trailFX.thickness;
@@ -100,9 +99,6 @@ class Trail {
 
     this.renderer = renderer;
     this.clock = new Clock();
-
-    this.desiredTrailOrigin;
-    this.previousTrailOrigin;
 
     this.floorSimMat = new ShaderMaterial({
       uniforms: {
@@ -136,17 +132,10 @@ class Trail {
   update({ origin, movement }: { origin: Vector2Like; movement: Vector2Like }) {
     const delta = this.clock.getDelta();
 
-    if (DEBUG_PARAMS.camera.followPlayer) {
-      // Convert origin (player world position) to screen space
-      dummyVec3.set(origin.x, origin.y, 0);
-      dummyVec3.project(cameraManager.perspectiveCamera);
-      this.desiredTrailOrigin.set((dummyVec3.x + 1) / 2, (dummyVec3.y + 1) / 2);
-    } else {
-      // Set trail origin to center of screen, this is only useful for visual debuging
-      this.desiredTrailOrigin.set(0.5, 0.5);
-    }
-
-    this.trailOrigin.lerp(this.desiredTrailOrigin, delta * 5);
+    // Convert origin (player world position) to screen space
+    dummyVec3.set(origin.x, origin.y, 0);
+    dummyVec3.project(cameraManager.perspectiveCamera);
+    this.trailOrigin.set((dummyVec3.x + 1) / 2, (dummyVec3.y + 1) / 2);
 
     this.floorSimMat.uniforms.uTipPosNew.value = this.trailOrigin;
     this.floorSimMat.uniforms.uTipPosOld.value = this.previousTrailOrigin;
