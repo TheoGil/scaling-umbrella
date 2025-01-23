@@ -689,11 +689,6 @@ class App {
       $timer.set($timer.get() + deltaTime);
       UI.hud.updateTimer($timer.get());
     }
-
-    const CSSTime = (time * 0.005).toString();
-    UI.startScreen.el.style.setProperty("--time", CSSTime);
-    UI.controls.el.style.setProperty("--time", CSSTime);
-    UI.endScreen.el.style.setProperty("--time", CSSTime);
   }
 
   onPillLeaveFrustum() {
