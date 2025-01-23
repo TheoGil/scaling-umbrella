@@ -3,6 +3,9 @@
   @include fluid("font-size", 16px, 30px);
   @include fluid("padding", 25px, 30px);
 
+  --shadow-offset-x: 5px;
+  --shadow-offset-y: 5px;
+
   left: 50%;
   transform: translateX(-50%);
   font-family: $ff-alt;
