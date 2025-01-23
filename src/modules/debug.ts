@@ -4,7 +4,6 @@ import * as EssentialsPlugin from "@tweakpane/plugin-essentials";
 import { DEBUG_PARAMS } from "../settings";
 import { App } from "..";
 import { Render } from "matter-js";
-import { pillManager } from "./Pill";
 import { cameraManager } from "./cameraManager";
 
 function initDebug(app: App) {

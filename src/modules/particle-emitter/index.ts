@@ -7,7 +7,6 @@ import {
   InstancedBufferGeometry,
   Material,
   Mesh,
-  NormalBlending,
   Object3D,
   PlaneGeometry,
   Points,
