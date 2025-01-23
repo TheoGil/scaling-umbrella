@@ -138,8 +138,6 @@ class App {
     emitter.on("onSpawnParticle", this.spawnParticle);
     emitter.on("ui_startGame", this.startGame);
     emitter.on("ui_restartGame", this.restartGame);
-
-    UI.init();
   }
 
   initControls() {
@@ -246,6 +244,8 @@ class App {
     this.initBackgroundPlane();
     this.initControls();
     this.initTrailFX();
+
+    UI.init();
 
     initDebug(this);
 

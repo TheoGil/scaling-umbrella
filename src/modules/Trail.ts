@@ -15,8 +15,6 @@ import {
   Clock,
   Vector2Like,
   Vector3,
-  FloatType,
-  UnsignedByteType,
 } from "three";
 
 import trailVertex from "../glsl/trail.vertex.glsl?raw";
