@@ -427,8 +427,6 @@ const DEBUG_PARAMS = {
   audio: {
     sliding: {
       volume: 0.5,
-      fadeInTime: 10, // ms
-      fadeOutTime: 10, // ms
     },
   },
 };

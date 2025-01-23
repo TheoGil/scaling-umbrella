@@ -59,6 +59,7 @@ import {
 } from "./modules/store";
 import { IN_GAME_UI_ANIMATE_IN_DELAY, UI } from "./modules/UI";
 import { ParallaxElements } from "./modules/ParallaxElements";
+import { audioManager } from "./modules/audio";
 
 class App {
   matterEngine!: Engine;
@@ -232,6 +233,7 @@ class App {
   }
 
   async init() {
+    audioManager.init();
     await this.loadAssets();
     this.initRendering();
     this.initParticleEmitter();
