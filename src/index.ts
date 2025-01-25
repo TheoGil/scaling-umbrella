@@ -247,6 +247,10 @@ class App {
 
     UI.init();
 
+    if (localStorage.getItem("mute") === "true") {
+      emitter.emit("ui_toggleAudio");
+    }
+
     initDebug(this);
 
     Tempus.add(this.onFixedUpdate, {

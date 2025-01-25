@@ -4,6 +4,7 @@ import audioSpritesUrl from "/audio-sprites.mp3?url";
 import slidingAudioLoopUrl from "/sliding.mp3?url";
 import { emitter } from "./emitter";
 import { DEBUG_PARAMS } from "../settings";
+import { UI } from "./UI";
 
 const audioManager = {
   mute: false,
@@ -51,6 +52,8 @@ const audioManager = {
     emitter.on("ui_toggleAudio", () => {
       audioManager.mute = !audioManager.mute;
       Howler.mute(audioManager.mute);
+      UI.audio.updateUI(audioManager.mute);
+      localStorage.setItem("mute", audioManager.mute.toString());
     });
   },
 };

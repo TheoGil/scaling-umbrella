@@ -1,5 +1,44 @@
 .toggle-audio {
+  @include fluid("width", 40px, 60px);
+  @include fluid("height", 40px, 60px);
+  @include fluid("top", 20px, 51px);
+  @include fluid("right", 20px, 30px);
+
   position: fixed;
-  top: 20px;
-  left: 20px;
+
+  &::before {
+    background: $c-background-solid;
+    border-radius: 50%;
+  }
+
+  .button__label {
+    position: relative;
+  }
+
+  svg {
+    @include fluid("width", 21px, 29px);
+    @include fluid("height", 21px, 29px);
+
+    display: block;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    &.toggle-audio__mute {
+      transform: translate(-62%, -50%);
+    }
+  }
+
+  &.mute {
+    .toggle-audio__unmute {
+      display: none;
+    }
+  }
+
+  &:not(.mute) {
+    .toggle-audio__mute {
+      display: none;
+    }
+  }
 }

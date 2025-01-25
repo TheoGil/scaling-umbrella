@@ -1,6 +1,7 @@
 import gsap from "gsap";
 import { formatTime } from "../utils/time";
 import { emitter } from "./emitter";
+import { audioManager } from "./audio";
 
 type UIPillElName = "blue" | "red" | "green" | "yellow" | "purple" | "white";
 const PILL_EL_ACTIVE_CLASS = "active";
@@ -178,6 +179,16 @@ const UI = {
       }
     },
   },
+  audio: {
+    buttonEl: null as HTMLElement | null,
+    updateUI: (mute: boolean) => {
+      if (mute) {
+        UI.audio.buttonEl?.classList.add("mute");
+      } else {
+        UI.audio.buttonEl?.classList.remove("mute");
+      }
+    },
+  },
   init() {
     const startBtnEl = UI.startScreen.el.querySelector(
       ".js-start-button"
@@ -195,10 +206,10 @@ const UI = {
       emitter.emit("ui_click");
     });
 
-    const toggleAudioEl = document.querySelector(
+    this.audio.buttonEl = document.querySelector(
       ".js-toggle-audio"
     ) as HTMLElement;
-    toggleAudioEl.addEventListener("click", () => {
+    this.audio.buttonEl.addEventListener("click", () => {
       emitter.emit("ui_toggleAudio");
     });
 
