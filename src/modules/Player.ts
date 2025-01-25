@@ -209,6 +209,8 @@ class Player {
       x: this.physicsBody.velocity.x,
       y: DEBUG_PARAMS.player.velocity.jump,
     });
+
+    emitter.emit("game_playerJump");
   }
 
   onJumpButtonPressed() {
@@ -275,6 +277,7 @@ class Player {
             : pairs[0].bodyB.id
         );
       } else {
+        emitter.emit("game_playerBounce");
         this.jump();
       }
 

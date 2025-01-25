@@ -7,7 +7,6 @@ const emitter = mitt<{
   onCollisionEnd: IEventCollision<Engine>;
   game_playerObstacleCollision: number;
   game_playerPillCollision?: null;
-  onGameComplete?: null;
   onPlayerSpeedBackUp?: null;
   onJumpButtonPressed?: null;
   onJumpButtonReleased?: null;
@@ -19,6 +18,9 @@ const emitter = mitt<{
   ui_toggleAudio?: null;
   game_playerLeaveGround?: null;
   game_playerGroundBack?: null;
+  game_playerJump?: null;
+  game_playerBounce?: null;
+  game_complete?: null;
 }>();
 
 export { emitter };

@@ -153,7 +153,7 @@ const pillManager = {
       this.currentPillIndex++;
     } else {
       $allPillsCollected.set(true);
-      emitter.emit("onGameComplete");
+      emitter.emit("game_complete");
     }
   },
   spawnPill({

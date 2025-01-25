@@ -113,7 +113,7 @@ class App {
     this.onPlayerCollideWithObstacle =
       this.onPlayerCollideWithObstacle.bind(this);
     this.onPlayerCollideWithPill = this.onPlayerCollideWithPill.bind(this);
-    this.onGameComplete = this.onGameComplete.bind(this);
+    this.game_complete = this.game_complete.bind(this);
     this.onFixedUpdate = this.onFixedUpdate.bind(this);
     this.onPlayerSpeedBackUp = this.onPlayerSpeedBackUp.bind(this);
     this.onKeyDown = this.onKeyDown.bind(this);
@@ -133,7 +133,7 @@ class App {
     );
     emitter.on("onPlayerSpeedBackUp", this.onPlayerSpeedBackUp);
     emitter.on("game_playerPillCollision", this.onPlayerCollideWithPill);
-    emitter.on("onGameComplete", this.onGameComplete);
+    emitter.on("game_complete", this.game_complete);
     emitter.on("onPillLeaveFrustum", this.onPillLeaveFrustum);
     emitter.on("onSpawnParticle", this.spawnParticle);
     emitter.on("ui_startGame", this.startGame);
@@ -589,7 +589,7 @@ class App {
     this.spawnPill();
   }
 
-  onGameComplete() {
+  game_complete() {
     gsap.to(this.trailFX.floorSimMat.uniforms.uThickness, {
       value: 1,
       duration: 5,

@@ -433,6 +433,9 @@ const DEBUG_PARAMS = {
     sliding: {
       volume: 0.5,
     },
+    music: {
+      volume: 0.5,
+    },
   },
 };
 
