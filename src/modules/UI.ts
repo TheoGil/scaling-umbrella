@@ -1,7 +1,6 @@
 import gsap from "gsap";
 import { formatTime } from "../utils/time";
 import { emitter } from "./emitter";
-import { audioManager } from "./audio";
 
 type UIPillElName = "blue" | "red" | "green" | "yellow" | "purple" | "white";
 const PILL_EL_ACTIVE_CLASS = "active";
