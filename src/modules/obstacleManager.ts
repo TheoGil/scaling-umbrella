@@ -116,10 +116,8 @@ const obstacleManager = {
 };
 
 function distributeObstaclesOnTerrainChunk(terrainChunk: TerrainChunk) {
-  // No obstacle on first chunk
-  // if (terrainChunk.index === 0) {
-  //   return;
-  // }
+  const lookAheadDistance = 0.125;
+  const rotationThreshold = 0.5;
 
   const clampedChunkIndex = MathUtils.clamp(
     terrainChunk.index,
@@ -164,7 +162,7 @@ function distributeObstaclesOnTerrainChunk(terrainChunk: TerrainChunk) {
     // to avoid obstale at 0.99 on previous and obstacle at 0.01 on current chunk
     const randomPosition = MathUtils.randFloat(
       DEBUG_PARAMS.obstacles.minPosition,
-      DEBUG_PARAMS.obstacles.maxPosition
+      Math.min(DEBUG_PARAMS.obstacles.maxPosition, 1 - lookAheadDistance)
     );
 
     // Check if another obstacle on this chunk is closer to randomPosition than minDistance
@@ -172,20 +170,34 @@ function distributeObstaclesOnTerrainChunk(terrainChunk: TerrainChunk) {
       positions.find((p) => Math.abs(p - randomPosition) < minObstacleDistance)
     );
 
-    if (!tooClose) {
-      terrainChunk.curve.getPointAt(randomPosition, dummyVec3);
+    if (tooClose) {
+      continue;
+    }
 
-      const { x } = dummyVec3;
-      const y = -dummyVec3.y;
+    terrainChunk.curve.getPointAt(randomPosition, dummyVec3);
+    const positionX = dummyVec3.x;
+    const positionY = -dummyVec3.y;
 
-      // No idea how this works but using the inverted y component of tangeant
-      // rotate the obstacle so that is stands nicely on the curve
-      terrainChunk.curve.getTangentAt(randomPosition, dummyVec3);
-      const rotation = -dummyVec3.y;
+    // No idea how this works but using the inverted y component of tangeant
+    // rotate the obstacle so that is stands nicely on the curve
+    terrainChunk.curve.getTangentAt(randomPosition, dummyVec3);
+    const rotation = -dummyVec3.y;
 
-      obstacleManager.add(x, y, rotation);
+    if (randomPosition + lookAheadDistance < 1) {
+      terrainChunk.curve.getTangentAt(
+        randomPosition + lookAheadDistance,
+        dummyVec3
+      );
 
-      positions.push(randomPosition);
+      const lookAheadRotation = -dummyVec3.y;
+
+      const rotationDiff = Math.abs(rotation - lookAheadRotation);
+
+      if (rotationDiff < rotationThreshold) {
+        obstacleManager.add(positionX, positionY, rotation);
+
+        positions.push(randomPosition);
+      }
     }
   }
 }
