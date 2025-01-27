@@ -105,6 +105,7 @@ class App {
   backgroundIslands?: ParallaxElements;
   foregroundCloudsBig?: ParallaxElements;
   foregroundCloudsSmall?: ParallaxElements;
+  unsubscribeRAF?: () => void;
 
   constructor() {
     this.onCollisionStart = this.onCollisionStart.bind(this);
@@ -124,8 +125,22 @@ class App {
     this.restartGame = this.restartGame.bind(this);
 
     this.init();
+  }
 
+  initEventListeners() {
     window.addEventListener("resize", this.onResize);
+    window.addEventListener("keydown", this.onKeyDown);
+    window.addEventListener("keyup", this.onKeyUp);
+    window.addEventListener("pointerdown", this.onPointerDown);
+    window.addEventListener("pointerup", this.onPointerUp);
+
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) {
+        this.pause();
+      } else {
+        this.play();
+      }
+    });
 
     emitter.on(
       "game_playerObstacleCollision",
@@ -138,13 +153,6 @@ class App {
     emitter.on("onSpawnParticle", this.spawnParticle);
     emitter.on("ui_startGame", this.startGame);
     emitter.on("ui_restartGame", this.restartGame);
-  }
-
-  initControls() {
-    window.addEventListener("keydown", this.onKeyDown);
-    window.addEventListener("keyup", this.onKeyUp);
-    window.addEventListener("pointerdown", this.onPointerDown);
-    window.addEventListener("pointerup", this.onPointerUp);
   }
 
   onKeyUp({ code }: KeyboardEvent) {
@@ -242,10 +250,9 @@ class App {
     this.initTerrain();
     this.initPlayer();
     this.initBackgroundPlane();
-    this.initControls();
     this.initTrailFX();
-
     UI.init();
+    this.initEventListeners();
 
     if (localStorage.getItem("mute") === "true") {
       emitter.emit("ui_toggleAudio");
@@ -253,9 +260,7 @@ class App {
 
     initDebug(this);
 
-    Tempus.add(this.onFixedUpdate, {
-      fps: 60,
-    });
+    this.play();
   }
 
   initParallaxElements() {
@@ -816,6 +821,18 @@ class App {
       UI.hud.animateIn();
       UI.controls.animateIn();
     });
+  }
+
+  play() {
+    this.unsubscribeRAF = Tempus.add(this.onFixedUpdate, {
+      fps: 60,
+    });
+    Howler.mute(audioManager.mute);
+  }
+
+  pause() {
+    Howler.mute(true);
+    this.unsubscribeRAF?.();
   }
 }
 

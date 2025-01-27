@@ -434,7 +434,7 @@ const DEBUG_PARAMS = {
       volume: 0.5,
     },
     music: {
-      volume: 0.5,
+      volume: 0.3,
     },
   },
 };
