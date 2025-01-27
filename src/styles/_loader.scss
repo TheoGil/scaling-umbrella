@@ -1,0 +1,45 @@
+.body {
+  &.loading {
+  }
+
+  &:not(.loading) {
+    .loader {
+      display: none;
+    }
+
+    .game {
+      display: block;
+    }
+  }
+}
+
+.loading {
+  .loader {
+    background-color: #121f62;
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: $c-white;
+
+    video {
+      max-width: 240px;
+    }
+  }
+
+  .game {
+    display: none;
+  }
+}
+
+.loader__text {
+  @include fluid("font-size", 30px, 50px);
+
+  font-family: $ff-alt;
+  letter-spacing: 0.15em;
+  background: linear-gradient(to right, #afffe2, #46bbff);
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  line-height: 0.8;
+}
