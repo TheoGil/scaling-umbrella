@@ -1,12 +1,11 @@
 .start-screen {
   left: 25px;
   right: 25px;
-  bottom: 25px;
+  bottom: 75px;
 
   @media (min-width: 500px) {
     left: 55px;
     right: 55px;
-    bottom: 55px;
   }
 
   @media (min-width: $bp-mobile) {

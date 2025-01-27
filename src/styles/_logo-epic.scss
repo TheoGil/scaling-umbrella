@@ -1,0 +1,26 @@
+.epic-logo {
+  @include fluid("bottom", 10px, 30px);
+  @include fluid("right", 10px, 30px);
+
+  position: fixed;
+
+  svg {
+    display: block;
+    transition: transform $ease-spring 450ms;
+
+    path {
+      transition: fill ease-out 150ms;
+      fill: #838379;
+    }
+  }
+
+  &:hover {
+    svg {
+      transform: scale(1.075);
+
+      path {
+        fill: #bb984d;
+      }
+    }
+  }
+}
